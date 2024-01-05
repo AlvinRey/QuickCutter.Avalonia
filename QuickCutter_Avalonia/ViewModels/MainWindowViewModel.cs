@@ -19,6 +19,7 @@ using LibVLCSharp.Shared.Structures;
 using System.Collections.Generic;
 using Avalonia.Media.TextFormatting;
 using System.Linq;
+using Avalonia;
 
 
 
@@ -41,16 +42,12 @@ namespace QuickCutter_Avalonia.ViewModels
         public MainWindowViewModel()
         {
             MediaPlayer = new MediaPlayer(_libVlc);
-            Projects = new ObservableCollection<Project>
-            {
-                //new Project(new VideoInfo{ VideoFullName = "Test_1.mp4"}),
-                //new Project(new VideoInfo{ VideoFullName = "Test_2.mp4"})
-            };
+            Projects = new ObservableCollection<Project>();
             MediaPlayer.PositionChanged += MediaPlayer_PositionChanged;
             MediaPlayer.TimeChanged += MediaPlayer_TimeChanged;
             MediaPlayer.LengthChanged += MediaPlayer_LengthChanged;
-            MediaPlayer.Playing += PeojectMediaPlayer_Playing;
-            MediaPlayer.Paused += PeojectMediaPlayer_Paused;
+            MediaPlayer.Playing += MediaPlayer_Playing;
+            MediaPlayer.Paused += MediaPlayer_Paused;
             MediaPlayer.EndReached += MediaPlayer_EndReached;
             MediaPlayer.VolumeChanged += MediaPlayer_VolumeChanged;
         }
@@ -97,35 +94,31 @@ namespace QuickCutter_Avalonia.ViewModels
             }
         }
 
-        private ObservableCollection<TrackDescription> ret = new ObservableCollection<TrackDescription>();
-        public ObservableCollection<TrackDescription> AudioTrack
+        public IEnumerable<TrackDescription> AudioTrack
         {
             get
             {
-                ret.Clear();
-                foreach(var i in MediaPlayer.AudioTrackDescription)
-                {
-                    ret.Add(i);
-                }
-                return ret;
+                Debug.WriteLine("UI Get AudioTrackDescription");
+                return MediaPlayer.AudioTrackDescription.AsEnumerable();
             }
         }
         [ObservableProperty]
-        private TrackDescription selectedAudioTrack;
+        private TrackDescription? selectedAudioTrack;
 
         public IEnumerable<TrackDescription> SubtitleTrack
         {
-            get => MediaPlayer.SpuDescription.AsEnumerable();
+            get
+            {
+                Debug.WriteLine("UI Get SpuDescription");
+                return MediaPlayer.SpuDescription.AsEnumerable();
+            }
         }
         [ObservableProperty]
-        private TrackDescription selectedSubtitleTrack;
+        private TrackDescription? selectedSubtitleTrack;
 
         [ObservableProperty]
         private bool isPlaying = false;
         private bool isReachEnd = false;
-
-        [ObservableProperty]
-        private bool testBool = false;
 
         private void MediaPlayer_PositionChanged(object? sender, MediaPlayerPositionChangedEventArgs e)
         {
@@ -143,32 +136,13 @@ namespace QuickCutter_Avalonia.ViewModels
         {
             OnPropertyChanged("Volume");
         }
-        private void PeojectMediaPlayer_Playing(object? sender, EventArgs e)
+        private void MediaPlayer_Playing(object? sender, EventArgs e)
         {
             IsPlaying = true;
             isReachEnd = false;
-            //Debug.WriteLine("AudioTrack: {0}", AudioTrack.GetHashCode());
-            //if (TestBool)
-            //{
-            //    OnPropertyChanged("AudioTrack");
-            //    foreach (var track in AudioTrack)
-            //    {
-            //        if (track.Id == MediaPlayer.AudioTrack)
-            //            SelectedAudioTrack = track;
-            //    }
-            //}
-            //Debug.WriteLine("SubtitleTrack: {0}", SubtitleTrack.GetHashCode());
-            //if (TestBool)
-            //{
-            //    OnPropertyChanged("SubtitleTrack");
-            //    foreach (var track in SubtitleTrack)
-            //    {
-            //        if (track.Id == MediaPlayer.Spu)
-            //            SelectedSubtitleTrack = track;
-            //    }
-            //}
+            ReloadTrackOptions();
         }
-        private void PeojectMediaPlayer_Paused(object? sender, EventArgs e)
+        private void MediaPlayer_Paused(object? sender, EventArgs e)
         {
             IsPlaying = false;
         }
@@ -177,14 +151,42 @@ namespace QuickCutter_Avalonia.ViewModels
             isReachEnd = true;
         }
 
+        public async void ReloadTrackOptions()
+        {
+            OnPropertyChanged(nameof(AudioTrack));
+            OnPropertyChanged(nameof(SubtitleTrack));
+
+            // Make sure ComboBox has updated ItemsSource
+            await Task.Run(() => { Thread.Sleep(50); });
+
+            foreach (var track in MediaPlayer.AudioTrackDescription)
+            {
+                if (track.Id == MediaPlayer.AudioTrack)
+                {
+                    Debug.WriteLine("Set SelectedAudioTrack");
+                    SelectedAudioTrack = track;
+                    break;
+                }
+            }
+            foreach (var track in MediaPlayer.SpuDescription)
+            {
+                if (track.Id == MediaPlayer.Spu)
+                {
+                    Debug.WriteLine("Set SelectedSubtitleTrack");
+                    SelectedSubtitleTrack = track;
+                    break;
+                }
+            }
+        }
+
         public void LoadMedia()
         {
             var media = new Media(_libVlc, new Uri(SelectedProject!.ImportVideoInfo.VideoFullName!));
             MediaPlayer.Media = media;
 
             MediaPlayer.Play();
-            var tracks = media.Tracks;
         }
+
         public void UnLoadMdeia()
         {
             if (MediaPlayer.IsPlaying)
@@ -192,14 +194,45 @@ namespace QuickCutter_Avalonia.ViewModels
             MediaPlayer.Media = null;
         }
 
-        partial void OnSelectedAudioTrackChanged(TrackDescription value)
+        partial void OnSelectedAudioTrackChanged(TrackDescription? value)
         {
-            MediaPlayer.SetAudioTrack(value.Id);
+            if (value.HasValue)
+            {
+                if(MediaPlayer.SetAudioTrack(value.Value.Id))
+                {
+                    Debug.WriteLine("Success Set Audio Track: " + value.Value.Name);
+                    if(SelectedAudioTrack.HasValue)
+                    {
+                        Debug.WriteLine(SelectedAudioTrack.Value.Name);
+                    }
+                    else
+                    {
+                        Debug.WriteLine("SelectedAudioTrack is Null");
+                    }
+
+                }
+            }
+
         }
 
-        partial void OnSelectedSubtitleTrackChanged(TrackDescription value)
+        partial void OnSelectedSubtitleTrackChanged(TrackDescription? value)
         {
-            MediaPlayer.SetSpu(value.Id);
+            if(value.HasValue)
+            {
+                if(MediaPlayer.SetSpu(value.Value.Id))
+                {
+                    Debug.WriteLine("Success Set Subtitle Track: " + value.Value.Name);
+                }
+                if (SelectedSubtitleTrack.HasValue)
+                {
+                    Debug.WriteLine(SelectedSubtitleTrack.Value.Name);
+                }
+                else
+                {
+                    Debug.WriteLine("SelectedSubtitleTrack is Null");
+                }
+            }
+
         }
 
         [RelayCommand]
@@ -216,31 +249,6 @@ namespace QuickCutter_Avalonia.ViewModels
             }
         }
 
-        [RelayCommand]
-        private void Test()
-        {
-            Debug.WriteLine("AudioTrack: {0}", AudioTrack.GetHashCode());
-            Debug.WriteLine("SubtitleTrack: {0}", SubtitleTrack.GetHashCode());
-
-            OnPropertyChanged("AudioTrack");
-            if (TestBool) // 一直都是True
-            {
-                foreach (var track in AudioTrack)
-                {
-                    if (track.Id == MediaPlayer.AudioTrack)
-                        SelectedAudioTrack = track;
-                }
-            }
-            OnPropertyChanged("SubtitleTrack");
-            if (TestBool)
-            {
-                foreach (var track in SubtitleTrack)
-                {
-                    if (track.Id == MediaPlayer.Spu)
-                        SelectedSubtitleTrack = track;
-                }
-            }
-        }
 
         public void Dispose()
         {

@@ -225,12 +225,6 @@
                                       DisplayMemberBinding="{Binding Name}"
                                       ItemsSource="{Binding SubtitleTrack}"
                                       SelectedItem="{Binding SelectedSubtitleTrack}" />
-                            <CheckBox Grid.Column="12"
-                                      Content="TestBool"
-                                      IsChecked="{Binding TestBool}" />
-                            <Button Grid.Column="14"
-                                    Command="{Binding TestCommand}"
-                                    Content="test" />
                         </Grid>
                     </Grid>
                 </Grid>
@@ -240,7 +234,9 @@
                     Padding="2"
                     Classes="Shadow"
                     Theme="{StaticResource CardBorder}">
-                <DataGrid Name="OutputFilesDataGrid">
+                <DataGrid Name="OutputFilesDataGrid"
+						  CanUserResizeColumns="True"
+						  GridLinesVisibility="All">
                     <DataGrid.Columns>
                         <DataGridTextColumn x:DataType="ms:OutputFile"
                                             Binding="{Binding OutputFileName}"
@@ -248,21 +244,21 @@
                         <DataGridTemplateColumn Header="Codec">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <ComboBox />
+                                    <ComboBox Margin="2" />
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         <DataGridTemplateColumn Header="In Time">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <MaskedTextBox Mask="00:00:00.00" />
+                                    <MaskedTextBox Margin="2" Mask="00:00:00.00" />
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         <DataGridTemplateColumn x:DataType="ms:OutputFile" Header="Out Time">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <MaskedTextBox Mask="00:00:00.00" />
+                                    <MaskedTextBox Margin="2" Mask="00:00:00.00" />
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
