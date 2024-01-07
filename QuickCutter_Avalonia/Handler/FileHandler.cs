@@ -5,39 +5,27 @@ using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System;
 
 namespace QuickCutter_Avalonia.Handler
 {
     internal class FileHandler
     {
-        static public TopLevel? TopLevel;
-        static async public Task<VideoInfo?> ImportVideoFile()
+        static public void ImportVideoFile(IReadOnlyList<IStorageFile> files, Action<VideoInfo> importFileAction)
         {
-            if (TopLevel == null)
-                throw new System.Exception("TopLevel is Null");
-            // 启动异步操作以打开对话框。
-            var files = await TopLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-            {
-                Title = "Open Text File",
-                FileTypeFilter = new[] { new FilePickerFileType("VideoAll")
-                                            {
-                                                Patterns = new []
-                                                {
-                                                    "*.mp4", "*.mov", "*.mkv"
-                                                }
-                                            }
-                },
-                AllowMultiple = false
-            });
-            if(files.Count<=0 )
-                return null;
-            string? videoFullName = files[0].TryGetLocalPath();
-            if (string.IsNullOrEmpty(videoFullName))
-                return null;
+            if (files.Count <= 0 && importFileAction != null)
+                return;
 
-            IMediaAnalysis mediaInfo;
-            mediaInfo = FFProbe.Analyse(videoFullName!);
-            return new VideoInfo() { VideoFullName = videoFullName, AnalysisResult = mediaInfo };
+            foreach(var file in files)
+            {
+                string? videoFullName = file.TryGetLocalPath();
+                if (string.IsNullOrEmpty(videoFullName))
+                    continue;
+                IMediaAnalysis mediaInfo;
+                mediaInfo = FFProbe.Analyse(videoFullName);
+                importFileAction(new VideoInfo() { VideoFullName = videoFullName, AnalysisResult = mediaInfo });
+            }
         }
 
         static public string SelectSaveFolder()

@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Dialogs;
 using QuickCutter_Avalonia;
 using System;
 
@@ -17,6 +18,7 @@ namespace AvaloniaApplication1
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
+                .UseManagedSystemDialogs()
                 .WithInterFont()
                 .LogToTrace();
     }

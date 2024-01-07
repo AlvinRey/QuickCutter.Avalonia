@@ -33,7 +33,6 @@
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         Classes="Success"
-                        Command="{Binding ImportProjectFileCommand}"
                         Theme="{DynamicResource SolidButton}">
                     <StackPanel Height="24" Orientation="Horizontal">
                         <PathIcon Width="15"
@@ -101,6 +100,7 @@
                             Width="30"
                             Height="30"
                             Classes="Danger"
+                            Click="DeleteProjectButton_Click"
                             Theme="{DynamicResource BorderlessButton}">
                         <PathIcon Width="20"
                                   Height="20"
@@ -138,7 +138,8 @@
                                 <PathIcon Width="15"
                                           Height="15"
                                           Data="M561.539-155.617v-61.999q86.538-27.538 139.422-100Q753.846-390.077 753.846-481q0-90.923-52.885-163.384-52.884-72.462-139.422-100v-61.999Q673.23-776.46 743.537-686.46q70.307 89.999 70.307 205.46 0 115.461-70.307 205.46-70.307 90-181.998 119.923ZM146.156-380.001v-199.998h148.46l171.537-171.536v543.07L294.616-380.001h-148.46Zm415.383 46.154v-294.306q40.461 22 62.537 61.961Q646.153-526.23 646.153-480q0 45.615-22.269 84.884t-62.345 61.269ZM406.154-606l-86 86h-114v80h114l86 86v-252Zm-100 126Z" />
-                                <Slider Width="100"
+                                <Slider Name="VolumSlider"
+                                        Width="100"
                                         Classes="Modern"
                                         IsSnapToTickEnabled="True"
                                         Maximum="100"
@@ -225,6 +226,10 @@
                                       DisplayMemberBinding="{Binding Name}"
                                       ItemsSource="{Binding SubtitleTrack}"
                                       SelectedItem="{Binding SelectedSubtitleTrack}" />
+                            <Button Name="TestButton"
+                                    Grid.Column="12"
+                                    Click="Button_Click"
+                                    Content="Test" />
                         </Grid>
                     </Grid>
                 </Grid>
@@ -235,8 +240,8 @@
                     Classes="Shadow"
                     Theme="{StaticResource CardBorder}">
                 <DataGrid Name="OutputFilesDataGrid"
-						  CanUserResizeColumns="True"
-						  GridLinesVisibility="All">
+                          CanUserResizeColumns="True"
+                          GridLinesVisibility="All">
                     <DataGrid.Columns>
                         <DataGridTextColumn x:DataType="ms:OutputFile"
                                             Binding="{Binding OutputFileName}"

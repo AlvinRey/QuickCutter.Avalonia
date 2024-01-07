@@ -1,19 +1,14 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Platform.Storage;
+using Avalonia.Interactivity;
+using System.Diagnostics;
 using QuickCutter_Avalonia.ViewModels;
-using System.Collections.Generic;
-
 using QuickCutter_Avalonia.Models;
 using QuickCutter_Avalonia.Handler;
-using Avalonia.Platform.Storage;
-using System.Diagnostics;
-using Avalonia.Markup.Xaml;
-using Avalonia;
-using System;
 using LibVLCSharp.Shared;
-using System.Data;
-using System.Threading;
-using Avalonia.Media;
-using Avalonia.Data;
+
+
 
 namespace QuickCutter_Avalonia.Views
 {
@@ -37,17 +32,41 @@ namespace QuickCutter_Avalonia.Views
             //mVolumeButton = this.FindControl<Control>("VolumeButton") ?? throw new Exception("Can't not find VolumeButton by name");
             //mMediaPlayerGrid = this.FindControl<Control>("MediaPlayerGrid") ?? throw new Exception("Can't not find MediaPlayerGrid by name");
 
-            FileHandler.TopLevel = GetTopLevel(this);
-
-            this.ProjectsList.SelectionChanged += ProjectsList_SelectionChanged;
             this.Loaded += MainWindow_Loaded;
-
+            AddItemButton.Click += OpenFileDialog;
+            this.ProjectsList.SelectionChanged += ProjectsList_SelectionChanged;
+            AudioTrackComboBox.PropertyChanged += AudioTrackComboBox_PropertyChanged;
+            SubtitleTrackComboBox.PropertyChanged += SubtitleTrackComboBox_PropertyChanged;
+            VolumSlider.PropertyChanged += VolumSlider_PropertyChanged;
         }
 
-        private void MainWindow_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        private void VolumSlider_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            if("Value" == e.Property.Name)
+            {
+                Debug.WriteLine("Volum Property Changed: {0}", e.NewValue);
+            }
+        }
+
+        private void AudioTrackComboBox_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            if("ItemsSource" == e.Property.Name)
+            {
+                viewModel?.SelectCurrentAudioTrack();
+            }
+        }
+
+        private void SubtitleTrackComboBox_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            if ("ItemsSource" == e.Property.Name)
+            {
+                viewModel?.SelectCurrentSubtitleTrack();
+            }
+        }
+
+        private void MainWindow_Loaded(object? sender, RoutedEventArgs e)
         {
             viewModel = DataContext as MainWindowViewModel;
-
             Core.Initialize();
         }
 
@@ -58,7 +77,7 @@ namespace QuickCutter_Avalonia.Views
             if (e.AddedItems.Count > 0)
             {
                 // unload stuff about last Selection
-                viewModel.UnLoadMdeia();
+                //viewModel.UnLoadMdeia();
 
                 // Set Selection
                 viewModel.SelectedProject = (Project)e.AddedItems[0]!;
@@ -109,6 +128,58 @@ namespace QuickCutter_Avalonia.Views
                     this.VideoView.Width = e.NewSize.Height * mediaPlayerAspectRatio;
                 }
             }
+        }
+
+        private void DeleteProjectButton_Click(object? sender, RoutedEventArgs e)
+        {
+            if (viewModel == null || viewModel.SelectedProject == null)
+                return;
+            if (viewModel.Projects.Count > 0)
+            {
+                viewModel.Projects.Remove(viewModel.SelectedProject!);
+                ProjectsList.SelectedIndex = 1;
+            }
+            else
+            {
+                viewModel.UnLoadMdeia();
+                this.HeaderTitle.Text = null;
+                this.OutputFilesDataGrid.ItemsSource = null;
+            }
+        }
+
+        private async void OpenFileDialog(object? sender, RoutedEventArgs args)
+        {
+            IStorageProvider? sp = GetStorageProvider();
+            if (sp is null) return;
+            var result = await sp.OpenFilePickerAsync(new FilePickerOpenOptions()
+            {
+                Title = "Open File",
+                FileTypeFilter = new[] { new FilePickerFileType("VideoAll")
+                                            {
+                                                Patterns = new []
+                                                {
+                                                    "*.mp4", "*.mov", "*.mkv"
+                                                }
+                                            }
+                },
+                AllowMultiple = true,
+            });
+            if (viewModel == null)
+                return;
+            FileHandler.ImportVideoFile(result, viewModel.ImportProjectFile);
+        }
+
+        private IStorageProvider? GetStorageProvider()
+        {
+            var topLevel = TopLevel.GetTopLevel(this);
+            return topLevel?.StorageProvider;
+        }
+
+        private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            viewModel?.UnLoadMdeia();
+            Debug.WriteLine("TestButton: {0}", VolumSlider.Value);
+
         }
 
         //private void AdjustPopup()

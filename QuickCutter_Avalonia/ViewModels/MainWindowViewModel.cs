@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using Avalonia.Media.TextFormatting;
 using System.Linq;
 using Avalonia;
+using Avalonia.Controls.Primitives;
 
 
 
@@ -49,20 +50,11 @@ namespace QuickCutter_Avalonia.ViewModels
             MediaPlayer.Playing += MediaPlayer_Playing;
             MediaPlayer.Paused += MediaPlayer_Paused;
             MediaPlayer.EndReached += MediaPlayer_EndReached;
+            MediaPlayer.Stopped += MediaPlayer_Stopped;
             MediaPlayer.VolumeChanged += MediaPlayer_VolumeChanged;
         }
 
 
-
-        [RelayCommand]
-        private async Task ImportProjectFile()
-        {
-            VideoInfo? videoInfo = await FileHandler.ImportVideoFile();
-            if (null != videoInfo)
-            {
-                Projects.Add(new Project(videoInfo));
-            }
-        }
 
         // media player setting
         private readonly LibVLC _libVlc = new LibVLC();
@@ -116,63 +108,70 @@ namespace QuickCutter_Avalonia.ViewModels
         [ObservableProperty]
         private TrackDescription? selectedSubtitleTrack;
 
-        [ObservableProperty]
-        private bool isPlaying = false;
-        private bool isReachEnd = false;
+        public bool IsPlaying
+        {
+            get => MediaPlayer.IsPlaying;
+        }
 
         private void MediaPlayer_PositionChanged(object? sender, MediaPlayerPositionChangedEventArgs e)
         {
-            OnPropertyChanged("Position");
+            OnPropertyChanged(nameof(Position));
         }
         private void MediaPlayer_TimeChanged(object? sender, MediaPlayerTimeChangedEventArgs e)
         {
-            OnPropertyChanged("CurrentTime");
+            OnPropertyChanged(nameof(CurrentTime));
         }
         private void MediaPlayer_LengthChanged(object? sender, MediaPlayerLengthChangedEventArgs e)
         {
-            OnPropertyChanged("Duration");
+            OnPropertyChanged(nameof(Duration));
         }
         private void MediaPlayer_VolumeChanged(object? sender, MediaPlayerVolumeChangedEventArgs e)
         {
-            OnPropertyChanged("Volume");
+            Debug.WriteLine(e.Volume);
+            OnPropertyChanged(nameof(Volume));
         }
         private void MediaPlayer_Playing(object? sender, EventArgs e)
         {
-            IsPlaying = true;
-            isReachEnd = false;
-            ReloadTrackOptions();
+            OnPropertyChanged(nameof(IsPlaying));
+            NotifyTrackOptionsChange();
+            OnPropertyChanged(nameof(Volume));
         }
         private void MediaPlayer_Paused(object? sender, EventArgs e)
         {
-            IsPlaying = false;
+            OnPropertyChanged(nameof(IsPlaying));
         }
         private void MediaPlayer_EndReached(object? sender, EventArgs e)
         {
-            isReachEnd = true;
+            OnPropertyChanged(nameof(IsPlaying));
         }
-
-        public async void ReloadTrackOptions()
+        private void MediaPlayer_Stopped(object? sender, EventArgs e)
+        {
+            OnPropertyChanged(nameof(IsPlaying));
+        }
+        public void NotifyTrackOptionsChange()
         {
             OnPropertyChanged(nameof(AudioTrack));
             OnPropertyChanged(nameof(SubtitleTrack));
+        }
 
-            // Make sure ComboBox has updated ItemsSource
-            await Task.Run(() => { Thread.Sleep(50); });
-
+        public void SelectCurrentAudioTrack()
+        {
             foreach (var track in MediaPlayer.AudioTrackDescription)
             {
                 if (track.Id == MediaPlayer.AudioTrack)
                 {
-                    Debug.WriteLine("Set SelectedAudioTrack");
                     SelectedAudioTrack = track;
                     break;
                 }
             }
+        }
+
+        public void SelectCurrentSubtitleTrack()
+        {
             foreach (var track in MediaPlayer.SpuDescription)
             {
                 if (track.Id == MediaPlayer.Spu)
                 {
-                    Debug.WriteLine("Set SelectedSubtitleTrack");
                     SelectedSubtitleTrack = track;
                     break;
                 }
@@ -191,64 +190,44 @@ namespace QuickCutter_Avalonia.ViewModels
         {
             if (MediaPlayer.IsPlaying)
                 MediaPlayer.Stop();
-            MediaPlayer.Media = null;
         }
 
         partial void OnSelectedAudioTrackChanged(TrackDescription? value)
         {
             if (value.HasValue)
             {
-                if(MediaPlayer.SetAudioTrack(value.Value.Id))
-                {
-                    Debug.WriteLine("Success Set Audio Track: " + value.Value.Name);
-                    if(SelectedAudioTrack.HasValue)
-                    {
-                        Debug.WriteLine(SelectedAudioTrack.Value.Name);
-                    }
-                    else
-                    {
-                        Debug.WriteLine("SelectedAudioTrack is Null");
-                    }
-
-                }
+                MediaPlayer.SetAudioTrack(value.Value.Id);
             }
-
         }
 
         partial void OnSelectedSubtitleTrackChanged(TrackDescription? value)
         {
-            if(value.HasValue)
+            if (value.HasValue)
             {
-                if(MediaPlayer.SetSpu(value.Value.Id))
-                {
-                    Debug.WriteLine("Success Set Subtitle Track: " + value.Value.Name);
-                }
-                if (SelectedSubtitleTrack.HasValue)
-                {
-                    Debug.WriteLine(SelectedSubtitleTrack.Value.Name);
-                }
-                else
-                {
-                    Debug.WriteLine("SelectedSubtitleTrack is Null");
-                }
+                MediaPlayer.SetSpu(value.Value.Id);
             }
-
         }
 
         [RelayCommand]
         private void PlayOrPauseVideo()
         {
-            if (!isReachEnd)
+            switch(MediaPlayer.State)
             {
-                MediaPlayer.Pause();
-            }
-            else
-            {
-                MediaPlayer.Play(MediaPlayer.Media!);
-                isReachEnd = false;
+                case VLCState.Playing:
+                case VLCState.Paused:
+                    MediaPlayer.Pause();
+                    break;
+                case VLCState.Stopped:
+                case VLCState.Ended:
+                    MediaPlayer.Play(MediaPlayer.Media!);
+                    break;
             }
         }
 
+        public void ImportProjectFile(VideoInfo videoInfo)
+        {
+            Projects.Add(new Project(videoInfo));
+        }
 
         public void Dispose()
         {
