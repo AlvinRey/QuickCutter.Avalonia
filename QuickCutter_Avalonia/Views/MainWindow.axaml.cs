@@ -37,15 +37,6 @@ namespace QuickCutter_Avalonia.Views
             this.ProjectsList.SelectionChanged += ProjectsList_SelectionChanged;
             AudioTrackComboBox.PropertyChanged += AudioTrackComboBox_PropertyChanged;
             SubtitleTrackComboBox.PropertyChanged += SubtitleTrackComboBox_PropertyChanged;
-            VolumSlider.PropertyChanged += VolumSlider_PropertyChanged;
-        }
-
-        private void VolumSlider_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
-        {
-            if("Value" == e.Property.Name)
-            {
-                Debug.WriteLine("Volum Property Changed: {0}", e.NewValue);
-            }
         }
 
         private void AudioTrackComboBox_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
@@ -76,9 +67,6 @@ namespace QuickCutter_Avalonia.Views
                 return;
             if (e.AddedItems.Count > 0)
             {
-                // unload stuff about last Selection
-                //viewModel.UnLoadMdeia();
-
                 // Set Selection
                 viewModel.SelectedProject = (Project)e.AddedItems[0]!;
 
@@ -134,16 +122,19 @@ namespace QuickCutter_Avalonia.Views
         {
             if (viewModel == null || viewModel.SelectedProject == null)
                 return;
-            if (viewModel.Projects.Count > 0)
+            if (viewModel.Projects.Count > 1)
             {
                 viewModel.Projects.Remove(viewModel.SelectedProject!);
-                ProjectsList.SelectedIndex = 1;
+                ProjectsList.SelectedIndex = 0;
             }
             else
             {
-                viewModel.UnLoadMdeia();
+                viewModel.ResetMediaPlayer();
                 this.HeaderTitle.Text = null;
+                AudioTrackComboBox.ItemsSource = null;
+                SubtitleTrackComboBox.ItemsSource = null;
                 this.OutputFilesDataGrid.ItemsSource = null;
+                viewModel.Projects.Remove(viewModel.SelectedProject!);
             }
         }
 
@@ -177,7 +168,7 @@ namespace QuickCutter_Avalonia.Views
 
         private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            viewModel?.UnLoadMdeia();
+            //viewModel?.UnLoadMdeia();
             Debug.WriteLine("TestButton: {0}", VolumSlider.Value);
 
         }

@@ -1,8 +1,8 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using ReactiveUI;
 
 namespace QuickCutter_Avalonia.ViewModels
 {
-    public class ViewModelBase : ObservableObject
+    public class ViewModelBase : ReactiveObject
     {
     }
 }

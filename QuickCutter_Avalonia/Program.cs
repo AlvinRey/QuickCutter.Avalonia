@@ -1,9 +1,9 @@
 ﻿using Avalonia;
 using Avalonia.Dialogs;
-using QuickCutter_Avalonia;
+using Avalonia.ReactiveUI;
 using System;
 
-namespace AvaloniaApplication1
+namespace QuickCutter_Avalonia
 {
     internal sealed class Program
     {
@@ -18,8 +18,9 @@ namespace AvaloniaApplication1
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
-                .UseManagedSystemDialogs()
+                //.UseManagedSystemDialogs()
                 .WithInterFont()
-                .LogToTrace();
+                .LogToTrace()
+                .UseReactiveUI();
     }
 }

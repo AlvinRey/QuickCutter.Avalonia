@@ -1,15 +1,14 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using FFMpegCore.Enums;
+﻿using FFMpegCore.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 using QuickCutter_Avalonia.Handler;
-
+using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 namespace QuickCutter_Avalonia.Models
 {
-    public partial class OutputFile : ObservableObject
+    public partial class OutputFile : ReactiveObject
     {
         public string ParentFullName { get; set; }
 
@@ -27,58 +26,58 @@ namespace QuickCutter_Avalonia.Models
 
         public int DefaultWidth { get; }
 
-        [ObservableProperty]
-        private TimeSpan? edit_InTime;
+        [Reactive]
+        public TimeSpan? Edit_InTime{ get; set; }
 
-        [ObservableProperty]
-        private TimeSpan? edit_OutTime;
+        [Reactive]
+        public TimeSpan? Edit_OutTime{ get; set; }
 
-        [ObservableProperty]
-        private bool isTransCode;
+        [Reactive]
+        public bool IsTransCode{ get; set; }
 
-        [ObservableProperty]
-        private bool usingCustonSetting;
+        [Reactive]
+        public bool UsingCustonSetting{ get; set; }
 
-        [ObservableProperty]
-        private double processingPercent;
+        [Reactive]
+        public double ProcessingPercent{ get; set; }
 
-        [ObservableProperty]
-        private bool isProcessing;
+        [Reactive]
+        public bool IsProcessing{ get; set; }
 
         public Action? cencelOutput;
 
         // FFmpeg Options
         public IEnumerable<string> PlatfromPresetOptions { get; } = new[] { "BiliBili", "WeChat" };
 
-        [ObservableProperty]
-        private string platfromPreset = "BiliBili";
+        [Reactive]
+        public string PlatfromPreset { get; set; } = "BiliBili";
 
         public IEnumerable<FFMpegCore.Enums.Codec> CodecOptions { get; } = Utility.GetCodec();
 
-        [ObservableProperty]
-        private FFMpegCore.Enums.Codec selectedCodec = FFMpegCore.Enums.VideoCodec.LibX264;
+        [Reactive]
+        public FFMpegCore.Enums.Codec SelectedCodec { get; set; } = FFMpegCore.Enums.VideoCodec.LibX264;
 
         public IEnumerable<FFMpegCore.Enums.Speed> SpeedPresetOptions { get; } = Enum.GetValues(typeof(FFMpegCore.Enums.Speed)).Cast<FFMpegCore.Enums.Speed>();
 
-        [ObservableProperty]
-        private FFMpegCore.Enums.Speed selectedSpeedPreset = FFMpegCore.Enums.Speed.Medium;
+        [Reactive]
+        public FFMpegCore.Enums.Speed SelectedSpeedPreset { get; set; } = FFMpegCore.Enums.Speed.Medium;
 
-        [ObservableProperty]
-        private float constantRateFactor;
+        [Reactive]
+        public float ConstantRateFactor { get; set; }
 
         public IEnumerable<FFMpegCore.Enums.VideoSize> ResolutionOptions { get; } = Enum.GetValues(typeof(FFMpegCore.Enums.VideoSize)).Cast<FFMpegCore.Enums.VideoSize>();
 
-        [ObservableProperty]
-        private FFMpegCore.Enums.VideoSize selectedResolution;
+        [Reactive]
+        public FFMpegCore.Enums.VideoSize SelectedResolution { get; set; }
 
-        [ObservableProperty]
-        private bool usingCustomResolution;
+        [Reactive]
+        public bool UsingCustomResolution { get; set; }
 
-        [ObservableProperty]
-        private int customWidth;
+        [Reactive]
+        public int CustomWidth { get; set; }
 
-        [ObservableProperty]
-        private int customHeight;
+        [Reactive]
+        public int CustomHeight { get; set; }
 
         public OutputFile(VideoInfo parentVideoInfo)
         {
@@ -113,87 +112,87 @@ namespace QuickCutter_Avalonia.Models
             SelectedCodec = FFMpegCore.Enums.VideoCodec.LibX264;
         }
 
-        partial void OnEdit_InTimeChanged(TimeSpan? value)
-        {
-            TimeSpan rightTime = Edit_OutTime != null ? (TimeSpan)Edit_OutTime : Default_OutTime;
-            if (value == null) // newValue == null
-            {
-                Duration = rightTime - Default_InTime;
-                return;
-            }
-            // Left Limit
-            if (value <= TimeSpan.Zero)
-            {
-                Edit_InTime = null;
-                return;
-            }
-            // Right Limit
-            if (value >= rightTime)
-            {
-                Edit_InTime = rightTime.Subtract(new TimeSpan(0, 0, 1));
-                return;
-            }
-            Duration = rightTime - (TimeSpan)Edit_InTime!;
-        }
+        //partial void OnEdit_InTimeChanged(TimeSpan? value)
+        //{
+        //    TimeSpan rightTime = Edit_OutTime != null ? (TimeSpan)Edit_OutTime : Default_OutTime;
+        //    if (value == null) // newValue == null
+        //    {
+        //        Duration = rightTime - Default_InTime;
+        //        return;
+        //    }
+        //    // Left Limit
+        //    if (value <= TimeSpan.Zero)
+        //    {
+        //        Edit_InTime = null;
+        //        return;
+        //    }
+        //    // Right Limit
+        //    if (value >= rightTime)
+        //    {
+        //        Edit_InTime = rightTime.Subtract(new TimeSpan(0, 0, 1));
+        //        return;
+        //    }
+        //    Duration = rightTime - (TimeSpan)Edit_InTime!;
+        //}
 
-        partial void OnEdit_OutTimeChanged(TimeSpan? value)
-        {
-            TimeSpan leftTime = Edit_InTime != null ? (TimeSpan)Edit_InTime : Default_InTime;
-            if (value == null) // newValue == null
-            {
-                Duration = Default_OutTime - leftTime;
-                return;
-            }
+        //partial void OnEdit_OutTimeChanged(TimeSpan? value)
+        //{
+        //    TimeSpan leftTime = Edit_InTime != null ? (TimeSpan)Edit_InTime : Default_InTime;
+        //    if (value == null) // newValue == null
+        //    {
+        //        Duration = Default_OutTime - leftTime;
+        //        return;
+        //    }
 
-            // Left Limit
-            if (value <= leftTime)
-            {
-                Edit_OutTime = leftTime.Add(new TimeSpan(0, 0, 1));
-                return;
-            }
-            //Right Limit
-            if (value >= Default_OutTime)
-            {
-                Edit_OutTime = null;
-                return;
-            }
+        //    // Left Limit
+        //    if (value <= leftTime)
+        //    {
+        //        Edit_OutTime = leftTime.Add(new TimeSpan(0, 0, 1));
+        //        return;
+        //    }
+        //    //Right Limit
+        //    if (value >= Default_OutTime)
+        //    {
+        //        Edit_OutTime = null;
+        //        return;
+        //    }
 
-            Duration = (TimeSpan)value - leftTime;
-        }
+        //    Duration = (TimeSpan)value - leftTime;
+        //}
 
-        partial void OnSelectedResolutionChanged(VideoSize value)
-        {
-            switch (value)
-            {
-                case VideoSize.Original:
-                    CustomWidth = DefaultWidth;
-                    CustomHeight = DefaultHeight;
-                    break;
+        //partial void OnSelectedResolutionChanged(VideoSize value)
+        //{
+        //    switch (value)
+        //    {
+        //        case VideoSize.Original:
+        //            CustomWidth = DefaultWidth;
+        //            CustomHeight = DefaultHeight;
+        //            break;
 
-                case VideoSize.FullHd:
-                    CustomWidth = 1920;
-                    CustomHeight = 1080;
-                    break;
+        //        case VideoSize.FullHd:
+        //            CustomWidth = 1920;
+        //            CustomHeight = 1080;
+        //            break;
 
-                case VideoSize.Hd:
-                    CustomWidth = 1280;
-                    CustomHeight = 720;
-                    break;
+        //        case VideoSize.Hd:
+        //            CustomWidth = 1280;
+        //            CustomHeight = 720;
+        //            break;
 
-                case VideoSize.Ed:
-                    CustomWidth = 720;
-                    CustomHeight = 480;
-                    break;
+        //        case VideoSize.Ed:
+        //            CustomWidth = 720;
+        //            CustomHeight = 480;
+        //            break;
 
-                case VideoSize.Ld:
-                    CustomWidth = 640;
-                    CustomHeight = 360;
-                    break;
-            }
-        }
+        //        case VideoSize.Ld:
+        //            CustomWidth = 640;
+        //            CustomHeight = 360;
+        //            break;
+        //    }
+        //}
 
-        [RelayCommand]
-        private void CencelOutput()
+        //[RelayCommand]
+        public void CencelOutput()
         {
             cencelOutput?.Invoke();
         }

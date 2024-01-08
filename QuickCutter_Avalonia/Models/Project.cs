@@ -1,5 +1,4 @@
 ﻿using Avalonia.Controls;
-using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,11 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LibVLCSharp.Shared;
-using CommunityToolkit.Mvvm.Input;
+
 
 namespace QuickCutter_Avalonia.Models
 {
-    public partial class Project : ObservableObject
+    public partial class Project
     {
         public VideoInfo ImportVideoInfo { get; set; }
 

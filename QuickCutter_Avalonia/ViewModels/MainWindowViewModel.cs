@@ -1,65 +1,49 @@
-﻿using System.Windows;
+﻿using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 using System.Collections.ObjectModel;
-
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-
 using QuickCutter_Avalonia.Models;
-using QuickCutter_Avalonia.Handler;
-using QuickCutter_Avalonia.Views;
-using Avalonia.Collections;
-using Avalonia.Controls;
-using Avalonia.Platform.Storage;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using LibVLCSharp.Shared;
 using System;
-using System.Threading;
 using LibVLCSharp.Shared.Structures;
 using System.Collections.Generic;
-using Avalonia.Media.TextFormatting;
 using System.Linq;
-using Avalonia;
-using Avalonia.Controls.Primitives;
+using System.Reactive;
+using System.Reactive.Subjects;
+using System.Reactive.Linq;
+using Avalonia.ReactiveUI;
+using System.Reactive.Disposables;
+
 
 
 
 
 namespace QuickCutter_Avalonia.ViewModels
 {
-    public partial class MainWindowViewModel : ViewModelBase
+    public partial class MainWindowViewModel : ReactiveObject, IDisposable
     {
-        public static int projectNum = 0;
-        public static int outputFileNum = 0;
-
-        [ObservableProperty]
-        private Project? selectedProject;
-
-        [ObservableProperty]
-        private OutputFile? selectedOutputFile;
-
+        #region Project List
+        [Reactive]
+        public Project? SelectedProject { get; set; }
         public ObservableCollection<Project> Projects { get; }
 
-        public MainWindowViewModel()
+        public void ImportProjectFile(VideoInfo videoInfo)
         {
-            MediaPlayer = new MediaPlayer(_libVlc);
-            Projects = new ObservableCollection<Project>();
-            MediaPlayer.PositionChanged += MediaPlayer_PositionChanged;
-            MediaPlayer.TimeChanged += MediaPlayer_TimeChanged;
-            MediaPlayer.LengthChanged += MediaPlayer_LengthChanged;
-            MediaPlayer.Playing += MediaPlayer_Playing;
-            MediaPlayer.Paused += MediaPlayer_Paused;
-            MediaPlayer.EndReached += MediaPlayer_EndReached;
-            MediaPlayer.Stopped += MediaPlayer_Stopped;
-            MediaPlayer.VolumeChanged += MediaPlayer_VolumeChanged;
+            Projects.Add(new Project(videoInfo));
         }
+        #endregion
 
-
-
-        // media player setting
-        private readonly LibVLC _libVlc = new LibVLC();
-
+        #region Media Player
+        private readonly LibVLC _libVlc;
         public MediaPlayer MediaPlayer { get; }
+        private CompositeDisposable _subscriptions;
+        private Subject<Unit> refresh;
+
+        public IReactiveCommand PlayOrPauseVideoCommand { get; }
+        public IReactiveCommand ForwardCommand { get; }
+        public IReactiveCommand BackwardCommand { get; }
+        public IReactiveCommand NextFrameCommand { get; }
+
 
         public TimeSpan CurrentTime
         {
@@ -94,8 +78,8 @@ namespace QuickCutter_Avalonia.ViewModels
                 return MediaPlayer.AudioTrackDescription.AsEnumerable();
             }
         }
-        [ObservableProperty]
-        private TrackDescription? selectedAudioTrack;
+        [Reactive]
+        public TrackDescription? SelectedAudioTrack { get; set; }
 
         public IEnumerable<TrackDescription> SubtitleTrack
         {
@@ -105,53 +89,12 @@ namespace QuickCutter_Avalonia.ViewModels
                 return MediaPlayer.SpuDescription.AsEnumerable();
             }
         }
-        [ObservableProperty]
-        private TrackDescription? selectedSubtitleTrack;
+        [Reactive]
+        public TrackDescription? SelectedSubtitleTrack { get; set; }
 
         public bool IsPlaying
         {
             get => MediaPlayer.IsPlaying;
-        }
-
-        private void MediaPlayer_PositionChanged(object? sender, MediaPlayerPositionChangedEventArgs e)
-        {
-            OnPropertyChanged(nameof(Position));
-        }
-        private void MediaPlayer_TimeChanged(object? sender, MediaPlayerTimeChangedEventArgs e)
-        {
-            OnPropertyChanged(nameof(CurrentTime));
-        }
-        private void MediaPlayer_LengthChanged(object? sender, MediaPlayerLengthChangedEventArgs e)
-        {
-            OnPropertyChanged(nameof(Duration));
-        }
-        private void MediaPlayer_VolumeChanged(object? sender, MediaPlayerVolumeChangedEventArgs e)
-        {
-            Debug.WriteLine(e.Volume);
-            OnPropertyChanged(nameof(Volume));
-        }
-        private void MediaPlayer_Playing(object? sender, EventArgs e)
-        {
-            OnPropertyChanged(nameof(IsPlaying));
-            NotifyTrackOptionsChange();
-            OnPropertyChanged(nameof(Volume));
-        }
-        private void MediaPlayer_Paused(object? sender, EventArgs e)
-        {
-            OnPropertyChanged(nameof(IsPlaying));
-        }
-        private void MediaPlayer_EndReached(object? sender, EventArgs e)
-        {
-            OnPropertyChanged(nameof(IsPlaying));
-        }
-        private void MediaPlayer_Stopped(object? sender, EventArgs e)
-        {
-            OnPropertyChanged(nameof(IsPlaying));
-        }
-        public void NotifyTrackOptionsChange()
-        {
-            OnPropertyChanged(nameof(AudioTrack));
-            OnPropertyChanged(nameof(SubtitleTrack));
         }
 
         public void SelectCurrentAudioTrack()
@@ -183,130 +126,112 @@ namespace QuickCutter_Avalonia.ViewModels
             var media = new Media(_libVlc, new Uri(SelectedProject!.ImportVideoInfo.VideoFullName!));
             MediaPlayer.Media = media;
 
-            MediaPlayer.Play();
+            //MediaPlayer.Play();
         }
-
-        public void UnLoadMdeia()
+        public void ResetMediaPlayer()
         {
-            if (MediaPlayer.IsPlaying)
-                MediaPlayer.Stop();
+            MediaPlayer.Stop();
+            MediaPlayer.Media = null;
+            refresh.OnNext(Unit.Default);
         }
+        #endregion
 
-        partial void OnSelectedAudioTrackChanged(TrackDescription? value)
+        #region Output Data Grid
+        [Reactive]
+        public OutputFile? SelectedOutputFile { get; set; }
+
+        #endregion
+
+        public MainWindowViewModel()
         {
-            if (value.HasValue)
+            Projects = new ObservableCollection<Project>();
+
+            #region Init Media Player
+            _libVlc = new LibVLC();
+            MediaPlayer = new MediaPlayer(_libVlc);
+            refresh = new Subject<Unit>();
+            bool operationActive = false;
+
+
+            IObservable<Unit> Wrap(IObservable<Unit> source)
+                => source.Where(_ => !operationActive).Merge(refresh).ObserveOn(AvaloniaScheduler.Instance);
+
+            IObservable<Unit> VLCEvent(string name)
+                => Observable.FromEventPattern(MediaPlayer, name).Select(_ => Unit.Default);
+
+            void Op(Action action)
             {
-                MediaPlayer.SetAudioTrack(value.Value.Id);
+                operationActive = true;
+                action();
+                operationActive = false;
+                refresh.OnNext(Unit.Default);
             }
-        }
 
-        partial void OnSelectedSubtitleTrackChanged(TrackDescription? value)
-        {
-            if (value.HasValue)
+            var positionChanged = VLCEvent(nameof(MediaPlayer.PositionChanged));
+            var timeChanged = VLCEvent(nameof(MediaPlayer.TimeChanged));
+            var lengthChanged = VLCEvent(nameof(MediaPlayer.LengthChanged));
+            var playingChanged = VLCEvent(nameof(MediaPlayer.Playing));
+            var pausedChanged = VLCEvent(nameof(MediaPlayer.Paused));
+            var endReachedChanged = VLCEvent(nameof(MediaPlayer.EndReached));
+            var stoppedChanged = VLCEvent(nameof(MediaPlayer.Stopped));
+            var volumeChanged = Observable.Merge(VLCEvent(nameof(MediaPlayer.VolumeChanged)),playingChanged);
+            var stateChanged = Observable.Merge(playingChanged, stoppedChanged, endReachedChanged, pausedChanged);
+            var audioTrackChanged = this.WhenAnyValue(v => v.SelectedAudioTrack).Select(_ => Unit.Default);
+            var subtitleTrackChanged = this.WhenAnyValue(v => v.SelectedSubtitleTrack).Select(_ => Unit.Default);
+
+            _subscriptions = new CompositeDisposable
             {
-                MediaPlayer.SetSpu(value.Value.Id);
-            }
-        }
+                Wrap(positionChanged)       .DistinctUntilChanged(_=>Position)              .Subscribe(_=>this.RaisePropertyChanged(nameof(Position))),
+                Wrap(timeChanged)           .DistinctUntilChanged(_=>CurrentTime)           .Subscribe(_=>this.RaisePropertyChanged(nameof(CurrentTime))),
+                Wrap(lengthChanged)         .DistinctUntilChanged(_=>Duration)              .Subscribe(_=>this.RaisePropertyChanged(nameof(Duration))),
+                Wrap(volumeChanged)         .DistinctUntilChanged(_=>Volume)                .Subscribe(_=>this.RaisePropertyChanged(nameof(Volume))),
+                Wrap(playingChanged)        .DistinctUntilChanged(_=>AudioTrack)            .Subscribe(_=>this.RaisePropertyChanged(nameof(AudioTrack))),
+                Wrap(playingChanged)        .DistinctUntilChanged(_=>SubtitleTrack)         .Subscribe(_=>this.RaisePropertyChanged(nameof(SubtitleTrack))),
+                Wrap(audioTrackChanged)     .DistinctUntilChanged(_=>SelectedAudioTrack)    .Subscribe(_=>{if(SelectedAudioTrack.HasValue){MediaPlayer.SetAudioTrack(SelectedAudioTrack.Value.Id); }}),
+                Wrap(subtitleTrackChanged)  .DistinctUntilChanged(_=>SelectedSubtitleTrack) .Subscribe(_=>{if(SelectedSubtitleTrack.HasValue){MediaPlayer.SetSpu(SelectedSubtitleTrack.Value.Id); }}),
+                Wrap(stateChanged)          .DistinctUntilChanged(_=>IsPlaying)             .Subscribe(_=>this.RaisePropertyChanged(nameof(IsPlaying)))
+            };
 
-        [RelayCommand]
-        private void PlayOrPauseVideo()
-        {
-            switch(MediaPlayer.State)
+            bool active() => _subscriptions == null ? false : MediaPlayer.IsPlaying || MediaPlayer.CanPause;
+            stateChanged = Wrap(stateChanged);
+
+            PlayOrPauseVideoCommand = ReactiveCommand.Create(() => Op(() =>
             {
-                case VLCState.Playing:
-                case VLCState.Paused:
-                    MediaPlayer.Pause();
-                    break;
-                case VLCState.Stopped:
-                case VLCState.Ended:
-                    MediaPlayer.Play(MediaPlayer.Media!);
-                    break;
-            }
-        }
+                switch (MediaPlayer.State)
+                {
+                    case VLCState.Playing:
+                    case VLCState.Paused:
+                        MediaPlayer.Pause();
+                        break;
+                    case VLCState.NothingSpecial:
+                    case VLCState.Stopped:
+                    case VLCState.Ended:
+                        MediaPlayer.Play(MediaPlayer.Media!);
+                        break;
+                }
+            }));
 
-        public void ImportProjectFile(VideoInfo videoInfo)
-        {
-            Projects.Add(new Project(videoInfo));
+            ForwardCommand = ReactiveCommand.Create(
+                () => MediaPlayer.Time += 1000,
+                stateChanged.Select(_ => active()));
+
+            BackwardCommand = ReactiveCommand.Create(
+                () => MediaPlayer.Time -= 1000,
+                stateChanged.Select(_ => active()));
+
+            NextFrameCommand = ReactiveCommand.Create(
+                () => MediaPlayer.NextFrame(),
+                stateChanged.Select(_ => active()));
+            #endregion
+
+
         }
 
         public void Dispose()
         {
-            MediaPlayer?.Dispose();
-            _libVlc?.Dispose();
+            _subscriptions.Dispose();
+            _subscriptions = null;
+            MediaPlayer.Dispose();
         }
-
-
-
-        //[RelayCommand]
-        //public void DeleteProject()
-        //{
-        //    if (SelectedProject != null)
-        //    {
-        //        if(SelectedProject.outputFiles.Count > 0)
-        //        {
-        //            MessageBoxResult result = MessageBox.Show($"确定删除项目：{SelectedProject.ImportVideoInfo.VideoFullName}", "提示", MessageBoxButton.YesNo);
-        //            if(result == MessageBoxResult.No)
-        //            {
-        //                return;
-        //            }
-        //        }
-        //        OutputFile? temp = SelectedOutputFile;
-        //        if (temp != null && SelectedProject.HasChild(ref temp))
-        //        {
-        //            SelectedOutputFile = null;
-        //        }
-        //        Projects.Remove(SelectedProject);
-        //        SelectedProject = null;
-        //    }
-        //}
-
-        //[RelayCommand]
-        //public void DeleteOutputFile()
-        //{
-        //    if (SelectedProject != null && SelectedOutputFile != null)
-        //    {
-        //        OutputFile temp = SelectedOutputFile;
-        //        if (SelectedProject.HasChild(ref temp))
-        //        {
-        //            SelectedProject.outputFiles.Remove(temp);
-        //            SelectedOutputFile = null;
-        //        }
-        //    }
-
-        //}
-        //[RelayCommand]
-        //public void AddProjectOutputFile()
-        //{
-        //    if (SelectedProject != null)
-        //    {
-        //        SelectedProject.AddChild();
-        //    }
-        //}
-
-        //[RelayCommand]
-        //public void ExprotSelected()
-        //{
-        //    if (SelectedOutputFile == null)
-        //    {
-        //        MessageBox.Show("当前未选中任何输出。");
-        //        return;
-        //    }
-        //    string OutputPath = FilesHandler.SelectSaveFolder();
-        //    if (!string.IsNullOrEmpty(OutputPath))
-        //    {
-        //        IList<OutputFile> files = new List<OutputFile>
-        //        {
-        //            SelectedOutputFile
-        //        };
-        //        if (ExportHandler.GenerateExportInfo(OutputPath, files))
-        //        {
-        //            bool? ret = (new ExportWindowView()).ShowDialog();
-        //            if (ret == true)
-        //            {
-        //                ExportHandler.ExecuteFFmpeg();
-        //            }
-        //        }
-        //    }
-        //}
     }
 }
