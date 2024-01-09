@@ -1,0 +1,28 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:QuickCutter_Avalonia.Styles">
+    <Design.PreviewWith>
+        <controls:AnimatedPopup>
+            <StackPanel>
+                <Label>Hello World</Label>
+                <Label>Hello World</Label>
+                <Label>Hello World</Label>
+                <Label>Hello World</Label>
+                <Label>Hello World</Label>
+            </StackPanel>
+        </controls:AnimatedPopup>
+    </Design.PreviewWith>
+
+    <Style Selector="controls|AnimatedPopup">
+        <!--  Set Defaults  -->
+        <Setter Property="ZIndex" Value="10" />
+        <Setter Property="VerticalAlignment" Value="Bottom" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+
+        <Setter Property="Template">
+            <ControlTemplate>
+                <ContentPresenter Content="{TemplateBinding Content}" />
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>

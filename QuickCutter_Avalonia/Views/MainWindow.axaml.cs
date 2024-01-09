@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Avalonia.Interactivity;
+using System;
 using System.Diagnostics;
 using QuickCutter_Avalonia.ViewModels;
 using QuickCutter_Avalonia.Models;
@@ -17,26 +18,18 @@ namespace QuickCutter_Avalonia.Views
         #region Private field
         private MainWindowViewModel? viewModel;
         private double mediaPlayerAspectRatio = 16.0 / 9.0;
-
-        //private Control mVolumeSliderPopup;
-        //private Control mVolumeButton;
-        //private Control mMediaPlayerGrid;
         #endregion
 
 
         public MainWindow()
         {
             InitializeComponent();
-
-            //mVolumeSliderPopup = this.FindControl<Control>("VolumeSliderPopup") ?? throw new Exception("Cannot not find VolumSliderPopup by name");
-            //mVolumeButton = this.FindControl<Control>("VolumeButton") ?? throw new Exception("Can't not find VolumeButton by name");
-            //mMediaPlayerGrid = this.FindControl<Control>("MediaPlayerGrid") ?? throw new Exception("Can't not find MediaPlayerGrid by name");
-
-            this.Loaded += MainWindow_Loaded;
+            Loaded += MainWindow_Loaded;
             AddItemButton.Click += OpenFileDialog;
-            this.ProjectsList.SelectionChanged += ProjectsList_SelectionChanged;
+            ProjectsList.SelectionChanged += ProjectsList_SelectionChanged;
             AudioTrackComboBox.PropertyChanged += AudioTrackComboBox_PropertyChanged;
             SubtitleTrackComboBox.PropertyChanged += SubtitleTrackComboBox_PropertyChanged;
+            OutputFilesDataGrid.SelectionChanged += OutputFilesDataGrid_SelectionChanged;
         }
 
         private void AudioTrackComboBox_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
@@ -89,7 +82,10 @@ namespace QuickCutter_Avalonia.Views
                     this.VideoView.Width = this.VideoGrid.Bounds.Width;
                     this.VideoView.Height = this.VideoView.Width / mediaPlayerAspectRatio;
                 }
-
+            }
+            else
+            {
+                viewModel.SelectedProject = null;
             }
         }
 
@@ -137,6 +133,19 @@ namespace QuickCutter_Avalonia.Views
                 viewModel.Projects.Remove(viewModel.SelectedProject!);
             }
         }
+        private void OutputFilesDataGrid_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            if (viewModel == null)
+                return;
+            if (e.AddedItems.Count > 0)
+            {
+                viewModel.SelectedOutputFile = (OutputFile)e.AddedItems[0]!;
+            }
+            else
+            {
+                viewModel.SelectedOutputFile = null;
+            }
+        }
 
         private async void OpenFileDialog(object? sender, RoutedEventArgs args)
         {
@@ -169,14 +178,6 @@ namespace QuickCutter_Avalonia.Views
         private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
             //viewModel?.UnLoadMdeia();
-            Debug.WriteLine("TestButton: {0}", VolumSlider.Value);
-
         }
-
-        //private void AdjustPopup()
-        //{
-        //    var position = mVolumeButton.TranslatePoint(new Point(), mMediaPlayerGrid) ?? throw new Exception("Cannot get TranslatePoint from VolumButton");
-        //    mVolumeSliderPopup.Margin = new Thickness(position.X, 0, 0, mMediaPlayerGrid.Bounds.Height - position.Y);
-        //}
     }
 }

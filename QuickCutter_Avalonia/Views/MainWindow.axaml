@@ -1,6 +1,9 @@
 <Window x:Class="QuickCutter_Avalonia.Views.MainWindow"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:behaviors="using:QuickCutter_Avalonia.Behaviors"
+        xmlns:controls="using:QuickCutter_Avalonia.Styles"
+        xmlns:converters="using:QuickCutter_Avalonia.Converters"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ms="using:QuickCutter_Avalonia.Models"
@@ -241,33 +244,85 @@
                     Padding="2"
                     Classes="Shadow"
                     Theme="{StaticResource CardBorder}">
-                <Grid RowDefinitions="*,Auto,Auto">
+                <Grid Name="DataGrid_Grid" RowDefinitions="*,Auto,Auto">
                     <DataGrid Name="OutputFilesDataGrid"
                               Grid.Column="1"
                               CanUserResizeColumns="True"
                               GridLinesVisibility="All">
+                        <DataGrid.Resources>
+                            <converters:StringToTimeSpanConverter x:Key="StringToTimeSpanConverter" />
+                        </DataGrid.Resources>
                         <DataGrid.Columns>
                             <DataGridTextColumn x:DataType="ms:OutputFile"
                                                 Binding="{Binding OutputFileName}"
                                                 Header="Output File Name" />
-                            <DataGridTemplateColumn Header="Codec">
+                            <!--  =================================================  -->
+                            <DataGridTemplateColumn Width="Auto"
+                                                    CanUserResize="False"
+                                                    Header="In Time">
                                 <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <ComboBox Margin="2" />
+                                    <DataTemplate x:DataType="ms:OutputFile">
+                                        <MaskedTextBox Margin="2" Mask="00:00:00.00">
+                                            <Interaction.Behaviors>
+                                                <behaviors:LostFocusUpdateBindingBehavior Text="{Binding Edit_InTime, Converter={StaticResource StringToTimeSpanConverter}}" />
+                                            </Interaction.Behaviors>
+                                        </MaskedTextBox>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="In Time">
+                            <!--  =================================================  -->
+                            <DataGridTemplateColumn Width="Auto"
+                                                    CanUserResize="False"
+                                                    Header="Out Time">
                                 <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <MaskedTextBox Margin="2" Mask="00:00:00.00" />
+                                    <DataTemplate x:DataType="ms:OutputFile">
+                                        <MaskedTextBox Margin="2" Mask="00:00:00.00">
+                                            <Interaction.Behaviors>
+                                                <behaviors:LostFocusUpdateBindingBehavior Text="{Binding Edit_OutTime, Converter={StaticResource StringToTimeSpanConverter}}" />
+                                            </Interaction.Behaviors>
+                                        </MaskedTextBox>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn x:DataType="ms:OutputFile" Header="Out Time">
+                            <!--  =================================================  -->
+                            <DataGridTemplateColumn Width="Auto"
+                                                    CanUserResize="False"
+                                                    Header="Codec">
                                 <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <MaskedTextBox Margin="2" Mask="00:00:00.00" />
+                                    <DataTemplate x:DataType="ms:OutputFile">
+                                        <ComboBox Margin="2"
+                                                  DisplayMemberBinding="{Binding Name}"
+                                                  ItemsSource="{Binding CodecOptions}"
+                                                  SelectedItem="{Binding SelectedCodec}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <!--  =================================================  -->
+                            <DataGridTemplateColumn Width="Auto"
+                                                    CanUserResize="False"
+                                                    Header="Preset">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="ms:OutputFile">
+                                        <ComboBox Margin="2"
+                                                  ItemsSource="{Binding SpeedPresetOptions}"
+                                                  SelectedItem="{Binding SelectedSpeedPreset}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <!--  =================================================  -->
+                            <DataGridTemplateColumn Width="Auto"
+                                                    CanUserResize="False"
+                                                    Header="CRF">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="ms:OutputFile">
+                                        <NumericUpDown Margin="2"
+                                                       HorizontalAlignment="Stretch"
+                                                       VerticalAlignment="Stretch"
+                                                       Increment="1"
+                                                       Maximum="51"
+                                                       Minimum="0"
+                                                       ToolTip.Tip="0~51"
+                                                       Value="{Binding ConstantRateFactor}" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -280,6 +335,7 @@
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Stretch"
                                 Classes="Success"
+                                Command="{Binding AddOutputFilesCommand}"
                                 DockPanel.Dock="Left"
                                 Theme="{DynamicResource SolidButton}">
                             <StackPanel Height="24" Orientation="Horizontal">
@@ -331,6 +387,5 @@
                 </Grid>
             </Border>
         </Grid>
-
     </Grid>
 </Window>

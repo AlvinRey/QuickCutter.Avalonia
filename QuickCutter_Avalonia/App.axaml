@@ -13,5 +13,6 @@
         <FluentTheme />
         <StyleInclude Source="avares://Semi.Avalonia/Themes/Index.axaml" />
         <StyleInclude Source="avares://Semi.Avalonia.DataGrid/Index.axaml" />
+        <StyleInclude Source="/Styles/AnimatedPopup.axaml" />
     </Application.Styles>
 </Application>

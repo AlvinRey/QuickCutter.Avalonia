@@ -19,7 +19,7 @@ namespace QuickCutter_Avalonia.Models
         public Project(VideoInfo videoInfo)
         {
             ImportVideoInfo = videoInfo;
-            OutputFiles = new ObservableCollection<OutputFile>() { new OutputFile(ImportVideoInfo) };
+            OutputFiles = new ObservableCollection<OutputFile>();
         }
 
         public void AddChild()

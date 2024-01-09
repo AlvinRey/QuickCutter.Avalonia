@@ -14,10 +14,6 @@ using System.Reactive.Linq;
 using Avalonia.ReactiveUI;
 using System.Reactive.Disposables;
 
-
-
-
-
 namespace QuickCutter_Avalonia.ViewModels
 {
     public partial class MainWindowViewModel : ReactiveObject, IDisposable
@@ -139,6 +135,7 @@ namespace QuickCutter_Avalonia.ViewModels
         #region Output Data Grid
         [Reactive]
         public OutputFile? SelectedOutputFile { get; set; }
+        public IReactiveCommand AddOutputFilesCommand { get; }
 
         #endregion
 
@@ -174,7 +171,7 @@ namespace QuickCutter_Avalonia.ViewModels
             var pausedChanged = VLCEvent(nameof(MediaPlayer.Paused));
             var endReachedChanged = VLCEvent(nameof(MediaPlayer.EndReached));
             var stoppedChanged = VLCEvent(nameof(MediaPlayer.Stopped));
-            var volumeChanged = Observable.Merge(VLCEvent(nameof(MediaPlayer.VolumeChanged)),playingChanged);
+            var volumeChanged = Observable.Merge(VLCEvent(nameof(MediaPlayer.VolumeChanged)), playingChanged);
             var stateChanged = Observable.Merge(playingChanged, stoppedChanged, endReachedChanged, pausedChanged);
             var audioTrackChanged = this.WhenAnyValue(v => v.SelectedAudioTrack).Select(_ => Unit.Default);
             var subtitleTrackChanged = this.WhenAnyValue(v => v.SelectedSubtitleTrack).Select(_ => Unit.Default);
@@ -224,7 +221,11 @@ namespace QuickCutter_Avalonia.ViewModels
                 stateChanged.Select(_ => active()));
             #endregion
 
+            var selectedProjectChanged = this.WhenAnyValue(v => v.SelectedProject).Select(_ => SelectedProject != null);
 
+            AddOutputFilesCommand = ReactiveCommand.Create(
+                () => SelectedProject?.AddChild(),
+                selectedProjectChanged);
         }
 
         public void Dispose()

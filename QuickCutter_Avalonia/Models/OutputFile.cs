@@ -18,8 +18,6 @@ namespace QuickCutter_Avalonia.Models
 
         public TimeSpan Duration { get; set; }
 
-        public TimeSpan Default_InTime { get; }
-
         public TimeSpan Default_OutTime { get; }
 
         public int DefaultHeight { get; }
@@ -47,28 +45,23 @@ namespace QuickCutter_Avalonia.Models
         public Action? cencelOutput;
 
         // FFmpeg Options
-        public IEnumerable<string> PlatfromPresetOptions { get; } = new[] { "BiliBili", "WeChat" };
+        public IEnumerable<Codec> CodecOptions { get; } = Utility.GetCodec();
 
         [Reactive]
-        public string PlatfromPreset { get; set; } = "BiliBili";
+        public Codec SelectedCodec { get; set; } = VideoCodec.LibX264;
 
-        public IEnumerable<FFMpegCore.Enums.Codec> CodecOptions { get; } = Utility.GetCodec();
-
-        [Reactive]
-        public FFMpegCore.Enums.Codec SelectedCodec { get; set; } = FFMpegCore.Enums.VideoCodec.LibX264;
-
-        public IEnumerable<FFMpegCore.Enums.Speed> SpeedPresetOptions { get; } = Enum.GetValues(typeof(FFMpegCore.Enums.Speed)).Cast<FFMpegCore.Enums.Speed>();
+        public IEnumerable<Speed> SpeedPresetOptions { get; } = Enum.GetValues(typeof(Speed)).Cast<Speed>();
 
         [Reactive]
-        public FFMpegCore.Enums.Speed SelectedSpeedPreset { get; set; } = FFMpegCore.Enums.Speed.Medium;
+        public Speed SelectedSpeedPreset { get; set; } = Speed.Medium;
 
         [Reactive]
-        public float ConstantRateFactor { get; set; }
+        public int ConstantRateFactor { get; set; }
 
-        public IEnumerable<FFMpegCore.Enums.VideoSize> ResolutionOptions { get; } = Enum.GetValues(typeof(FFMpegCore.Enums.VideoSize)).Cast<FFMpegCore.Enums.VideoSize>();
+        public IEnumerable<VideoSize> ResolutionOptions { get; } = Enum.GetValues(typeof(VideoSize)).Cast<VideoSize>();
 
         [Reactive]
-        public FFMpegCore.Enums.VideoSize SelectedResolution { get; set; }
+        public VideoSize SelectedResolution { get; set; }
 
         [Reactive]
         public bool UsingCustomResolution { get; set; }
@@ -90,15 +83,28 @@ namespace QuickCutter_Avalonia.Models
             OutputFileExt = ".mp4";
             string fileName = System.IO.Path.GetFileNameWithoutExtension(parentVideoInfo.VideoFullName!);
             OutputFileName = $"{fileName}_Output_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}{OutputFileExt}";
-            return;
             // Time Setting
-            Default_InTime = TimeSpan.Zero;
-            Edit_InTime = null;
+            Edit_InTime = TimeSpan.Zero;
             Default_OutTime = parentVideoInfo.AnalysisResult!.Duration;
-            Edit_OutTime = null;
+            Edit_OutTime = Default_OutTime;
 
+            this.WhenAnyValue(v => v.Edit_InTime).Subscribe(v =>
+            {
+                if (v <= TimeSpan.Zero)
+                    Edit_InTime = TimeSpan.Zero;
+                if (v >=Edit_OutTime)
+                    Edit_InTime = Edit_OutTime - TimeSpan.FromSeconds(1);
+            });
+
+            this.WhenAnyValue(v => v.Edit_OutTime).Subscribe(v =>
+            {
+                if (v <= Edit_InTime)
+                    Edit_OutTime = Edit_InTime + TimeSpan.FromSeconds(1);
+                if (v >= Default_OutTime)
+                    Edit_OutTime = Default_OutTime;
+            });
             // Resolution Setting
-            SelectedResolution = FFMpegCore.Enums.VideoSize.Original;
+            SelectedResolution = VideoSize.Original;
             DefaultHeight = parentVideoInfo.AnalysisResult!.PrimaryVideoStream!.Height;
             DefaultWidth = parentVideoInfo.AnalysisResult!.PrimaryVideoStream!.Width;
             UsingCustomResolution = false;
@@ -109,7 +115,7 @@ namespace QuickCutter_Avalonia.Models
             ConstantRateFactor = 21;
 
             // Codec Setting
-            SelectedCodec = FFMpegCore.Enums.VideoCodec.LibX264;
+            SelectedCodec = VideoCodec.LibX264;
         }
 
         //partial void OnEdit_InTimeChanged(TimeSpan? value)
