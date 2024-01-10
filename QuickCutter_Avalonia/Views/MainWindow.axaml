@@ -245,10 +245,17 @@
                     Classes="Shadow"
                     Theme="{StaticResource CardBorder}">
                 <Grid Name="DataGrid_Grid" RowDefinitions="*,Auto,Auto">
+                    <Grid.Resources>
+                        <ContextMenu x:Key="DataGridContextMenu">
+                            <MenuItem Click="MenuItem_Click" Header="Delete" />
+                        </ContextMenu>
+                    </Grid.Resources>
                     <DataGrid Name="OutputFilesDataGrid"
                               Grid.Column="1"
                               CanUserResizeColumns="True"
-                              GridLinesVisibility="All">
+                              ContextMenu="{StaticResource DataGridContextMenu}"
+                              GridLinesVisibility="All"
+                              SelectionMode="Extended">
                         <DataGrid.Resources>
                             <converters:StringToTimeSpanConverter x:Key="StringToTimeSpanConverter" />
                         </DataGrid.Resources>
@@ -326,6 +333,51 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Width="Auto"
+                                                    CanUserResize="False"
+                                                    Header="Resolution">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="ms:OutputFile">
+                                        <StackPanel Margin="2"
+                                                    Orientation="Horizontal"
+                                                    Spacing="5">
+                                            <AutoCompleteBox Width="75"
+                                                             ItemsSource="{Binding ResolutionPreset}"
+                                                             ValueMemberBinding="{ReflectionBinding Width}"
+                                                             Watermark="Width">
+                                                <Interaction.Behaviors>
+                                                    <behaviors:LostFocusUpdateBindingBehavior_AutoCompleteBox Text="{Binding CustomWidth}" />
+                                                </Interaction.Behaviors>
+                                                <AutoCompleteBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{ReflectionBinding Width}" />
+                                                    </DataTemplate>
+                                                </AutoCompleteBox.ItemTemplate>
+                                            </AutoCompleteBox>
+                                            <ToggleButton Width="30"
+                                                          Height="30"
+                                                          Classes="Success"
+                                                          IsChecked="{Binding IsLinkResolution}">
+                                                <PathIcon Data="M440-280H280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h160v80H280q-50 0-85 35t-35 85q0 50 35 85t85 35h160v80ZM320-440v-80h320v80H320Zm200 160v-80h160q50 0 85-35t35-85q0-50-35-85t-85-35H520v-80h160q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H520Z" />
+                                            </ToggleButton>
+                                            <AutoCompleteBox Width="75"
+                                                             ItemsSource="{Binding ResolutionPreset}"
+                                                             ValueMemberBinding="{ReflectionBinding Height}"
+                                                             Watermark="Height">
+                                                <Interaction.Behaviors>
+                                                    <behaviors:LostFocusUpdateBindingBehavior_AutoCompleteBox Text="{Binding CustomHeight}" />
+                                                </Interaction.Behaviors>
+                                                <AutoCompleteBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{ReflectionBinding Height}" />
+                                                    </DataTemplate>
+                                                </AutoCompleteBox.ItemTemplate>
+                                            </AutoCompleteBox>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                     <Separator Grid.Row="1" />
@@ -348,23 +400,7 @@
                                            Text="ADD OUTPUT" />
                             </StackPanel>
                         </Button>
-                        <Button x:Name="ExportProjectButton"
-                                Height="40"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Stretch"
-                                Classes="Default"
-                                DockPanel.Dock="Right"
-                                Theme="{DynamicResource SolidButton}">
-                            <StackPanel Height="24" Orientation="Horizontal">
-                                <PathIcon Width="15"
-                                          Height="15"
-                                          Data="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
-                                <TextBlock Margin="8,0"
-                                           VerticalAlignment="Center"
-                                           Classes="Subtitle2"
-                                           Text="EXPORT PROJECT" />
-                            </StackPanel>
-                        </Button>
+
                         <Button x:Name="ExportSelectedtButton"
                                 Height="40"
                                 Margin="0,0,5,0"

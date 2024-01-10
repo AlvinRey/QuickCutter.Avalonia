@@ -1,15 +1,20 @@
-﻿using FFMpegCore.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
+﻿using Avalonia;
+using FFMpegCore.Enums;
 using QuickCutter_Avalonia.Handler;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reactive.Disposables;
 namespace QuickCutter_Avalonia.Models
 {
-    public partial class OutputFile : ReactiveObject
+    public partial class OutputFile : ReactiveObject, IDisposable
     {
+        #region Private Member
+        private CompositeDisposable _subscriptions;
+        #endregion
         public string ParentFullName { get; set; }
 
         public string OutputFileName { get; set; }
@@ -25,22 +30,22 @@ namespace QuickCutter_Avalonia.Models
         public int DefaultWidth { get; }
 
         [Reactive]
-        public TimeSpan? Edit_InTime{ get; set; }
+        public TimeSpan? Edit_InTime { get; set; }
 
         [Reactive]
-        public TimeSpan? Edit_OutTime{ get; set; }
+        public TimeSpan? Edit_OutTime { get; set; }
 
         [Reactive]
-        public bool IsTransCode{ get; set; }
+        public bool IsTransCode { get; set; }
 
         [Reactive]
-        public bool UsingCustonSetting{ get; set; }
+        public bool UsingCustonSetting { get; set; }
 
         [Reactive]
-        public double ProcessingPercent{ get; set; }
+        public double ProcessingPercent { get; set; }
 
         [Reactive]
-        public bool IsProcessing{ get; set; }
+        public bool IsProcessing { get; set; }
 
         public Action? cencelOutput;
 
@@ -58,19 +63,16 @@ namespace QuickCutter_Avalonia.Models
         [Reactive]
         public int ConstantRateFactor { get; set; }
 
-        public IEnumerable<VideoSize> ResolutionOptions { get; } = Enum.GetValues(typeof(VideoSize)).Cast<VideoSize>();
-
-        [Reactive]
-        public VideoSize SelectedResolution { get; set; }
-
-        [Reactive]
-        public bool UsingCustomResolution { get; set; }
-
         [Reactive]
         public int CustomWidth { get; set; }
 
         [Reactive]
+        public bool IsLinkResolution { get; set; }
+
+        [Reactive]
         public int CustomHeight { get; set; }
+
+        public ObservableCollection<Size> ResolutionPreset { get; set; }
 
         public OutputFile(VideoInfo parentVideoInfo)
         {
@@ -88,119 +90,84 @@ namespace QuickCutter_Avalonia.Models
             Default_OutTime = parentVideoInfo.AnalysisResult!.Duration;
             Edit_OutTime = Default_OutTime;
 
-            this.WhenAnyValue(v => v.Edit_InTime).Subscribe(v =>
-            {
-                if (v <= TimeSpan.Zero)
-                    Edit_InTime = TimeSpan.Zero;
-                if (v >=Edit_OutTime)
-                    Edit_InTime = Edit_OutTime - TimeSpan.FromSeconds(1);
-            });
+            var edit_InTimeChanged = this.WhenAnyValue(v => v.Edit_InTime);
+            var edit_OutTimeChanged = this.WhenAnyValue(v => v.Edit_OutTime);
 
-            this.WhenAnyValue(v => v.Edit_OutTime).Subscribe(v =>
-            {
-                if (v <= Edit_InTime)
-                    Edit_OutTime = Edit_InTime + TimeSpan.FromSeconds(1);
-                if (v >= Default_OutTime)
-                    Edit_OutTime = Default_OutTime;
-            });
             // Resolution Setting
-            SelectedResolution = VideoSize.Original;
             DefaultHeight = parentVideoInfo.AnalysisResult!.PrimaryVideoStream!.Height;
             DefaultWidth = parentVideoInfo.AnalysisResult!.PrimaryVideoStream!.Width;
-            UsingCustomResolution = false;
             CustomWidth = DefaultWidth;
             CustomHeight = DefaultHeight;
+            var customWidthChanged = this.WhenAnyValue(v => v.CustomWidth);
+            var customHeightChanged = this.WhenAnyValue(v => v.CustomHeight);
 
             // CRF Setting
             ConstantRateFactor = 21;
 
             // Codec Setting
             SelectedCodec = VideoCodec.LibX264;
+
+            ResolutionPreset = new ObservableCollection<Size>(GetResolutionPreset());
+
+            _subscriptions = new CompositeDisposable
+            {
+                edit_InTimeChanged.Subscribe(v =>
+                    {
+                        if (v <= TimeSpan.Zero)
+                            Edit_InTime = TimeSpan.Zero;
+                        if (v >= Edit_OutTime)
+                            Edit_InTime = Edit_OutTime - TimeSpan.FromSeconds(1);
+                    }),
+                edit_OutTimeChanged.Subscribe(v =>
+                    {
+                        if (v <= Edit_InTime)
+                            Edit_OutTime = Edit_InTime + TimeSpan.FromSeconds(1);
+                        if (v >= Default_OutTime)
+                            Edit_OutTime = Default_OutTime;
+                    }),
+                customWidthChanged.Subscribe(v =>
+                {
+                    if(IsLinkResolution)
+                    {
+                        var res = ResolutionPreset.FirstOrDefault(v => v.Width == CustomWidth);
+                        if(res != new Size(0,0) && CustomHeight != res.Height)
+                            CustomHeight = (int)res.Height;
+                    }
+                }),
+                customHeightChanged.Subscribe(v =>
+                {
+                    if(IsLinkResolution)
+                    {
+                        var res = ResolutionPreset.FirstOrDefault(v => v.Height == CustomHeight);
+                        if(res != new Size(0,0) && CustomWidth != res.Width)
+                            CustomWidth = (int)res.Width;
+                    }
+                }),
+            };
         }
-
-        //partial void OnEdit_InTimeChanged(TimeSpan? value)
-        //{
-        //    TimeSpan rightTime = Edit_OutTime != null ? (TimeSpan)Edit_OutTime : Default_OutTime;
-        //    if (value == null) // newValue == null
-        //    {
-        //        Duration = rightTime - Default_InTime;
-        //        return;
-        //    }
-        //    // Left Limit
-        //    if (value <= TimeSpan.Zero)
-        //    {
-        //        Edit_InTime = null;
-        //        return;
-        //    }
-        //    // Right Limit
-        //    if (value >= rightTime)
-        //    {
-        //        Edit_InTime = rightTime.Subtract(new TimeSpan(0, 0, 1));
-        //        return;
-        //    }
-        //    Duration = rightTime - (TimeSpan)Edit_InTime!;
-        //}
-
-        //partial void OnEdit_OutTimeChanged(TimeSpan? value)
-        //{
-        //    TimeSpan leftTime = Edit_InTime != null ? (TimeSpan)Edit_InTime : Default_InTime;
-        //    if (value == null) // newValue == null
-        //    {
-        //        Duration = Default_OutTime - leftTime;
-        //        return;
-        //    }
-
-        //    // Left Limit
-        //    if (value <= leftTime)
-        //    {
-        //        Edit_OutTime = leftTime.Add(new TimeSpan(0, 0, 1));
-        //        return;
-        //    }
-        //    //Right Limit
-        //    if (value >= Default_OutTime)
-        //    {
-        //        Edit_OutTime = null;
-        //        return;
-        //    }
-
-        //    Duration = (TimeSpan)value - leftTime;
-        //}
-
-        //partial void OnSelectedResolutionChanged(VideoSize value)
-        //{
-        //    switch (value)
-        //    {
-        //        case VideoSize.Original:
-        //            CustomWidth = DefaultWidth;
-        //            CustomHeight = DefaultHeight;
-        //            break;
-
-        //        case VideoSize.FullHd:
-        //            CustomWidth = 1920;
-        //            CustomHeight = 1080;
-        //            break;
-
-        //        case VideoSize.Hd:
-        //            CustomWidth = 1280;
-        //            CustomHeight = 720;
-        //            break;
-
-        //        case VideoSize.Ed:
-        //            CustomWidth = 720;
-        //            CustomHeight = 480;
-        //            break;
-
-        //        case VideoSize.Ld:
-        //            CustomWidth = 640;
-        //            CustomHeight = 360;
-        //            break;
-        //    }
-        //}
 
         //[RelayCommand]
         public void CencelOutput()
         {
             cencelOutput?.Invoke();
+        }
+
+        private static List<Size> GetResolutionPreset()
+        {
+            return new List<Size>
+            {
+                new Size(3840, 2160),
+                new Size(2560, 1440),
+                new Size(1920, 1080),
+                new Size(1280, 720),
+                new Size(640, 480)
+            };
+        }
+
+        public void Dispose()
+        {
+            _subscriptions.Dispose();
+            _subscriptions = null;
         }
     }
 }

@@ -1,20 +1,12 @@
-﻿using QuickCutter_Avalonia.Models;
+﻿using FFMpegCore;
+using FFMpegCore.Arguments;
+using FFMpegCore.Exceptions;
+using QuickCutter_Avalonia.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows;
-
-//using System.Management;
-
-using FFMpegCore;
-using FFMpegCore.Enums;
-using FFMpegCore.Exceptions;
-using FFMpegCore.Arguments;
 
 namespace QuickCutter_Avalonia.Handler
 {
@@ -96,17 +88,7 @@ namespace QuickCutter_Avalonia.Handler
                         options.WithVideoCodec(file.SelectedCodec);
                         options.WithSpeedPreset(file.SelectedSpeedPreset);
                         options.WithConstantRateFactor((int)file.ConstantRateFactor);
-                        options.WithVideoFilters(videoFilterOptions =>
-                        {
-                            if (!file.UsingCustomResolution && file.SelectedResolution != VideoSize.Original)
-                            {
-                                videoFilterOptions.Scale(file.SelectedResolution);
-                            }
-                            else
-                            {
-                                videoFilterOptions.Scale(file.CustomWidth, file.CustomHeight);
-                            }
-                        });
+                        options.WithVideoFilters(videoFilterOptions => videoFilterOptions.Scale(file.CustomWidth, file.CustomHeight));
                         if (file.Edit_InTime != TimeSpan.Zero)
                         {
                             options.Seek(file.Edit_InTime);
@@ -143,26 +125,21 @@ namespace QuickCutter_Avalonia.Handler
                          .CancellableThrough(out file.cencelOutput, 0);
 
 
-                Task task = Execute(processor);
-                task.ContinueWith(t =>
-                {
-                    if (t.IsFaulted)
+                Task.Run(async () => await processor.ProcessAsynchronously())
+                    .ContinueWith(t =>
                     {
-                        // 处理异常
-                        FFMpegException? exception = t.Exception.InnerException as FFMpegException;
-                        if (exception != null)
+                        if (t.IsFaulted)
                         {
-                            Debug.WriteLine(exception.Message);
+                            // 处理异常
+                            FFMpegException? exception = t.Exception.InnerException as FFMpegException;
+                            if (exception != null)
+                            {
+                                Debug.WriteLine(exception.Message);
+                            }
                         }
-                    }
-                    file.IsProcessing = false;
-                }, TaskContinuationOptions.None);
+                        file.IsProcessing = false;
+                    }, TaskContinuationOptions.None);
             }
-        }
-
-        static private async Task Execute(FFMpegArgumentProcessor ffmpegArgsProcessor)
-        {
-            await ffmpegArgsProcessor.ProcessAsynchronously();
         }
     }
 }

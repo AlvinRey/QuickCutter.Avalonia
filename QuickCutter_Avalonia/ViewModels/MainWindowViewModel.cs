@@ -1,18 +1,18 @@
-﻿using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
-using System.Collections.ObjectModel;
-using QuickCutter_Avalonia.Models;
-using System.Diagnostics;
+﻿using Avalonia.ReactiveUI;
 using LibVLCSharp.Shared;
-using System;
 using LibVLCSharp.Shared.Structures;
+using QuickCutter_Avalonia.Models;
+using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Subjects;
-using System.Reactive.Linq;
-using Avalonia.ReactiveUI;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 namespace QuickCutter_Avalonia.ViewModels
 {
@@ -134,7 +134,7 @@ namespace QuickCutter_Avalonia.ViewModels
 
         #region Output Data Grid
         [Reactive]
-        public OutputFile? SelectedOutputFile { get; set; }
+        public System.Collections.IList SelectedOutputFiles { get; set; }
         public IReactiveCommand AddOutputFilesCommand { get; }
 
         #endregion
@@ -142,6 +142,7 @@ namespace QuickCutter_Avalonia.ViewModels
         public MainWindowViewModel()
         {
             Projects = new ObservableCollection<Project>();
+            SelectedOutputFiles = new List<OutputFile>();
 
             #region Init Media Player
             _libVlc = new LibVLC();

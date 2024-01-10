@@ -1,12 +1,8 @@
-﻿using QuickCutter_Avalonia.Models;
-using System.IO;
+﻿using Avalonia.Platform.Storage;
 using FFMpegCore;
-using Avalonia.Controls;
-using Avalonia.Platform.Storage;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+using QuickCutter_Avalonia.Models;
 using System;
+using System.Collections.Generic;
 
 namespace QuickCutter_Avalonia.Handler
 {

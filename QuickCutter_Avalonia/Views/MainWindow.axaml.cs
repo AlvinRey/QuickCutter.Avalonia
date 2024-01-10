@@ -1,13 +1,14 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Platform.Storage;
 using Avalonia.Interactivity;
-using System;
-using System.Diagnostics;
-using QuickCutter_Avalonia.ViewModels;
-using QuickCutter_Avalonia.Models;
-using QuickCutter_Avalonia.Handler;
+using Avalonia.Platform.Storage;
 using LibVLCSharp.Shared;
+using QuickCutter_Avalonia.Handler;
+using QuickCutter_Avalonia.Models;
+using QuickCutter_Avalonia.ViewModels;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 
 
@@ -17,7 +18,7 @@ namespace QuickCutter_Avalonia.Views
     {
         #region Private field
         private MainWindowViewModel? viewModel;
-        private double mediaPlayerAspectRatio = 16.0 / 9.0;
+        private double mediaPlayerAspectRatio;
         #endregion
 
 
@@ -87,7 +88,7 @@ namespace QuickCutter_Avalonia.Views
             {
                 viewModel.SelectedProject = null;
             }
-        }
+        }   
 
         private void VideoGrid_SizeChanged(object? sender, SizeChangedEventArgs e)
         {
@@ -139,11 +140,19 @@ namespace QuickCutter_Avalonia.Views
                 return;
             if (e.AddedItems.Count > 0)
             {
-                viewModel.SelectedOutputFile = (OutputFile)e.AddedItems[0]!;
+                //viewModel.SelectedOutputFiles = e.AddedItems.OfType<OutputFile>().ToList();
+                //viewModel.SelectedOutputFiles = e.AddedItems.Cast<OutputFile>().ToList();
+                foreach (OutputFile item in e.AddedItems)
+                {
+                    viewModel.SelectedOutputFiles.Add(item);
+                }
             }
-            else
+            if(e.RemovedItems.Count > 0)
             {
-                viewModel.SelectedOutputFile = null;
+                foreach (OutputFile item in e.RemovedItems)
+                {
+                    viewModel.SelectedOutputFiles.Remove(item);
+                }
             }
         }
 
@@ -175,9 +184,22 @@ namespace QuickCutter_Avalonia.Views
             return topLevel?.StorageProvider;
         }
 
-        private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        private void Button_Click(object? sender, RoutedEventArgs e)
         {
-            //viewModel?.UnLoadMdeia();
+            Debug.WriteLine(viewModel?.SelectedOutputFiles.Count);
+        }
+
+        private void MenuItem_Click(object? sender, RoutedEventArgs e)
+        {
+            if (viewModel == null || viewModel.SelectedOutputFiles.Count > 0)
+                return;
+            foreach(OutputFile file in viewModel.SelectedOutputFiles)
+            {
+                if(viewModel.SelectedProject!.OutputFiles.Contains(file))
+                {
+                    viewModel.SelectedProject!.OutputFiles.Remove(file);
+                }
+            }
         }
     }
 }
