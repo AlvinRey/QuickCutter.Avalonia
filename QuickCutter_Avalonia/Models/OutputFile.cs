@@ -39,10 +39,10 @@ namespace QuickCutter_Avalonia.Models
         public bool IsTransCode { get; set; }
 
         [Reactive]
-        public bool UsingCustonSetting { get; set; }
+        public double ProcessingPercent { get; set; }
 
         [Reactive]
-        public double ProcessingPercent { get; set; }
+        public bool IsReady { get; set; }
 
         [Reactive]
         public bool IsProcessing { get; set; }
@@ -117,6 +117,8 @@ namespace QuickCutter_Avalonia.Models
                             Edit_InTime = TimeSpan.Zero;
                         if (v >= Edit_OutTime)
                             Edit_InTime = Edit_OutTime - TimeSpan.FromSeconds(1);
+
+                        Duration = (TimeSpan)(Edit_OutTime - Edit_InTime);
                     }),
                 edit_OutTimeChanged.Subscribe(v =>
                     {
@@ -124,6 +126,7 @@ namespace QuickCutter_Avalonia.Models
                             Edit_OutTime = Edit_InTime + TimeSpan.FromSeconds(1);
                         if (v >= Default_OutTime)
                             Edit_OutTime = Default_OutTime;
+                        Duration = (TimeSpan)(Edit_OutTime - Edit_InTime);
                     }),
                 customWidthChanged.Subscribe(v =>
                 {
@@ -144,12 +147,6 @@ namespace QuickCutter_Avalonia.Models
                     }
                 }),
             };
-        }
-
-        //[RelayCommand]
-        public void CencelOutput()
-        {
-            cencelOutput?.Invoke();
         }
 
         private static List<Size> GetResolutionPreset()

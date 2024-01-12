@@ -1,17 +1,47 @@
 ﻿using Avalonia.Platform.Storage;
+using DynamicData;
 using FFMpegCore;
 using QuickCutter_Avalonia.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace QuickCutter_Avalonia.Handler
 {
     internal class FileHandler
     {
-        static public void ImportVideoFile(IReadOnlyList<IStorageFile> files, Action<VideoInfo> importFileAction)
+        #region Private Member
+        static private IStorageProvider? mStorageProvider;
+        #endregion
+
+        static public void Init(IStorageProvider? sp)
         {
-            if (files.Count <= 0 && importFileAction != null)
-                return;
+            mStorageProvider = sp;  
+        }
+
+        async static public Task<IReadOnlyList<VideoInfo>> ImportVideoFile()
+        {
+            var list = new List<VideoInfo>();
+            if (mStorageProvider is null) 
+                return list.AsReadOnly();
+
+            var files = await mStorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
+            {
+                Title = "Open File",
+                FileTypeFilter = new[] { new FilePickerFileType("VideoAll")
+                                            {
+                                                Patterns = new []
+                                                {
+                                                    "*.mp4", "*.mov", "*.mkv"
+                                                }
+                                            }
+                },
+                AllowMultiple = true,
+            });
+
+            if (files.Count <= 0)
+                return list.AsReadOnly();
 
             foreach(var file in files)
             {
@@ -20,31 +50,29 @@ namespace QuickCutter_Avalonia.Handler
                     continue;
                 IMediaAnalysis mediaInfo;
                 mediaInfo = FFProbe.Analyse(videoFullName);
-                importFileAction(new VideoInfo() { VideoFullName = videoFullName, AnalysisResult = mediaInfo });
+                list.Add(new VideoInfo() { VideoFullName = videoFullName, AnalysisResult = mediaInfo });
             }
+            return list.AsReadOnly();
         }
 
-        static public string SelectSaveFolder()
+        async static public Task<string> SelectExportFolder()
         {
-            //// Configure open folder dialog box
-            //Microsoft.Win32.OpenFolderDialog dialog = new();
+            if (mStorageProvider is null)
+                return string.Empty;
 
-            //dialog.Multiselect = false;
-            //dialog.Title = "Select a folder";
-            //dialog.DefaultDirectory = historyExportDirectory;
-            //// Show open folder dialog box
-            //bool? result = dialog.ShowDialog();
+            var folders = await mStorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions()
+            {
+                Title = "Select a Export Folder",
+                AllowMultiple = false
+            });
 
-            //// Process open folder dialog box results
-            //if (result == true)
-            //{
-            //    historyExportDirectory = dialog.FolderName;
-            //    // Get the selected folder
-            //    return dialog.FolderName;
-            //    //string folderNameOnly = dialog.SafeFolderName;
-            //}
+            if (folders.Count <= 0)
+                return string.Empty;
 
-            return string.Empty;
+            string? folderFullName = folders[0].TryGetLocalPath();
+            if (!string.IsNullOrEmpty(folderFullName))
+                return folderFullName;
+            else return string.Empty;
         }
     }
 }

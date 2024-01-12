@@ -36,6 +36,7 @@
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         Classes="Success"
+                        Command="{Binding ImportProjectFileCommand}"
                         Theme="{DynamicResource SolidButton}">
                     <StackPanel Height="24" Orientation="Horizontal">
                         <PathIcon Width="15"
@@ -161,10 +162,10 @@
                                     Command="{Binding PlayOrPauseVideoCommand}"
                                     Theme="{DynamicResource BorderlessButton}">
                                 <Button.Styles>
-                                    <Style Selector="Button#PlayorPauseButton PathIcon.playing">
+                                    <Style Selector="PathIcon.playing">
                                         <Setter Property="IsVisible" Value="True" />
                                     </Style>
-                                    <Style Selector="Button#PlayorPauseButton PathIcon:not(.playing)">
+                                    <Style Selector="PathIcon:not(.playing)">
                                         <Setter Property="IsVisible" Value="False" />
                                     </Style>
                                 </Button.Styles>
@@ -260,7 +261,8 @@
                             <converters:StringToTimeSpanConverter x:Key="StringToTimeSpanConverter" />
                         </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridTextColumn x:DataType="ms:OutputFile"
+                            <DataGridTextColumn Width="300"
+                                                x:DataType="ms:OutputFile"
                                                 Binding="{Binding OutputFileName}"
                                                 Header="Output File Name" />
                             <!--  =================================================  -->
@@ -292,6 +294,54 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <!--  =================================================  -->
+                            <DataGridTemplateColumn Width="Auto" CanUserResize="False">
+                                <DataGridTemplateColumn.Header>
+                                    <StackPanel Orientation="Horizontal" Spacing="2">
+                                        <Border Background="#FF5DC264" CornerRadius="5">
+                                            <TextBlock Text="Copy" />
+                                        </Border>
+                                        <TextBlock Text="|" />
+                                        <Border Background="#FFFC725A" CornerRadius="5">
+                                            <TextBlock Text="Transcoding" />
+                                        </Border>
+                                    </StackPanel>
+                                </DataGridTemplateColumn.Header>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="ms:OutputFile">
+                                        <CheckBox Margin="2"
+                                                  HorizontalAlignment="Center"
+                                                  IsChecked="{Binding IsTransCode}">
+                                            <Grid>
+                                                <Grid.Styles>
+                                                    <Style Selector="Border.Show">
+                                                        <Setter Property="IsVisible" Value="True" />
+                                                    </Style>
+                                                    <Style Selector="Border:not(.Show)">
+                                                        <Setter Property="IsVisible" Value="False" />
+                                                    </Style>
+                                                </Grid.Styles>
+                                                <Border Width="100"
+                                                        Height="20"
+                                                        Padding="3,0"
+                                                        Background="#FF5DC264"
+                                                        Classes.Show="{Binding !IsTransCode}"
+                                                        CornerRadius="5">
+                                                    <TextBlock HorizontalAlignment="Center" Text="Copy" />
+                                                </Border>
+                                                <Border Width="100"
+                                                        Height="20"
+                                                        Padding="3,0"
+                                                        Background="#FFFC725A"
+                                                        Classes.Show="{Binding IsTransCode}"
+                                                        CornerRadius="5">
+                                                    <TextBlock HorizontalAlignment="Center" Text="Transcoding" />
+                                                </Border>
+                                            </Grid>
+                                        </CheckBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <!--  =================================================  -->
                             <DataGridTemplateColumn Width="Auto"
                                                     CanUserResize="False"
                                                     Header="Codec">
@@ -299,6 +349,7 @@
                                     <DataTemplate x:DataType="ms:OutputFile">
                                         <ComboBox Margin="2"
                                                   DisplayMemberBinding="{Binding Name}"
+                                                  IsEnabled="{Binding IsTransCode}"
                                                   ItemsSource="{Binding CodecOptions}"
                                                   SelectedItem="{Binding SelectedCodec}" />
                                     </DataTemplate>
@@ -311,6 +362,7 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate x:DataType="ms:OutputFile">
                                         <ComboBox Margin="2"
+                                                  IsEnabled="{Binding IsTransCode}"
                                                   ItemsSource="{Binding SpeedPresetOptions}"
                                                   SelectedItem="{Binding SelectedSpeedPreset}" />
                                     </DataTemplate>
@@ -326,6 +378,7 @@
                                                        HorizontalAlignment="Stretch"
                                                        VerticalAlignment="Stretch"
                                                        Increment="1"
+                                                       IsEnabled="{Binding IsTransCode}"
                                                        Maximum="51"
                                                        Minimum="0"
                                                        ToolTip.Tip="0~51"
@@ -333,13 +386,14 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-
+                            <!--  =================================================  -->
                             <DataGridTemplateColumn Width="Auto"
                                                     CanUserResize="False"
                                                     Header="Resolution">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate DataType="ms:OutputFile">
                                         <StackPanel Margin="2"
+                                                    IsEnabled="{Binding IsTransCode}"
                                                     Orientation="Horizontal"
                                                     Spacing="5">
                                             <AutoCompleteBox Width="75"
@@ -378,6 +432,27 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
+                            <!--  =================================================  -->
+                            <DataGridTemplateColumn Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="ms:OutputFile">
+                                        <ProgressBar Width="200"
+                                                     Classes="Success"
+                                                     IsVisible="{Binding IsReady}"
+                                                     Maximum="100"
+                                                     Minimum="0"
+                                                     ShowProgressText="True"
+                                                     Value="{Binding ProcessingPercent}">
+                                            <ProgressBar.IsIndeterminate>
+                                                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                                    <Binding Path="IsReady" />
+                                                    <Binding Path="!IsProcessing" />
+                                                </MultiBinding>
+                                            </ProgressBar.IsIndeterminate>
+                                        </ProgressBar>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                     <Separator Grid.Row="1" />
@@ -400,25 +475,45 @@
                                            Text="ADD OUTPUT" />
                             </StackPanel>
                         </Button>
+                        <Grid DockPanel.Dock="Right">
+                            <Button x:Name="ExportSelectedtButton"
+                                    Width="200"
+                                    Height="40"
+                                    HorizontalAlignment="Right"
+                                    Classes="Default"
+                                    Command="{Binding ExportCommand}"
+                                    IsVisible="{Binding !IsExporting}"
+                                    Theme="{DynamicResource SolidButton}">
+                                <StackPanel Height="24" Orientation="Horizontal">
+                                    <PathIcon Width="15"
+                                              Height="15"
+                                              Data="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
+                                    <TextBlock Margin="8,0"
+                                               VerticalAlignment="Center"
+                                               Classes="Subtitle2"
+                                               Text="EXPORT SELECTED" />
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="CencelExporttButton"
+                                    Width="200"
+                                    Height="40"
+                                    HorizontalAlignment="Right"
+                                    Classes="Danger"
+                                    Command="{Binding CencelCommand}"
+                                    IsVisible="{Binding IsExporting}"
+                                    Theme="{DynamicResource SolidButton}">
+                                <StackPanel Height="24" Orientation="Horizontal">
+                                    <PathIcon Width="15"
+                                              Height="15"
+                                              Data="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                                    <TextBlock Margin="8,0"
+                                               VerticalAlignment="Center"
+                                               Classes="Subtitle2"
+                                               Text="CENCEL EXPORT" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
 
-                        <Button x:Name="ExportSelectedtButton"
-                                Height="40"
-                                Margin="0,0,5,0"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Stretch"
-                                Classes="Default"
-                                DockPanel.Dock="Right"
-                                Theme="{DynamicResource SolidButton}">
-                            <StackPanel Height="24" Orientation="Horizontal">
-                                <PathIcon Width="15"
-                                          Height="15"
-                                          Data="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
-                                <TextBlock Margin="8,0"
-                                           VerticalAlignment="Center"
-                                           Classes="Subtitle2"
-                                           Text="EXPORT SELECTED" />
-                            </StackPanel>
-                        </Button>
                     </DockPanel>
                 </Grid>
             </Border>

@@ -17,6 +17,8 @@ namespace QuickCutter_Avalonia.Handler
 
     internal class ExportHandler
     {
+        static private bool mIsCencel = false;
+        static private Action mCencelAction;
         static public ExportInfo? ExportInfoInstance { get; set; }
 
         static public void ChangeExportDirectory(string exportDirectory)
@@ -24,6 +26,11 @@ namespace QuickCutter_Avalonia.Handler
             ExportInfoInstance!.ExportDirectory = exportDirectory;
         }
 
+        static public void CencelExport()
+        {
+            mCencelAction?.Invoke();
+            mIsCencel = true;
+        }
 
         static public bool GenerateExportInfo(string exportDirectory, IList<OutputFile> outputFiles)
         {
@@ -102,9 +109,14 @@ namespace QuickCutter_Avalonia.Handler
             return ffmprocessor;
         }
 
-        static public void ExecuteFFmpeg()
+        async static public Task ExecuteFFmpeg()
         {
             FFMpegArgumentProcessor processor;
+            foreach (var file in ExportInfoInstance!.OutputFiles)
+            {
+                file.IsReady = true;
+            }
+
             foreach (var file in ExportInfoInstance!.OutputFiles)
             {
                 file.IsProcessing = true;
@@ -121,24 +133,41 @@ namespace QuickCutter_Avalonia.Handler
                 processor.NotifyOnProgress(new Action<double>(p =>
                                                                 {
                                                                     file.ProcessingPercent = p;
+                                                                    Debug.WriteLine(file.ProcessingPercent);
                                                                 }), file.Duration)
-                         .CancellableThrough(out file.cencelOutput, 0);
+                         .CancellableThrough(out mCencelAction, 0);
 
+                if (mIsCencel)
+                    break;
 
-                Task.Run(async () => await processor.ProcessAsynchronously())
-                    .ContinueWith(t =>
+                try
+                {
+                    await processor.ProcessAsynchronously();
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常
+                    FFMpegException? exception = ex as FFMpegException;
+                    if (exception != null)
                     {
-                        if (t.IsFaulted)
-                        {
-                            // 处理异常
-                            FFMpegException? exception = t.Exception.InnerException as FFMpegException;
-                            if (exception != null)
-                            {
-                                Debug.WriteLine(exception.Message);
-                            }
-                        }
-                        file.IsProcessing = false;
-                    }, TaskContinuationOptions.None);
+                        Debug.WriteLine(exception.Message);
+                    }
+                }
+                finally
+                {
+                    file.IsProcessing = false;
+                    file.IsReady = false;
+                }
+            }
+
+            if(mIsCencel)
+            {
+                foreach (var file in ExportInfoInstance!.OutputFiles)
+                {
+                    file.IsProcessing = false;
+                    file.IsReady = false;
+                }
+                mIsCencel = false;
             }
         }
     }

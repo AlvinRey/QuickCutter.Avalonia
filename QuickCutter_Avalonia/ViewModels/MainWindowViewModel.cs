@@ -1,6 +1,7 @@
 ﻿using Avalonia.ReactiveUI;
 using LibVLCSharp.Shared;
 using LibVLCSharp.Shared.Structures;
+using QuickCutter_Avalonia.Handler;
 using QuickCutter_Avalonia.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -19,14 +20,9 @@ namespace QuickCutter_Avalonia.ViewModels
     public partial class MainWindowViewModel : ReactiveObject, IDisposable
     {
         #region Project List
-        [Reactive]
-        public Project? SelectedProject { get; set; }
+        public ObservableCollection<Project> SelectedProject { get; set; }
         public ObservableCollection<Project> Projects { get; }
-
-        public void ImportProjectFile(VideoInfo videoInfo)
-        {
-            Projects.Add(new Project(videoInfo));
-        }
+        public IReactiveCommand ImportProjectFileCommand {  get; }
         #endregion
 
         #region Media Player
@@ -119,11 +115,10 @@ namespace QuickCutter_Avalonia.ViewModels
 
         public void LoadMedia()
         {
-            var media = new Media(_libVlc, new Uri(SelectedProject!.ImportVideoInfo.VideoFullName!));
+            var media = new Media(_libVlc, new Uri(SelectedProject.First().ImportVideoInfo.VideoFullName!));
             MediaPlayer.Media = media;
-
-            //MediaPlayer.Play();
         }
+
         public void ResetMediaPlayer()
         {
             MediaPlayer.Stop();
@@ -134,15 +129,28 @@ namespace QuickCutter_Avalonia.ViewModels
 
         #region Output Data Grid
         [Reactive]
-        public System.Collections.IList SelectedOutputFiles { get; set; }
+        public bool IsExporting {  get; set; }
+        public ObservableCollection<OutputFile> SelectedOutputFiles { get; set; }
         public IReactiveCommand AddOutputFilesCommand { get; }
-
+        public IReactiveCommand ExportCommand { get; }
+        public IReactiveCommand CencelCommand { get; }
         #endregion
 
         public MainWindowViewModel()
         {
+            #region Init Project List
             Projects = new ObservableCollection<Project>();
-            SelectedOutputFiles = new List<OutputFile>();
+            SelectedProject = new ObservableCollection<Project>();
+            ImportProjectFileCommand = ReactiveCommand.Create(
+                async () =>
+                {
+                    var videoInfoList = await FileHandler.ImportVideoFile();
+                    foreach(var videoInfo in videoInfoList)
+                    {
+                        Projects.Add(new Project(videoInfo));
+                    }
+                });
+            #endregion
 
             #region Init Media Player
             _libVlc = new LibVLC();
@@ -222,11 +230,28 @@ namespace QuickCutter_Avalonia.ViewModels
                 stateChanged.Select(_ => active()));
             #endregion
 
-            var selectedProjectChanged = this.WhenAnyValue(v => v.SelectedProject).Select(_ => SelectedProject != null);
-
+            #region Init Data Grid
+            SelectedOutputFiles = new ObservableCollection<OutputFile>();
+            var selectedProjectChanged = Observable.FromEventPattern(SelectedProject,nameof(SelectedProject.CollectionChanged)).Select(_ => SelectedProject.Count > 0);
+            var selectedOutputFilesChanged = Observable.FromEventPattern(SelectedOutputFiles, nameof(SelectedOutputFiles.CollectionChanged)).Select(_ => SelectedOutputFiles.Count > 0);
+            
             AddOutputFilesCommand = ReactiveCommand.Create(
-                () => SelectedProject?.AddChild(),
+                () => SelectedProject.First().AddChild(),
                 selectedProjectChanged);
+
+            ExportCommand = ReactiveCommand.Create(
+                async () => 
+                {
+                    string folderFullName = await FileHandler.SelectExportFolder();
+                    ExportHandler.GenerateExportInfo(folderFullName, SelectedOutputFiles.ToList());
+                    IsExporting = true;
+                    await ExportHandler.ExecuteFFmpeg();
+                    IsExporting = false;
+                }, selectedOutputFilesChanged);
+
+            CencelCommand = ReactiveCommand.Create(
+                () => { ExportHandler.CencelExport(); IsExporting = false; });
+            #endregion
         }
 
         public void Dispose()

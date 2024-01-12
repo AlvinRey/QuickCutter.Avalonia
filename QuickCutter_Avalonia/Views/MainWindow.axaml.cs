@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using DynamicData;
 using LibVLCSharp.Shared;
 using QuickCutter_Avalonia.Handler;
 using QuickCutter_Avalonia.Models;
@@ -19,14 +20,17 @@ namespace QuickCutter_Avalonia.Views
         #region Private field
         private MainWindowViewModel? viewModel;
         private double mediaPlayerAspectRatio;
+        private bool mManuallyClearSelectedProject;
+        private bool mManuallyClearSelectedOutputFiles;
         #endregion
 
 
         public MainWindow()
         {
             InitializeComponent();
+            FileHandler.Init(GetStorageProvider());
+
             Loaded += MainWindow_Loaded;
-            AddItemButton.Click += OpenFileDialog;
             ProjectsList.SelectionChanged += ProjectsList_SelectionChanged;
             AudioTrackComboBox.PropertyChanged += AudioTrackComboBox_PropertyChanged;
             SubtitleTrackComboBox.PropertyChanged += SubtitleTrackComboBox_PropertyChanged;
@@ -35,7 +39,7 @@ namespace QuickCutter_Avalonia.Views
 
         private void AudioTrackComboBox_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
         {
-            if("ItemsSource" == e.Property.Name)
+            if ("ItemsSource" == e.Property.Name)
             {
                 viewModel?.SelectCurrentAudioTrack();
             }
@@ -59,19 +63,32 @@ namespace QuickCutter_Avalonia.Views
         {
             if (viewModel == null)
                 return;
+
+            // Must remove first. Inorder to make sure viewModel.SelectedProject.First() is the Select One
+            if (e.RemovedItems.Count > 0)
+            {
+                foreach (Project item in e.RemovedItems)
+                {
+                    viewModel.SelectedProject.Remove(item);
+                }
+            }
+
             if (e.AddedItems.Count > 0)
             {
                 // Set Selection
-                viewModel.SelectedProject = (Project)e.AddedItems[0]!;
+                foreach (Project item in e.AddedItems)
+                {
+                    viewModel.SelectedProject.Add(item);
+                }
 
                 // Load stuff about Selection
-                this.HeaderTitle.Text = viewModel.SelectedProject.ImportVideoInfo.VideoFullName;
+                this.HeaderTitle.Text = viewModel.SelectedProject.First().ImportVideoInfo.VideoFullName;
                 viewModel.LoadMedia();
-                this.OutputFilesDataGrid.ItemsSource = viewModel.SelectedProject.OutputFiles;
+                this.OutputFilesDataGrid.ItemsSource = viewModel.SelectedProject.First().OutputFiles;
 
                 // Resize Video View
-                double videoHeight = viewModel.SelectedProject.ImportVideoInfo.AnalysisResult.VideoStreams[0].Height;
-                double videoWidth = viewModel.SelectedProject.ImportVideoInfo.AnalysisResult.VideoStreams[0].Width;
+                double videoHeight = viewModel.SelectedProject.First().ImportVideoInfo.AnalysisResult.VideoStreams[0].Height;
+                double videoWidth = viewModel.SelectedProject.First().ImportVideoInfo.AnalysisResult.VideoStreams[0].Width;
                 mediaPlayerAspectRatio = double.IsNaN(videoWidth / videoHeight) ? 16.0 / 9.0 : videoWidth / videoHeight;
                 if (this.VideoGrid.Bounds.Width > this.VideoView.Height * mediaPlayerAspectRatio)
                 {
@@ -84,11 +101,58 @@ namespace QuickCutter_Avalonia.Views
                     this.VideoView.Height = this.VideoView.Width / mediaPlayerAspectRatio;
                 }
             }
-            else
+        }
+
+        private void DeleteProjectButton_Click(object? sender, RoutedEventArgs e)
+        {
+            if (viewModel is null || ProjectsList.SelectedItems is null)
+                return;
+
+            viewModel.ResetMediaPlayer();
+            this.HeaderTitle.Text = null;
+            AudioTrackComboBox.ItemsSource = null;
+            SubtitleTrackComboBox.ItemsSource = null;
+            this.OutputFilesDataGrid.ItemsSource = null;
+
+            List<Project> selectedItems = ProjectsList.SelectedItems.OfType<Project>().ToList();
+            viewModel.Projects.Remove(selectedItems);
+            ProjectsList.SelectedItems.Clear();
+        }
+
+        private void OutputFilesDataGrid_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            if (viewModel == null)
+                return;
+
+            if (e.RemovedItems.Count > 0)
             {
-                viewModel.SelectedProject = null;
+                foreach (OutputFile item in e.RemovedItems)
+                {
+                    viewModel.SelectedOutputFiles.Remove(item);
+                }
             }
-        }   
+
+            if (e.AddedItems.Count > 0)
+            {
+                foreach (OutputFile item in e.AddedItems)
+                {
+                    viewModel.SelectedOutputFiles.Add(item);
+                }
+            }
+        }
+
+        private void MenuItem_Click(object? sender, RoutedEventArgs e)
+        {
+            if (viewModel is null)
+                return;
+
+            List<OutputFile> selectedItems = OutputFilesDataGrid.SelectedItems.OfType<OutputFile>().ToList();
+
+            // Remove the item from data source
+            viewModel.SelectedProject.First().OutputFiles.Remove(selectedItems);
+
+            OutputFilesDataGrid.SelectedItems.Clear();
+        }
 
         private void VideoGrid_SizeChanged(object? sender, SizeChangedEventArgs e)
         {
@@ -115,69 +179,6 @@ namespace QuickCutter_Avalonia.Views
             }
         }
 
-        private void DeleteProjectButton_Click(object? sender, RoutedEventArgs e)
-        {
-            if (viewModel == null || viewModel.SelectedProject == null)
-                return;
-            if (viewModel.Projects.Count > 1)
-            {
-                viewModel.Projects.Remove(viewModel.SelectedProject!);
-                ProjectsList.SelectedIndex = 0;
-            }
-            else
-            {
-                viewModel.ResetMediaPlayer();
-                this.HeaderTitle.Text = null;
-                AudioTrackComboBox.ItemsSource = null;
-                SubtitleTrackComboBox.ItemsSource = null;
-                this.OutputFilesDataGrid.ItemsSource = null;
-                viewModel.Projects.Remove(viewModel.SelectedProject!);
-            }
-        }
-        private void OutputFilesDataGrid_SelectionChanged(object? sender, SelectionChangedEventArgs e)
-        {
-            if (viewModel == null)
-                return;
-            if (e.AddedItems.Count > 0)
-            {
-                //viewModel.SelectedOutputFiles = e.AddedItems.OfType<OutputFile>().ToList();
-                //viewModel.SelectedOutputFiles = e.AddedItems.Cast<OutputFile>().ToList();
-                foreach (OutputFile item in e.AddedItems)
-                {
-                    viewModel.SelectedOutputFiles.Add(item);
-                }
-            }
-            if(e.RemovedItems.Count > 0)
-            {
-                foreach (OutputFile item in e.RemovedItems)
-                {
-                    viewModel.SelectedOutputFiles.Remove(item);
-                }
-            }
-        }
-
-        private async void OpenFileDialog(object? sender, RoutedEventArgs args)
-        {
-            IStorageProvider? sp = GetStorageProvider();
-            if (sp is null) return;
-            var result = await sp.OpenFilePickerAsync(new FilePickerOpenOptions()
-            {
-                Title = "Open File",
-                FileTypeFilter = new[] { new FilePickerFileType("VideoAll")
-                                            {
-                                                Patterns = new []
-                                                {
-                                                    "*.mp4", "*.mov", "*.mkv"
-                                                }
-                                            }
-                },
-                AllowMultiple = true,
-            });
-            if (viewModel == null)
-                return;
-            FileHandler.ImportVideoFile(result, viewModel.ImportProjectFile);
-        }
-
         private IStorageProvider? GetStorageProvider()
         {
             var topLevel = TopLevel.GetTopLevel(this);
@@ -186,20 +187,7 @@ namespace QuickCutter_Avalonia.Views
 
         private void Button_Click(object? sender, RoutedEventArgs e)
         {
-            Debug.WriteLine(viewModel?.SelectedOutputFiles.Count);
-        }
-
-        private void MenuItem_Click(object? sender, RoutedEventArgs e)
-        {
-            if (viewModel == null || viewModel.SelectedOutputFiles.Count > 0)
-                return;
-            foreach(OutputFile file in viewModel.SelectedOutputFiles)
-            {
-                if(viewModel.SelectedProject!.OutputFiles.Contains(file))
-                {
-                    viewModel.SelectedProject!.OutputFiles.Remove(file);
-                }
-            }
+            Debug.WriteLine(viewModel?.SelectedOutputFiles.Count());
         }
     }
 }
