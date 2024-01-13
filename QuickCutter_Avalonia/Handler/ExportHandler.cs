@@ -18,18 +18,27 @@ namespace QuickCutter_Avalonia.Handler
     internal class ExportHandler
     {
         static private bool mIsCencel = false;
-        static private Action mCencelAction;
+        static private Action? mCencelAction;
         static public ExportInfo? ExportInfoInstance { get; set; }
+
 
         static public void ChangeExportDirectory(string exportDirectory)
         {
             ExportInfoInstance!.ExportDirectory = exportDirectory;
         }
 
+        static public void CencelWithAppQuit()
+        {
+            if(mCencelAction != null)
+            {
+                CencelExport();
+            }
+        }
+
         static public void CencelExport()
         {
-            mCencelAction?.Invoke();
             mIsCencel = true;
+            mCencelAction?.Invoke();
         }
 
         static public bool GenerateExportInfo(string exportDirectory, IList<OutputFile> outputFiles)
@@ -169,6 +178,7 @@ namespace QuickCutter_Avalonia.Handler
                 }
                 mIsCencel = false;
             }
+            mCencelAction = null;
         }
     }
 }

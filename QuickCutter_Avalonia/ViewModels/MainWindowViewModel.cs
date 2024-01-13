@@ -131,7 +131,7 @@ namespace QuickCutter_Avalonia.ViewModels
         [Reactive]
         public bool IsExporting {  get; set; }
         public ObservableCollection<OutputFile> SelectedOutputFiles { get; set; }
-        public IReactiveCommand AddOutputFilesCommand { get; }
+        public IReactiveCommand<Unit,Unit> AddOutputFilesCommand { get; }
         public IReactiveCommand ExportCommand { get; }
         public IReactiveCommand CencelCommand { get; }
         #endregion
@@ -190,7 +190,7 @@ namespace QuickCutter_Avalonia.ViewModels
                 Wrap(positionChanged)       .DistinctUntilChanged(_=>Position)              .Subscribe(_=>this.RaisePropertyChanged(nameof(Position))),
                 Wrap(timeChanged)           .DistinctUntilChanged(_=>CurrentTime)           .Subscribe(_=>this.RaisePropertyChanged(nameof(CurrentTime))),
                 Wrap(lengthChanged)         .DistinctUntilChanged(_=>Duration)              .Subscribe(_=>this.RaisePropertyChanged(nameof(Duration))),
-                Wrap(volumeChanged)         .DistinctUntilChanged(_=>Volume)                .Subscribe(_=>this.RaisePropertyChanged(nameof(Volume))),
+                Wrap(volumeChanged)         .DistinctUntilChanged(_=>Volume)                .Subscribe(_=>{ if(Volume >= 0)this.RaisePropertyChanged(nameof(Volume)); }),
                 Wrap(playingChanged)        .DistinctUntilChanged(_=>AudioTrack)            .Subscribe(_=>this.RaisePropertyChanged(nameof(AudioTrack))),
                 Wrap(playingChanged)        .DistinctUntilChanged(_=>SubtitleTrack)         .Subscribe(_=>this.RaisePropertyChanged(nameof(SubtitleTrack))),
                 Wrap(audioTrackChanged)     .DistinctUntilChanged(_=>SelectedAudioTrack)    .Subscribe(_=>{if(SelectedAudioTrack.HasValue){MediaPlayer.SetAudioTrack(SelectedAudioTrack.Value.Id); }}),
@@ -252,6 +252,26 @@ namespace QuickCutter_Avalonia.ViewModels
             CencelCommand = ReactiveCommand.Create(
                 () => { ExportHandler.CencelExport(); IsExporting = false; });
             #endregion
+        }
+
+        public void AutoComplateInTime()
+        {
+            if (SelectedOutputFiles.Count <= 0)
+                return;
+            foreach(var file in SelectedOutputFiles)
+            {
+                file.Edit_InTime = CurrentTime;
+            }
+        }
+
+        public void AutoComplateOutTime()
+        {
+            if (SelectedOutputFiles.Count <= 0)
+                return;
+            foreach (var file in SelectedOutputFiles)
+            {
+                file.Edit_OutTime = CurrentTime;
+            }
         }
 
         public void Dispose()

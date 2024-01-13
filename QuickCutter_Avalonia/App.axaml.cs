@@ -4,6 +4,7 @@ using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using QuickCutter_Avalonia.ViewModels;
 using QuickCutter_Avalonia.Views;
+using System;
 
 namespace QuickCutter_Avalonia
 {

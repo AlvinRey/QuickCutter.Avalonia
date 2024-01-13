@@ -153,13 +153,15 @@
                             </StackPanel>
 
                         </Grid>
-                        <Grid Grid.Row="1" ColumnDefinitions="Auto,10,Auto,10,Auto,10,Auto,10,Auto,10,Auto,10,Auto,10,Auto">
+                        <StackPanel Grid.Row="1"
+                                    Orientation="Horizontal"
+                                    Spacing="10">
                             <Button x:Name="PlayorPauseButton"
-                                    Grid.Column="0"
                                     Width="30"
                                     Height="30"
                                     Classes="Tertiary"
                                     Command="{Binding PlayOrPauseVideoCommand}"
+                                    HotKey="Space"
                                     Theme="{DynamicResource BorderlessButton}">
                                 <Button.Styles>
                                     <Style Selector="PathIcon.playing">
@@ -185,29 +187,55 @@
                                               Foreground="#FFFB9078" />
                                 </Grid>
                             </Button>
-                            <Button x:Name="InButton"
-                                    Grid.Column="2"
+                            <Button x:Name="BackwardButton"
                                     Width="30"
                                     Height="30"
                                     Classes="Tertiary"
                                     Command="{Binding BackwardCommand}"
-                                    Theme="{DynamicResource BorderlessButton}">
+                                    HotKey="Left"
+                                    Theme="{DynamicResource BorderlessButton}"
+                                    ToolTip.Tip="Move Forward 1s (Key: &lt;)">
                                 <PathIcon Width="15"
                                           Height="15"
                                           Data="M250.001-250.001v-459.998h59.998v459.998h-59.998ZM680-253.847 453.847-480 680-706.153 722.153-664l-184 184 184 184L680-253.847Z" />
                             </Button>
-                            <Button x:Name="OutButton"
-                                    Grid.Column="4"
+                            <Button x:Name="ForwardButton"
                                     Width="30"
                                     Height="30"
                                     Classes="Tertiary"
                                     Command="{Binding ForwardCommand}"
-                                    Theme="{DynamicResource BorderlessButton}">
+                                    HotKey="Right"
+                                    Theme="{DynamicResource BorderlessButton}"
+                                    ToolTip.Tip="Move Forward 1s (Key: >)">
                                 <PathIcon Width="15"
                                           Height="15"
                                           Data="M280-253.847 237.847-296l184-184-184-184L280-706.153 506.153-480 280-253.847Zm370.001 3.846v-459.998h59.998v459.998h-59.998Z" />
                             </Button>
-                            <StackPanel Grid.Column="6" Orientation="Horizontal">
+                            <Button x:Name="InButton"
+                                    Width="30"
+                                    Height="30"
+                                    Classes="Tertiary"
+                                    Click="InButton_Click"
+                                    HotKey="I"
+                                    Theme="{DynamicResource BorderlessButton}"
+                                    ToolTip.Tip="Select In Time (Key: i)">
+                                <PathIcon Width="15"
+                                          Height="15"
+                                          Data="M440-120v-80h80v80h-80Zm0-640v-80h80v80h-80Zm160 640v-80h80v80h-80Zm0-640v-80h80v80h-80Zm160 640v-80h80v80h-80Zm0-640v-80h80v80h-80ZM120-120v-80h80v-560h-80v-80h240v80h-80v560h80v80H120Zm560-200-56-56 63-64H400v-80h287l-63-64 56-56 160 160-160 160Z" />
+                            </Button>
+                            <Button x:Name="OutButton"
+                                    Width="30"
+                                    Height="30"
+                                    Classes="Tertiary"
+                                    Click="OutButton_Click"
+                                    HotKey="O"
+                                    Theme="{DynamicResource BorderlessButton}"
+                                    ToolTip.Tip="Select Out Time (Key: o)">
+                                <PathIcon Width="15"
+                                          Height="15"
+                                          Data="M440-760v-80h80v80h-80Zm0 640v-80h80v80h-80ZM280-760v-80h80v80h-80Zm0 640v-80h80v80h-80ZM120-760v-80h80v80h-80Zm0 640v-80h80v80h-80Zm480 0v-80h80v-560h-80v-80h240v80h-80v560h80v80H600ZM280-320 120-480l160-160 56 56-63 64h287v80H273l63 64-56 56Z" />
+                            </Button>
+                            <StackPanel Orientation="Horizontal">
                                 <TextBlock Width="80"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
@@ -221,22 +249,20 @@
                                            Text="{Binding Duration, StringFormat=hh\\:mm\\:ss\\.ff}" />
                             </StackPanel>
                             <ComboBox Name="AudioTrackComboBox"
-                                      Grid.Column="8"
                                       Width="200"
                                       DisplayMemberBinding="{Binding Name}"
                                       ItemsSource="{Binding AudioTrack}"
                                       SelectedItem="{Binding SelectedAudioTrack}" />
                             <ComboBox Name="SubtitleTrackComboBox"
-                                      Grid.Column="10"
                                       Width="200"
                                       DisplayMemberBinding="{Binding Name}"
                                       ItemsSource="{Binding SubtitleTrack}"
                                       SelectedItem="{Binding SelectedSubtitleTrack}" />
                             <Button Name="TestButton"
-                                    Grid.Column="12"
                                     Click="Button_Click"
-                                    Content="Test" />
-                        </Grid>
+                                    Content="Test"
+                                    IsVisible="False" />
+                        </StackPanel>
                     </Grid>
                 </Grid>
             </Border>
@@ -248,7 +274,10 @@
                 <Grid Name="DataGrid_Grid" RowDefinitions="*,Auto,Auto">
                     <Grid.Resources>
                         <ContextMenu x:Key="DataGridContextMenu">
-                            <MenuItem Click="MenuItem_Click" Header="Delete" />
+                            <MenuItem Click="MenuItem_SelectAll"
+                                      Header="Select All"
+                                      HotKey="Ctrl+A" />
+                            <MenuItem Click="MenuItem_Delete" Header="Delete" />
                         </ContextMenu>
                     </Grid.Resources>
                     <DataGrid Name="OutputFilesDataGrid"

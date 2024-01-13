@@ -20,8 +20,6 @@ namespace QuickCutter_Avalonia.Views
         #region Private field
         private MainWindowViewModel? viewModel;
         private double mediaPlayerAspectRatio;
-        private bool mManuallyClearSelectedProject;
-        private bool mManuallyClearSelectedOutputFiles;
         #endregion
 
 
@@ -71,6 +69,11 @@ namespace QuickCutter_Avalonia.Views
                 {
                     viewModel.SelectedProject.Remove(item);
                 }
+                viewModel.ResetMediaPlayer();
+                this.HeaderTitle.Text = null;
+                AudioTrackComboBox.ItemsSource = null;
+                SubtitleTrackComboBox.ItemsSource = null;
+                this.OutputFilesDataGrid.ItemsSource = null;
             }
 
             if (e.AddedItems.Count > 0)
@@ -108,11 +111,8 @@ namespace QuickCutter_Avalonia.Views
             if (viewModel is null || ProjectsList.SelectedItems is null)
                 return;
 
-            viewModel.ResetMediaPlayer();
-            this.HeaderTitle.Text = null;
-            AudioTrackComboBox.ItemsSource = null;
-            SubtitleTrackComboBox.ItemsSource = null;
-            this.OutputFilesDataGrid.ItemsSource = null;
+            //viewModel.ResetMediaPlayer();
+
 
             List<Project> selectedItems = ProjectsList.SelectedItems.OfType<Project>().ToList();
             viewModel.Projects.Remove(selectedItems);
@@ -141,7 +141,7 @@ namespace QuickCutter_Avalonia.Views
             }
         }
 
-        private void MenuItem_Click(object? sender, RoutedEventArgs e)
+        private void MenuItem_Delete(object? sender, RoutedEventArgs e)
         {
             if (viewModel is null)
                 return;
@@ -152,6 +152,35 @@ namespace QuickCutter_Avalonia.Views
             viewModel.SelectedProject.First().OutputFiles.Remove(selectedItems);
 
             OutputFilesDataGrid.SelectedItems.Clear();
+        }
+
+        private void MenuItem_SelectAll(object? sender, RoutedEventArgs e)
+        {
+            OutputFilesDataGrid.SelectAll();
+        }
+        
+        private void InButton_Click(object? sender, RoutedEventArgs e)
+        {
+            if(viewModel is null || viewModel.SelectedProject.Count <= 0) return;
+            if (viewModel.SelectedOutputFiles.Count == 0)
+            {
+                viewModel.SelectedProject[0].AddChild();
+                OutputFilesDataGrid.SelectedIndex = viewModel.SelectedProject[0].OutputFiles.Count - 1;   
+            }
+            // Auto Complate Selected Output Files's In Time
+            viewModel.AutoComplateInTime();
+        }
+
+        private void OutButton_Click(object? sender, RoutedEventArgs e)
+        {
+            if (viewModel is null || viewModel.SelectedProject.Count <= 0) return;
+            if (viewModel.SelectedOutputFiles.Count == 0)
+            {
+                viewModel.SelectedProject[0].AddChild();
+                OutputFilesDataGrid.SelectedIndex = viewModel.SelectedProject[0].OutputFiles.Count - 1;
+            }
+            // Auto Complate Selected Output Files's Out Time
+            viewModel.AutoComplateOutTime();
         }
 
         private void VideoGrid_SizeChanged(object? sender, SizeChangedEventArgs e)

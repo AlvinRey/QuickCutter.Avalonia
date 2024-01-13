@@ -1,6 +1,8 @@
 ﻿using Avalonia;
-using Avalonia.Dialogs;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
+using QuickCutter_Avalonia.Handler;
 using System;
 
 namespace QuickCutter_Avalonia
@@ -11,8 +13,18 @@ namespace QuickCutter_Avalonia
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
         // yet and stuff might break.
         [STAThread]
-        public static void Main(string[] args) => BuildAvaloniaApp()
-            .StartWithClassicDesktopLifetime(args);
+        public static void Main(string[] args)
+        {
+            AppBuilder appBulider = BuildAvaloniaApp();
+            var lifetime = new ClassicDesktopStyleApplicationLifetime()
+            {
+                Args = args,
+                ShutdownMode = ShutdownMode.OnLastWindowClose
+            };
+            lifetime.Exit += OnExit;
+            appBulider.SetupWithLifetime(lifetime);
+            lifetime.Start(args);
+        }
 
         // Avalonia configuration, don't remove; also used by visual designer.
         public static AppBuilder BuildAvaloniaApp()
@@ -22,5 +34,10 @@ namespace QuickCutter_Avalonia
                 .WithInterFont()
                 .LogToTrace()
                 .UseReactiveUI();
+
+        static void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
+        {
+            ExportHandler.CencelWithAppQuit();
+        }
     }
 }
