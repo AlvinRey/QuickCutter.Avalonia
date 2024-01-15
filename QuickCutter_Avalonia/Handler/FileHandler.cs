@@ -1,10 +1,8 @@
 ﻿using Avalonia.Platform.Storage;
-using DynamicData;
 using FFMpegCore;
 using QuickCutter_Avalonia.Models;
-using System;
+using ReactiveUI;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace QuickCutter_Avalonia.Handler
@@ -23,8 +21,12 @@ namespace QuickCutter_Avalonia.Handler
         async static public Task<IReadOnlyList<VideoInfo>> ImportVideoFile()
         {
             var list = new List<VideoInfo>();
-            if (mStorageProvider is null) 
+            if (mStorageProvider is null)
+            {
+                MessageBus.Current.SendMessage("ImportVideoFile: mStorageProvider is Null.", "LogHandler");
                 return list.AsReadOnly();
+            }
+
 
             var files = await mStorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
             {
@@ -41,7 +43,11 @@ namespace QuickCutter_Avalonia.Handler
             });
 
             if (files.Count <= 0)
+            {
+                MessageBus.Current.SendMessage("ImportVideoFile: There are no files selected.", "LogHandler");
                 return list.AsReadOnly();
+            }
+
 
             foreach(var file in files)
             {
@@ -58,7 +64,11 @@ namespace QuickCutter_Avalonia.Handler
         async static public Task<string> SelectExportFolder()
         {
             if (mStorageProvider is null)
+            {
+                MessageBus.Current.SendMessage("SelectExportFolder: mStorageProvider is Null.", "LogHandler");
                 return string.Empty;
+            }
+
 
             var folders = await mStorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions()
             {
@@ -67,7 +77,11 @@ namespace QuickCutter_Avalonia.Handler
             });
 
             if (folders.Count <= 0)
+            {
+                MessageBus.Current.SendMessage("SelectExportFolder: There is no folder selected.", "LogHandler");
                 return string.Empty;
+            }
+
 
             string? folderFullName = folders[0].TryGetLocalPath();
             if (!string.IsNullOrEmpty(folderFullName))

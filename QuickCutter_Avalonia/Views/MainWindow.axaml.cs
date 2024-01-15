@@ -27,6 +27,7 @@ namespace QuickCutter_Avalonia.Views
         {
             InitializeComponent();
             FileHandler.Init(GetStorageProvider());
+            LogHandler.SetUp();
 
             Loaded += MainWindow_Loaded;
             ProjectsList.SelectionChanged += ProjectsList_SelectionChanged;

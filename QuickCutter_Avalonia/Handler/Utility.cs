@@ -8,6 +8,7 @@ using System.Linq;
 //using System.Management;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace QuickCutter_Avalonia.Handler
 {
@@ -65,5 +66,32 @@ namespace QuickCutter_Avalonia.Handler
 
             return Codec;
         }
+
+
+
+        #region TempPath
+
+        public static string StartupPath()
+        {
+            return AppDomain.CurrentDomain.BaseDirectory;
+        }
+
+        public static string GetLogPath(string filename = "")
+        {
+            string _tempPath = Path.Combine(StartupPath(), "Logs");
+            if (!Directory.Exists(_tempPath))
+            {
+                Directory.CreateDirectory(_tempPath);
+            }
+            if (string.IsNullOrEmpty(filename))
+            {
+                return _tempPath;
+            }
+            else
+            {
+                return Path.Combine(_tempPath, filename);
+            }
+        }
+        #endregion
     }
 }
