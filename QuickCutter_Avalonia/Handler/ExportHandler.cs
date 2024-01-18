@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace QuickCutter_Avalonia.Handler
@@ -21,6 +23,21 @@ namespace QuickCutter_Avalonia.Handler
         static private Action? mCencelAction;
         static public ExportInfo? ExportInfoInstance { get; set; }
 
+        static public void Setup()
+        {
+            if(File.Exists("./bin/ffmpeg.exe") && File.Exists("./bin/ffprobe.exe"))
+            {
+                GlobalFFOptions.Configure(new FFOptions { BinaryFolder = "./bin", TemporaryFilesFolder = "./tmp" });
+                return;
+            }
+            string? pathVariable = Environment.GetEnvironmentVariable("PATH");
+            bool containsFFmpeg = pathVariable != null && pathVariable.Split(';').Any(path => path.EndsWith("ffmpeg", StringComparison.OrdinalIgnoreCase));
+
+            if(!containsFFmpeg)
+            {
+                // TODO
+            }
+        }
 
         static public void ChangeExportDirectory(string exportDirectory)
         {
