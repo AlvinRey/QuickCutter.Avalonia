@@ -22,7 +22,7 @@ namespace QuickCutter_Avalonia.Handler
             mLogDirectory = Utility.GetLogPath();
             mFileName = DateTime.Now.ToString("yyyy-MM-dd") + ".txt";
             mFileFullName = Path.Combine(mLogDirectory, mFileName);
-            mLogMsg = "===========================================";
+            mLogMsg = "================== Quick Cutter Start =========================";
             OutputLog();
         }
 

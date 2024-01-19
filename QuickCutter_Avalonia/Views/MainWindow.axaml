@@ -194,7 +194,7 @@
                                     Command="{Binding BackwardCommand}"
                                     HotKey="Left"
                                     Theme="{DynamicResource BorderlessButton}"
-                                    ToolTip.Tip="Move Forward 1s (Key: &lt;)">
+                                    ToolTip.Tip="Move Backward 1s (Key: &lt;)">
                                 <PathIcon Width="15"
                                           Height="15"
                                           Data="M250.001-250.001v-459.998h59.998v459.998h-59.998ZM680-253.847 453.847-480 680-706.153 722.153-664l-184 184 184 184L680-253.847Z" />
@@ -248,11 +248,13 @@
                                            VerticalAlignment="Center"
                                            Text="{Binding Duration, StringFormat=hh\\:mm\\:ss\\.ff}" />
                             </StackPanel>
+                            <TextBlock VerticalAlignment="Center" Text="Audio Tracks:" />
                             <ComboBox Name="AudioTrackComboBox"
                                       Width="200"
                                       DisplayMemberBinding="{Binding Name}"
                                       ItemsSource="{Binding AudioTrack}"
                                       SelectedItem="{Binding SelectedAudioTrack}" />
+                            <TextBlock VerticalAlignment="Center" Text="Subtitle Tracks:" />
                             <ComboBox Name="SubtitleTrackComboBox"
                                       Width="200"
                                       DisplayMemberBinding="{Binding Name}"
@@ -283,12 +285,22 @@
                     <DataGrid Name="OutputFilesDataGrid"
                               Grid.Column="1"
                               CanUserResizeColumns="True"
+                              CanUserSortColumns="False"
                               ContextMenu="{StaticResource DataGridContextMenu}"
                               GridLinesVisibility="All"
+                              HeadersVisibility="All"
+                              RowHeaderWidth="30"
                               SelectionMode="Extended">
                         <DataGrid.Resources>
                             <converters:StringToTimeSpanConverter x:Key="StringToTimeSpanConverter" />
+                            <converters:DataGridRowIndexConverter x:Key="DataGridRowIndexConverter" />
                         </DataGrid.Resources>
+                        <DataGrid.Styles>
+                            <Style Selector="DataGridRow">
+                                <!--  这是头部显示Index  -->
+                                <Setter Property="Header" Value="{Binding $self, Converter={StaticResource DataGridRowIndexConverter}}" />
+                            </Style>
+                        </DataGrid.Styles>
                         <DataGrid.Columns>
                             <DataGridTextColumn Width="300"
                                                 x:DataType="ms:OutputFile"
@@ -462,26 +474,7 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <!--  =================================================  -->
-                            <DataGridTemplateColumn Width="*">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate DataType="ms:OutputFile">
-                                        <ProgressBar Width="200"
-                                                     Classes="Success"
-                                                     IsVisible="{Binding IsReady}"
-                                                     Maximum="100"
-                                                     Minimum="0"
-                                                     ShowProgressText="True"
-                                                     Value="{Binding ProcessingPercent}">
-                                            <ProgressBar.IsIndeterminate>
-                                                <MultiBinding Converter="{x:Static BoolConverters.And}">
-                                                    <Binding Path="IsReady" />
-                                                    <Binding Path="!IsProcessing" />
-                                                </MultiBinding>
-                                            </ProgressBar.IsIndeterminate>
-                                        </ProgressBar>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
+
                         </DataGrid.Columns>
                     </DataGrid>
                     <Separator Grid.Row="1" />

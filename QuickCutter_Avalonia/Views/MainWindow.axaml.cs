@@ -4,6 +4,8 @@ using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using DynamicData;
 using LibVLCSharp.Shared;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 using QuickCutter_Avalonia.Handler;
 using QuickCutter_Avalonia.Models;
 using QuickCutter_Avalonia.ViewModels;
@@ -26,9 +28,6 @@ namespace QuickCutter_Avalonia.Views
         public MainWindow()
         {
             InitializeComponent();
-            FileHandler.Init(GetStorageProvider());
-            ExportHandler.Setup();
-            LogHandler.SetUp();
 
             Loaded += MainWindow_Loaded;
             ProjectsList.SelectionChanged += ProjectsList_SelectionChanged;
@@ -57,6 +56,9 @@ namespace QuickCutter_Avalonia.Views
         {
             viewModel = DataContext as MainWindowViewModel;
             Core.Initialize();
+            FileHandler.Init(GetStorageProvider());
+            ExportHandler.Setup();
+            LogHandler.SetUp();
         }
 
         private void ProjectsList_SelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -108,13 +110,19 @@ namespace QuickCutter_Avalonia.Views
             }
         }
 
-        private void DeleteProjectButton_Click(object? sender, RoutedEventArgs e)
+        private async void DeleteProjectButton_Click(object? sender, RoutedEventArgs e)
         {
             if (viewModel is null || ProjectsList.SelectedItems is null)
                 return;
 
             //viewModel.ResetMediaPlayer();
-
+            if (viewModel.SelectedProject[0].OutputFiles.Count > 0)
+            {
+                var box = MessageBoxManager.GetMessageBoxStandard("Notice", "This Project has Output Files£¬Are you sure to delete this Project£¿", ButtonEnum.YesNo);
+                ButtonResult result = await box.ShowAsync();
+                if(result == ButtonResult.No)
+                    return;
+            }
 
             List<Project> selectedItems = ProjectsList.SelectedItems.OfType<Project>().ToList();
             viewModel.Projects.Remove(selectedItems);

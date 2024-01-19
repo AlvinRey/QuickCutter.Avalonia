@@ -1,6 +1,8 @@
 ﻿using FFMpegCore;
 using FFMpegCore.Arguments;
 using FFMpegCore.Exceptions;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 using QuickCutter_Avalonia.Models;
 using System;
 using System.Collections.Generic;
@@ -25,17 +27,34 @@ namespace QuickCutter_Avalonia.Handler
 
         static public void Setup()
         {
-            if(File.Exists("./bin/ffmpeg.exe") && File.Exists("./bin/ffprobe.exe"))
+            if(File.Exists(Path.Combine(Utility.StartupPath(), @"bin\ffmpeg.exe")) && File.Exists(Path.Combine(Utility.StartupPath(), @"bin\ffprobe.exe")))
             {
-                GlobalFFOptions.Configure(new FFOptions { BinaryFolder = "./bin", TemporaryFilesFolder = "./tmp" });
+                GlobalFFOptions.Configure(new FFOptions { BinaryFolder = Path.Combine(Utility.StartupPath(),"bin"), TemporaryFilesFolder = Path.Combine(Utility.StartupPath(), "temp") });
                 return;
             }
+
             string? pathVariable = Environment.GetEnvironmentVariable("PATH");
-            bool containsFFmpeg = pathVariable != null && pathVariable.Split(';').Any(path => path.EndsWith("ffmpeg", StringComparison.OrdinalIgnoreCase));
+
+            // must ToList(), in order to Linq Once.
+            var paths = pathVariable?.Split(';').Where(path => path.Contains("ffmpeg"));
+            bool containsFFmpeg = false;
+
+            if (paths != null)
+            {
+                foreach (var path in paths)
+                {
+                    containsFFmpeg = File.Exists(Path.Combine(path, "ffmpeg.exe")) && File.Exists(Path.Combine(path, "ffprobe.exe"));
+                    if(containsFFmpeg)
+                    {
+                        break;
+                    }
+                }
+            }
 
             if(!containsFFmpeg)
             {
-                // TODO
+                var messageBox = MessageBoxManager.GetMessageBoxStandard("Notice", "Can not find FFmpeg in PATH, Plese download FFmpeg or add FFmpeg into PATH", ButtonEnum.Ok);
+                messageBox.ShowAsync();
             }
         }
 
