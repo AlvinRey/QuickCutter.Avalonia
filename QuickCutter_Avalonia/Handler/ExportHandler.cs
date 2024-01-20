@@ -1,8 +1,7 @@
 ﻿using FFMpegCore;
 using FFMpegCore.Arguments;
 using FFMpegCore.Exceptions;
-using MsBox.Avalonia;
-using MsBox.Avalonia.Enums;
+
 using QuickCutter_Avalonia.Models;
 using System;
 using System.Collections.Generic;
@@ -11,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Ursa.Controls;
 
 namespace QuickCutter_Avalonia.Handler
 {
@@ -53,8 +53,7 @@ namespace QuickCutter_Avalonia.Handler
 
             if(!containsFFmpeg)
             {
-                var messageBox = MessageBoxManager.GetMessageBoxStandard("Notice", "Can not find FFmpeg in PATH, Plese download FFmpeg or add FFmpeg into PATH", ButtonEnum.Ok);
-                messageBox.ShowAsync();
+                MessageBox.ShowAsync("Can not find FFmpeg in PATH, Plese download FFmpeg or add FFmpeg into PATH", "Error", MessageBoxIcon.Error, MessageBoxButton.OK);
             }
         }
 

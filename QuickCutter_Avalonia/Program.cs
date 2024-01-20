@@ -2,7 +2,6 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
-using QuickCutter_Avalonia.Handler;
 using System;
 
 namespace QuickCutter_Avalonia
@@ -21,7 +20,7 @@ namespace QuickCutter_Avalonia
                 Args = args,
                 ShutdownMode = ShutdownMode.OnLastWindowClose
             };
-            lifetime.Exit += OnExit;
+            //lifetime.Exit += OnExit;
             appBulider.SetupWithLifetime(lifetime);
             lifetime.Start(args);
         }
@@ -35,9 +34,9 @@ namespace QuickCutter_Avalonia
                 .LogToTrace()
                 .UseReactiveUI();
 
-        static void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
-        {
-            ExportHandler.CencelWithAppQuit();
-        }
+        //static void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
+        //{
+
+        //}
     }
 }

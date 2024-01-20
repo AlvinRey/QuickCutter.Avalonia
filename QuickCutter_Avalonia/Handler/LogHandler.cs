@@ -3,6 +3,7 @@ using ReactiveUI;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace QuickCutter_Avalonia.Handler
 {
@@ -11,19 +12,22 @@ namespace QuickCutter_Avalonia.Handler
         #region  Private Member
 
         private static string? mLogDirectory;
-        private static string? mFileName;
-        private static string? mFileFullName;
         private static string? mLogMsg;
+        private static StreamWriter? mSw;
         #endregion
 
-        public static void SetUp()
+        public static void Init()
         {
             MessageBus.Current.Listen<string>("LogHandler").Subscribe(x => { mLogMsg = x; DelegateAppendText(); });
             mLogDirectory = Utility.GetLogPath();
-            mFileName = DateTime.Now.ToString("yyyy-MM-dd") + ".txt";
-            mFileFullName = Path.Combine(mLogDirectory, mFileName);
-            mLogMsg = "================== Quick Cutter Start =========================";
-            OutputLog();
+            var fileName = DateTime.Now.ToString("yyyy-MM-dd") + ".txt";
+            var fileFullName = Path.Combine(mLogDirectory, fileName);
+            mSw = File.AppendText(fileFullName);
+        }
+
+        public static void Dispose()
+        {
+            mSw?.Dispose();
         }
 
         private static void DelegateAppendText()
@@ -33,19 +37,14 @@ namespace QuickCutter_Avalonia.Handler
 
         private static void OutputLog()
         {
-            if (string.IsNullOrEmpty(mFileFullName) || string.IsNullOrEmpty(mLogMsg))
-            {
-                return;
-            }
+            if (mSw is null || string.IsNullOrEmpty(mLogMsg)) return;
 
-            using (StreamWriter sw = File.AppendText(mFileFullName))
+            mLogMsg = DateTime.Now.ToString() + ' ' + mLogMsg;
+            if (!mLogMsg.EndsWith(Environment.NewLine))
             {
-                if (!mLogMsg.EndsWith(Environment.NewLine))
-                {
-                    mLogMsg += Environment.NewLine;
-                }
-                sw.WriteLine(mLogMsg);
+                mLogMsg += Environment.NewLine;
             }
+            mSw.WriteLineAsync(mLogMsg);
         }
     }
 }

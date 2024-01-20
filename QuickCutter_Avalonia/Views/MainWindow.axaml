@@ -81,13 +81,13 @@
 
             </Grid>
         </Border>
-        <GridSplitter Grid.Column="1" />
+        <controls:GridSplitterWithoutKeyDown Grid.Column="1" />
         <Grid Grid.Column="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="45" MinHeight="45" />
                 <RowDefinition Height="*" MinHeight="200" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" MinHeight="200" />
+                <RowDefinition Height="*" MinHeight="250" />
             </Grid.RowDefinitions>
             <Border Grid.Row="0"
                     Height="45"
@@ -268,7 +268,7 @@
                     </Grid>
                 </Grid>
             </Border>
-            <GridSplitter Grid.Row="2" />
+            <controls:GridSplitterWithoutKeyDown Grid.Row="2" />
             <Border Grid.Row="3"
                     Padding="2"
                     Classes="Shadow"
@@ -283,24 +283,18 @@
                         </ContextMenu>
                     </Grid.Resources>
                     <DataGrid Name="OutputFilesDataGrid"
-                              Grid.Column="1"
+                              Grid.Row="0"
                               CanUserResizeColumns="True"
                               CanUserSortColumns="False"
                               ContextMenu="{StaticResource DataGridContextMenu}"
                               GridLinesVisibility="All"
-                              HeadersVisibility="All"
+                              HeadersVisibility="Column"
                               RowHeaderWidth="30"
                               SelectionMode="Extended">
                         <DataGrid.Resources>
                             <converters:StringToTimeSpanConverter x:Key="StringToTimeSpanConverter" />
                             <converters:DataGridRowIndexConverter x:Key="DataGridRowIndexConverter" />
                         </DataGrid.Resources>
-                        <DataGrid.Styles>
-                            <Style Selector="DataGridRow">
-                                <!--  这是头部显示Index  -->
-                                <Setter Property="Header" Value="{Binding $self, Converter={StaticResource DataGridRowIndexConverter}}" />
-                            </Style>
-                        </DataGrid.Styles>
                         <DataGrid.Columns>
                             <DataGridTextColumn Width="300"
                                                 x:DataType="ms:OutputFile"
