@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using Avalonia.Styling;
 using DynamicData;
 using LibVLCSharp.Shared;
 using QuickCutter_Avalonia.Handler;
@@ -165,8 +166,6 @@ namespace QuickCutter_Avalonia.Views
             //MessageBus.Current.SendMessage("Deleted project", "LogHandler");
         }
 
-
-
         private void MenuItem_Delete(object? sender, RoutedEventArgs e)
         {
             if (viewModel is null)
@@ -231,7 +230,6 @@ namespace QuickCutter_Avalonia.Views
                     VideoView.Height = e.NewSize.Height;
                     VideoView.Width = e.NewSize.Height * mediaPlayerAspectRatio;
                 }
-
             }
         }
 

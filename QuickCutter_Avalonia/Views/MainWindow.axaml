@@ -123,6 +123,7 @@
                                        HorizontalAlignment="Stretch"
                                        VerticalAlignment="Stretch"
                                        MediaPlayer="{Binding MediaPlayer}" />
+                        <!--  Rectangle x:Name="VideoView" Fill="Aqua" /  -->
                     </Grid>
                     <Separator Grid.Row="1" />
                     <Grid Grid.Row="2" RowDefinitions="36,34">
@@ -293,13 +294,19 @@
                               SelectionMode="Extended">
                         <DataGrid.Resources>
                             <converters:StringToTimeSpanConverter x:Key="StringToTimeSpanConverter" />
-                            <converters:DataGridRowIndexConverter x:Key="DataGridRowIndexConverter" />
                         </DataGrid.Resources>
                         <DataGrid.Columns>
+                            <DataGridTextColumn Width="35"
+                                                x:DataType="ms:OutputFile"
+                                                Binding="{Binding RowIndex}"
+                                                Header=""
+                                                IsReadOnly="True" />
+                            <!--  =================================================  -->
                             <DataGridTextColumn Width="300"
                                                 x:DataType="ms:OutputFile"
                                                 Binding="{Binding OutputFileName}"
-                                                Header="Output File Name" />
+                                                Header="Output File Name"
+                                                IsReadOnly="True" />
                             <!--  =================================================  -->
                             <DataGridTemplateColumn Width="Auto"
                                                     CanUserResize="False"
@@ -471,6 +478,7 @@
 
                         </DataGrid.Columns>
                     </DataGrid>
+
                     <Separator Grid.Row="1" />
                     <DockPanel Grid.Row="2" Margin="2">
                         <Button x:Name="AddOutputFileButton"

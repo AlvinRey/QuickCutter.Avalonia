@@ -13,6 +13,15 @@ namespace QuickCutter_Avalonia.Models
         {
             ImportVideoInfo = videoInfo;
             OutputFiles = new ObservableCollection<OutputFile>();
+            OutputFiles.CollectionChanged += OutputFiles_CollectionChanged;
+        }
+
+        private void OutputFiles_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            for (var i = 0; i < OutputFiles.Count; i++)
+            {
+                OutputFiles[i].RowIndex = i + 1;
+            }
         }
 
         public void AddChild()

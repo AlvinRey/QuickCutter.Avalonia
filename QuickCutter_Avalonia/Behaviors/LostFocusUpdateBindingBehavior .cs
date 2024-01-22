@@ -19,7 +19,7 @@ namespace QuickCutter_Avalonia.Behaviors
 
 
         public static readonly StyledProperty<string> TextProperty = AvaloniaProperty.Register<LostFocusUpdateBindingBehavior, string>(
-            "Text", defaultValue: String.Empty, defaultBindingMode: BindingMode.TwoWay);
+            "Text", defaultValue: string.Empty, defaultBindingMode: BindingMode.TwoWay);
 
         public string Text
         {
@@ -64,7 +64,7 @@ namespace QuickCutter_Avalonia.Behaviors
 
 
         public static readonly StyledProperty<string> TextProperty = AvaloniaProperty.Register<LostFocusUpdateBindingBehavior_AutoCompleteBox, string>(
-            "Text",  defaultValue: String.Empty, defaultBindingMode: BindingMode.TwoWay);
+            "Text", defaultValue: string.Empty, defaultBindingMode: BindingMode.TwoWay);
 
         public string Text
         {
@@ -74,13 +74,13 @@ namespace QuickCutter_Avalonia.Behaviors
 
         protected override void OnAttached()
         {
-            AssociatedObject.LostFocus += OnLostFocus;
+            AssociatedObject!.LostFocus += OnLostFocus;
             base.OnAttached();
         }
 
         protected override void OnDetaching()
         {
-            AssociatedObject.LostFocus -= OnLostFocus;
+            AssociatedObject!.LostFocus -= OnLostFocus;
             base.OnDetaching();
         }
 

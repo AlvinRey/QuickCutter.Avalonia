@@ -15,6 +15,9 @@ namespace QuickCutter_Avalonia.Models
         #region Private Member
         private CompositeDisposable _subscriptions;
         #endregion
+        [Reactive]
+        public int RowIndex { get; set; }
+
         public string ParentFullName { get; set; }
 
         public string OutputFileName { get; set; }
