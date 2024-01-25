@@ -28,7 +28,7 @@
         <Border Grid.Column="0"
                 Padding="2"
                 Classes="Shadow"
-                Theme="{StaticResource CardBorder}">
+                Theme="{DynamicResource CardBorder}">
             <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
                 <Button x:Name="AddItemButton"
                         Grid.Row="0"
@@ -87,13 +87,14 @@
                 <RowDefinition Height="45" MinHeight="45" />
                 <RowDefinition Height="*" MinHeight="200" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" MinHeight="250" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" MinHeight="45" />
             </Grid.RowDefinitions>
             <Border Grid.Row="0"
                     Height="45"
                     Padding="20,0"
                     Classes="Shadow"
-                    Theme="{StaticResource CardBorder}">
+                    Theme="{DynamicResource CardBorder}">
                 <Grid VerticalAlignment="Center" ColumnDefinitions="Auto,10,*,10,Auto">
                     <PathIcon Grid.Column="0" Data="M330.001-250.001h299.998v-59.998H330.001v59.998Zm0-160h299.998v-59.998H330.001v59.998Zm-77.692 310q-30.308 0-51.308-21t-21-51.308v-615.382q0-30.308 21-51.308t51.308-21h317.692l209.998 209.998v477.692q0 30.308-21 51.308t-51.308 21H252.309Zm287.692-520V-800H252.309q-4.616 0-8.463 3.846-3.846 3.847-3.846 8.463v615.382q0 4.616 3.846 8.463 3.847 3.846 8.463 3.846h455.382q4.616 0 8.463-3.846 3.846-3.847 3.846-8.463v-447.692H540.001ZM240-800v179.999V-800v640V-800Z" />
                     <TextBlock x:Name="HeaderTitle"
@@ -115,16 +116,13 @@
             <Border Grid.Row="1"
                     Padding="5"
                     Classes="Shadow"
-                    Theme="{StaticResource CardBorder}">
+                    Theme="{DynamicResource CardBorder}">
                 <Grid Name="MediaPlayerGrid" RowDefinitions="*,Auto,Auto">
-                    <Grid Name="VideoGrid" SizeChanged="VideoGrid_SizeChanged">
-                        <vlc:VideoView x:Name="VideoView"
-                                       Grid.Row="0"
-                                       HorizontalAlignment="Stretch"
-                                       VerticalAlignment="Stretch"
-                                       MediaPlayer="{Binding MediaPlayer}" />
-                        <!--  Rectangle x:Name="VideoView" Fill="Aqua" /  -->
-                    </Grid>
+                    <vlc:VideoView x:Name="VideoView"
+                                   Grid.Row="0"
+                                   HorizontalAlignment="Stretch"
+                                   VerticalAlignment="Stretch"
+                                   MediaPlayer="{Binding MediaPlayer}" />
                     <Separator Grid.Row="1" />
                     <Grid Grid.Row="2" RowDefinitions="36,34">
                         <Grid Grid.Row="0"
@@ -264,6 +262,7 @@
                             <Button Name="TestButton"
                                     Click="Button_Click"
                                     Content="Test"
+                                    IsEnabled="False"
                                     IsVisible="False" />
                         </StackPanel>
                     </Grid>
@@ -273,273 +272,275 @@
             <Border Grid.Row="3"
                     Padding="2"
                     Classes="Shadow"
-                    Theme="{StaticResource CardBorder}">
-                <Grid Name="DataGrid_Grid" RowDefinitions="*,Auto,Auto">
-                    <Grid.Resources>
-                        <ContextMenu x:Key="DataGridContextMenu">
-                            <MenuItem Click="MenuItem_SelectAll"
-                                      Header="Select All"
-                                      HotKey="Ctrl+A" />
-                            <MenuItem Click="MenuItem_Delete" Header="Delete" />
-                        </ContextMenu>
-                    </Grid.Resources>
-                    <DataGrid Name="OutputFilesDataGrid"
-                              Grid.Row="0"
-                              CanUserResizeColumns="True"
-                              CanUserSortColumns="False"
-                              ContextMenu="{StaticResource DataGridContextMenu}"
-                              GridLinesVisibility="All"
-                              HeadersVisibility="Column"
-                              RowHeaderWidth="30"
-                              SelectionMode="Extended">
-                        <DataGrid.Resources>
-                            <converters:StringToTimeSpanConverter x:Key="StringToTimeSpanConverter" />
-                        </DataGrid.Resources>
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Width="35"
-                                                x:DataType="ms:OutputFile"
-                                                Binding="{Binding RowIndex}"
-                                                Header=""
-                                                IsReadOnly="True" />
-                            <!--  =================================================  -->
-                            <DataGridTextColumn Width="300"
-                                                x:DataType="ms:OutputFile"
-                                                Binding="{Binding OutputFileName}"
-                                                Header="Output File Name"
-                                                IsReadOnly="True" />
-                            <!--  =================================================  -->
-                            <DataGridTemplateColumn Width="Auto"
-                                                    CanUserResize="False"
-                                                    Header="In Time">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate x:DataType="ms:OutputFile">
-                                        <MaskedTextBox Margin="2" Mask="00:00:00.00">
+                    Theme="{DynamicResource CardBorder}">
+                <Border.Resources>
+                    <ContextMenu x:Key="DataGridContextMenu">
+                        <MenuItem Click="MenuItem_SelectAll"
+                                  Header="Select All"
+                                  HotKey="Ctrl+A" />
+                        <MenuItem Click="MenuItem_Delete" Header="Delete" />
+                    </ContextMenu>
+                </Border.Resources>
+                <DataGrid Name="OutputFilesDataGrid"
+                          Grid.Row="0"
+                          CanUserResizeColumns="True"
+                          CanUserSortColumns="False"
+                          ContextMenu="{StaticResource DataGridContextMenu}"
+                          GridLinesVisibility="All"
+                          HeadersVisibility="Column"
+                          RowHeaderWidth="30"
+                          SelectionMode="Extended">
+                    <DataGrid.Resources>
+                        <converters:StringToTimeSpanConverter x:Key="StringToTimeSpanConverter" />
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Width="35"
+                                            x:DataType="ms:OutputFile"
+                                            Binding="{Binding RowIndex}"
+                                            Header=""
+                                            IsReadOnly="True" />
+                        <!--  =================================================  -->
+                        <DataGridTextColumn Width="300"
+                                            x:DataType="ms:OutputFile"
+                                            Binding="{Binding OutputFileName}"
+                                            Header="Output File Name"
+                                            IsReadOnly="True" />
+                        <!--  =================================================  -->
+                        <DataGridTemplateColumn Width="Auto"
+                                                CanUserResize="False"
+                                                Header="In Time">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="ms:OutputFile">
+                                    <MaskedTextBox Margin="2" Mask="00:00:00.00">
+                                        <Interaction.Behaviors>
+                                            <behaviors:LostFocusUpdateBindingBehavior Text="{Binding Edit_InTime, Converter={StaticResource StringToTimeSpanConverter}}" />
+                                        </Interaction.Behaviors>
+                                    </MaskedTextBox>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <!--  =================================================  -->
+                        <DataGridTemplateColumn Width="Auto"
+                                                CanUserResize="False"
+                                                Header="Out Time">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="ms:OutputFile">
+                                    <MaskedTextBox Margin="2" Mask="00:00:00.00">
+                                        <Interaction.Behaviors>
+                                            <behaviors:LostFocusUpdateBindingBehavior Text="{Binding Edit_OutTime, Converter={StaticResource StringToTimeSpanConverter}}" />
+                                        </Interaction.Behaviors>
+                                    </MaskedTextBox>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <!--  =================================================  -->
+                        <DataGridTemplateColumn Width="Auto" CanUserResize="False">
+                            <DataGridTemplateColumn.Header>
+                                <StackPanel Orientation="Horizontal" Spacing="2">
+                                    <Border Background="#FF5DC264" CornerRadius="5">
+                                        <TextBlock Text="Copy" />
+                                    </Border>
+                                    <TextBlock Text="|" />
+                                    <Border Background="#FFFC725A" CornerRadius="5">
+                                        <TextBlock Text="Transcoding" />
+                                    </Border>
+                                </StackPanel>
+                            </DataGridTemplateColumn.Header>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="ms:OutputFile">
+                                    <CheckBox Margin="2"
+                                              HorizontalAlignment="Center"
+                                              IsChecked="{Binding IsTransCode}">
+                                        <Grid>
+                                            <Grid.Styles>
+                                                <Style Selector="Border.Show">
+                                                    <Setter Property="IsVisible" Value="True" />
+                                                </Style>
+                                                <Style Selector="Border:not(.Show)">
+                                                    <Setter Property="IsVisible" Value="False" />
+                                                </Style>
+                                            </Grid.Styles>
+                                            <Border Width="100"
+                                                    Height="20"
+                                                    Padding="3,0"
+                                                    Background="#FF5DC264"
+                                                    Classes.Show="{Binding !IsTransCode}"
+                                                    CornerRadius="5">
+                                                <TextBlock HorizontalAlignment="Center" Text="Copy" />
+                                            </Border>
+                                            <Border Width="100"
+                                                    Height="20"
+                                                    Padding="3,0"
+                                                    Background="#FFFC725A"
+                                                    Classes.Show="{Binding IsTransCode}"
+                                                    CornerRadius="5">
+                                                <TextBlock HorizontalAlignment="Center" Text="Transcoding" />
+                                            </Border>
+                                        </Grid>
+                                    </CheckBox>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <!--  =================================================  -->
+                        <DataGridTemplateColumn Width="Auto"
+                                                CanUserResize="False"
+                                                Header="Codec">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="ms:OutputFile">
+                                    <ComboBox Margin="2"
+                                              DisplayMemberBinding="{Binding Name}"
+                                              IsEnabled="{Binding IsTransCode}"
+                                              ItemsSource="{Binding CodecOptions}"
+                                              SelectedItem="{Binding SelectedCodec}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <!--  =================================================  -->
+                        <DataGridTemplateColumn Width="Auto"
+                                                CanUserResize="False"
+                                                Header="Preset">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="ms:OutputFile">
+                                    <ComboBox Margin="2"
+                                              IsEnabled="{Binding IsTransCode}"
+                                              ItemsSource="{Binding SpeedPresetOptions}"
+                                              SelectedItem="{Binding SelectedSpeedPreset}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <!--  =================================================  -->
+                        <DataGridTemplateColumn Width="Auto"
+                                                CanUserResize="False"
+                                                Header="CRF">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="ms:OutputFile">
+                                    <NumericUpDown Margin="2"
+                                                   HorizontalAlignment="Stretch"
+                                                   VerticalAlignment="Stretch"
+                                                   Increment="1"
+                                                   IsEnabled="{Binding IsTransCode}"
+                                                   Maximum="51"
+                                                   Minimum="0"
+                                                   ToolTip.Tip="0~51"
+                                                   Value="{Binding ConstantRateFactor}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <!--  =================================================  -->
+                        <DataGridTemplateColumn Width="Auto"
+                                                CanUserResize="False"
+                                                Header="Resolution">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate DataType="ms:OutputFile">
+                                    <StackPanel Margin="2"
+                                                IsEnabled="{Binding IsTransCode}"
+                                                Orientation="Horizontal"
+                                                Spacing="5">
+                                        <AutoCompleteBox Width="75"
+                                                         ItemsSource="{Binding ResolutionPreset}"
+                                                         ValueMemberBinding="{ReflectionBinding Width}"
+                                                         Watermark="Width">
                                             <Interaction.Behaviors>
-                                                <behaviors:LostFocusUpdateBindingBehavior Text="{Binding Edit_InTime, Converter={StaticResource StringToTimeSpanConverter}}" />
+                                                <behaviors:LostFocusUpdateBindingBehavior_AutoCompleteBox Text="{Binding CustomWidth}" />
                                             </Interaction.Behaviors>
-                                        </MaskedTextBox>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <!--  =================================================  -->
-                            <DataGridTemplateColumn Width="Auto"
-                                                    CanUserResize="False"
-                                                    Header="Out Time">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate x:DataType="ms:OutputFile">
-                                        <MaskedTextBox Margin="2" Mask="00:00:00.00">
+                                            <AutoCompleteBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{ReflectionBinding Width}" />
+                                                </DataTemplate>
+                                            </AutoCompleteBox.ItemTemplate>
+                                        </AutoCompleteBox>
+                                        <ToggleButton Width="30"
+                                                      Height="30"
+                                                      Classes="Success"
+                                                      IsChecked="{Binding IsLinkResolution}">
+                                            <PathIcon Data="M440-280H280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h160v80H280q-50 0-85 35t-35 85q0 50 35 85t85 35h160v80ZM320-440v-80h320v80H320Zm200 160v-80h160q50 0 85-35t35-85q0-50-35-85t-85-35H520v-80h160q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H520Z" />
+                                        </ToggleButton>
+                                        <AutoCompleteBox Width="75"
+                                                         ItemsSource="{Binding ResolutionPreset}"
+                                                         ValueMemberBinding="{ReflectionBinding Height}"
+                                                         Watermark="Height">
                                             <Interaction.Behaviors>
-                                                <behaviors:LostFocusUpdateBindingBehavior Text="{Binding Edit_OutTime, Converter={StaticResource StringToTimeSpanConverter}}" />
+                                                <behaviors:LostFocusUpdateBindingBehavior_AutoCompleteBox Text="{Binding CustomHeight}" />
                                             </Interaction.Behaviors>
-                                        </MaskedTextBox>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <!--  =================================================  -->
-                            <DataGridTemplateColumn Width="Auto" CanUserResize="False">
-                                <DataGridTemplateColumn.Header>
-                                    <StackPanel Orientation="Horizontal" Spacing="2">
-                                        <Border Background="#FF5DC264" CornerRadius="5">
-                                            <TextBlock Text="Copy" />
-                                        </Border>
-                                        <TextBlock Text="|" />
-                                        <Border Background="#FFFC725A" CornerRadius="5">
-                                            <TextBlock Text="Transcoding" />
-                                        </Border>
+                                            <AutoCompleteBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{ReflectionBinding Height}" />
+                                                </DataTemplate>
+                                            </AutoCompleteBox.ItemTemplate>
+                                        </AutoCompleteBox>
                                     </StackPanel>
-                                </DataGridTemplateColumn.Header>
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate x:DataType="ms:OutputFile">
-                                        <CheckBox Margin="2"
-                                                  HorizontalAlignment="Center"
-                                                  IsChecked="{Binding IsTransCode}">
-                                            <Grid>
-                                                <Grid.Styles>
-                                                    <Style Selector="Border.Show">
-                                                        <Setter Property="IsVisible" Value="True" />
-                                                    </Style>
-                                                    <Style Selector="Border:not(.Show)">
-                                                        <Setter Property="IsVisible" Value="False" />
-                                                    </Style>
-                                                </Grid.Styles>
-                                                <Border Width="100"
-                                                        Height="20"
-                                                        Padding="3,0"
-                                                        Background="#FF5DC264"
-                                                        Classes.Show="{Binding !IsTransCode}"
-                                                        CornerRadius="5">
-                                                    <TextBlock HorizontalAlignment="Center" Text="Copy" />
-                                                </Border>
-                                                <Border Width="100"
-                                                        Height="20"
-                                                        Padding="3,0"
-                                                        Background="#FFFC725A"
-                                                        Classes.Show="{Binding IsTransCode}"
-                                                        CornerRadius="5">
-                                                    <TextBlock HorizontalAlignment="Center" Text="Transcoding" />
-                                                </Border>
-                                            </Grid>
-                                        </CheckBox>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <!--  =================================================  -->
-                            <DataGridTemplateColumn Width="Auto"
-                                                    CanUserResize="False"
-                                                    Header="Codec">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate x:DataType="ms:OutputFile">
-                                        <ComboBox Margin="2"
-                                                  DisplayMemberBinding="{Binding Name}"
-                                                  IsEnabled="{Binding IsTransCode}"
-                                                  ItemsSource="{Binding CodecOptions}"
-                                                  SelectedItem="{Binding SelectedCodec}" />
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <!--  =================================================  -->
-                            <DataGridTemplateColumn Width="Auto"
-                                                    CanUserResize="False"
-                                                    Header="Preset">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate x:DataType="ms:OutputFile">
-                                        <ComboBox Margin="2"
-                                                  IsEnabled="{Binding IsTransCode}"
-                                                  ItemsSource="{Binding SpeedPresetOptions}"
-                                                  SelectedItem="{Binding SelectedSpeedPreset}" />
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <!--  =================================================  -->
-                            <DataGridTemplateColumn Width="Auto"
-                                                    CanUserResize="False"
-                                                    Header="CRF">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate x:DataType="ms:OutputFile">
-                                        <NumericUpDown Margin="2"
-                                                       HorizontalAlignment="Stretch"
-                                                       VerticalAlignment="Stretch"
-                                                       Increment="1"
-                                                       IsEnabled="{Binding IsTransCode}"
-                                                       Maximum="51"
-                                                       Minimum="0"
-                                                       ToolTip.Tip="0~51"
-                                                       Value="{Binding ConstantRateFactor}" />
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <!--  =================================================  -->
-                            <DataGridTemplateColumn Width="Auto"
-                                                    CanUserResize="False"
-                                                    Header="Resolution">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate DataType="ms:OutputFile">
-                                        <StackPanel Margin="2"
-                                                    IsEnabled="{Binding IsTransCode}"
-                                                    Orientation="Horizontal"
-                                                    Spacing="5">
-                                            <AutoCompleteBox Width="75"
-                                                             ItemsSource="{Binding ResolutionPreset}"
-                                                             ValueMemberBinding="{ReflectionBinding Width}"
-                                                             Watermark="Width">
-                                                <Interaction.Behaviors>
-                                                    <behaviors:LostFocusUpdateBindingBehavior_AutoCompleteBox Text="{Binding CustomWidth}" />
-                                                </Interaction.Behaviors>
-                                                <AutoCompleteBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{ReflectionBinding Width}" />
-                                                    </DataTemplate>
-                                                </AutoCompleteBox.ItemTemplate>
-                                            </AutoCompleteBox>
-                                            <ToggleButton Width="30"
-                                                          Height="30"
-                                                          Classes="Success"
-                                                          IsChecked="{Binding IsLinkResolution}">
-                                                <PathIcon Data="M440-280H280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h160v80H280q-50 0-85 35t-35 85q0 50 35 85t85 35h160v80ZM320-440v-80h320v80H320Zm200 160v-80h160q50 0 85-35t35-85q0-50-35-85t-85-35H520v-80h160q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H520Z" />
-                                            </ToggleButton>
-                                            <AutoCompleteBox Width="75"
-                                                             ItemsSource="{Binding ResolutionPreset}"
-                                                             ValueMemberBinding="{ReflectionBinding Height}"
-                                                             Watermark="Height">
-                                                <Interaction.Behaviors>
-                                                    <behaviors:LostFocusUpdateBindingBehavior_AutoCompleteBox Text="{Binding CustomHeight}" />
-                                                </Interaction.Behaviors>
-                                                <AutoCompleteBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{ReflectionBinding Height}" />
-                                                    </DataTemplate>
-                                                </AutoCompleteBox.ItemTemplate>
-                                            </AutoCompleteBox>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <!--  =================================================  -->
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <!--  =================================================  -->
 
-                        </DataGrid.Columns>
-                    </DataGrid>
-
-                    <Separator Grid.Row="1" />
-                    <DockPanel Grid.Row="2" Margin="2">
-                        <Button x:Name="AddOutputFileButton"
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+            <Border Grid.Row="4"
+                    Margin="4,0,4,4"
+                    Padding="2"
+                    Classes="Shadow"
+                    Theme="{DynamicResource CardBorder}">
+                <DockPanel Margin="2">
+                    <Button x:Name="AddOutputFileButton"
+                            Height="40"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            Classes="Success"
+                            Command="{Binding AddOutputFilesCommand}"
+                            DockPanel.Dock="Left"
+                            Theme="{DynamicResource SolidButton}">
+                        <StackPanel Height="24" Orientation="Horizontal">
+                            <PathIcon Width="15"
+                                      Height="15"
+                                      Data="M435-434H179v-91h256v-258h91v258h256v91H526v255h-91v-255Z" />
+                            <TextBlock Margin="8,0"
+                                       VerticalAlignment="Center"
+                                       Classes="Subtitle2"
+                                       Text="ADD OUTPUT" />
+                        </StackPanel>
+                    </Button>
+                    <Grid DockPanel.Dock="Right">
+                        <Button x:Name="ExportSelectedtButton"
+                                Width="200"
                                 Height="40"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                Classes="Success"
-                                Command="{Binding AddOutputFilesCommand}"
-                                DockPanel.Dock="Left"
+                                HorizontalAlignment="Right"
+                                Classes="Default"
+                                Command="{Binding ExportCommand}"
+                                IsVisible="{Binding !IsExporting}"
                                 Theme="{DynamicResource SolidButton}">
                             <StackPanel Height="24" Orientation="Horizontal">
                                 <PathIcon Width="15"
                                           Height="15"
-                                          Data="M435-434H179v-91h256v-258h91v258h256v91H526v255h-91v-255Z" />
+                                          Data="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
                                 <TextBlock Margin="8,0"
                                            VerticalAlignment="Center"
                                            Classes="Subtitle2"
-                                           Text="ADD OUTPUT" />
+                                           Text="EXPORT SELECTED" />
                             </StackPanel>
                         </Button>
-                        <Grid DockPanel.Dock="Right">
-                            <Button x:Name="ExportSelectedtButton"
-                                    Width="200"
-                                    Height="40"
-                                    HorizontalAlignment="Right"
-                                    Classes="Default"
-                                    Command="{Binding ExportCommand}"
-                                    IsVisible="{Binding !IsExporting}"
-                                    Theme="{DynamicResource SolidButton}">
-                                <StackPanel Height="24" Orientation="Horizontal">
-                                    <PathIcon Width="15"
-                                              Height="15"
-                                              Data="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
-                                    <TextBlock Margin="8,0"
-                                               VerticalAlignment="Center"
-                                               Classes="Subtitle2"
-                                               Text="EXPORT SELECTED" />
-                                </StackPanel>
-                            </Button>
-                            <Button x:Name="CencelExporttButton"
-                                    Width="200"
-                                    Height="40"
-                                    HorizontalAlignment="Right"
-                                    Classes="Danger"
-                                    Command="{Binding CencelCommand}"
-                                    IsVisible="{Binding IsExporting}"
-                                    Theme="{DynamicResource SolidButton}">
-                                <StackPanel Height="24" Orientation="Horizontal">
-                                    <PathIcon Width="15"
-                                              Height="15"
-                                              Data="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
-                                    <TextBlock Margin="8,0"
-                                               VerticalAlignment="Center"
-                                               Classes="Subtitle2"
-                                               Text="CENCEL EXPORT" />
-                                </StackPanel>
-                            </Button>
-                        </Grid>
+                        <Button x:Name="CencelExporttButton"
+                                Width="200"
+                                Height="40"
+                                HorizontalAlignment="Right"
+                                Classes="Danger"
+                                Command="{Binding CencelCommand}"
+                                IsVisible="{Binding IsExporting}"
+                                Theme="{DynamicResource SolidButton}">
+                            <StackPanel Height="24" Orientation="Horizontal">
+                                <PathIcon Width="15"
+                                          Height="15"
+                                          Data="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                                <TextBlock Margin="8,0"
+                                           VerticalAlignment="Center"
+                                           Classes="Subtitle2"
+                                           Text="CENCEL EXPORT" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
 
-                    </DockPanel>
-                </Grid>
+                </DockPanel>
             </Border>
         </Grid>
     </Grid>

@@ -1,6 +1,8 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Interactivity;
+using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using DynamicData;
@@ -9,8 +11,10 @@ using QuickCutter_Avalonia.Handler;
 using QuickCutter_Avalonia.Models;
 using QuickCutter_Avalonia.ViewModels;
 using ReactiveUI;
+using Splat.ModeDetection;
 using System.Collections.Generic;
 using System.Diagnostics;
+
 using System.Linq;
 using Ursa.Controls;
 
@@ -28,12 +32,18 @@ namespace QuickCutter_Avalonia.Views
         {
             InitializeComponent();
 
+            Width = Screens.Primary.Bounds.Width * 0.66;
+            Height = Screens.Primary.Bounds.Height * 0.66;
+
+
             Loaded += MainWindow_Loaded;
             Unloaded += MainWindow_Unloaded;
             ProjectsList.SelectionChanged += ProjectsList_SelectionChanged;
             AudioTrackComboBox.PropertyChanged += AudioTrackComboBox_PropertyChanged;
             SubtitleTrackComboBox.PropertyChanged += SubtitleTrackComboBox_PropertyChanged;
             OutputFilesDataGrid.SelectionChanged += OutputFilesDataGrid_SelectionChanged;
+            MediaPlayerGrid.SizeChanged += MediaPlayerGrid_SizeChanged;
+
         }
 
         #region ++Event Handler++
@@ -41,6 +51,7 @@ namespace QuickCutter_Avalonia.Views
         private void MainWindow_Loaded(object? sender, RoutedEventArgs e)
         {
             viewModel = DataContext as MainWindowViewModel;
+
             Core.Initialize();
             FileHandler.Init(GetStorageProvider());
             ExportHandler.Setup();
@@ -89,15 +100,13 @@ namespace QuickCutter_Avalonia.Views
                 double videoHeight = viewModel.SelectedProject.First().ImportVideoInfo.AnalysisResult.VideoStreams[0].Height;
                 double videoWidth = viewModel.SelectedProject.First().ImportVideoInfo.AnalysisResult.VideoStreams[0].Width;
                 mediaPlayerAspectRatio = double.IsNaN(videoWidth / videoHeight) ? mediaPlayerAspectRatio : videoWidth / videoHeight;
-                if (VideoGrid.Bounds.Width > VideoGrid.Bounds.Height * mediaPlayerAspectRatio)
+                if (MediaPlayerGrid.Bounds.Width >= MediaPlayerGrid.Bounds.Height * mediaPlayerAspectRatio)
                 {
-                    VideoView.Height = VideoGrid.Bounds.Height;
-                    VideoView.Width = VideoView.Height * mediaPlayerAspectRatio;
+                    VideoView_ChangeHeight(MediaPlayerGrid.Bounds.Height - 75.0 - 1.0);
                 }
                 else
                 {
-                    VideoView.Width = VideoGrid.Bounds.Width;
-                    VideoView.Height = VideoView.Width / mediaPlayerAspectRatio;
+                    VideoView_ChangeWidth(MediaPlayerGrid.Bounds.Width - 1);
                 }
             }
         }
@@ -140,7 +149,17 @@ namespace QuickCutter_Avalonia.Views
             }
         }
 
-        #endregion
+        private void MediaPlayerGrid_SizeChanged(object? sender, SizeChangedEventArgs e)
+        {
+            if (e.HeightChanged)
+            {
+                VideoView_ChangeHeight(e.NewSize.Height - 75.0 - 1);
+            }
+            if (e.WidthChanged)
+            {
+                VideoView_ChangeWidth(e.NewSize.Width - 1);
+            }
+        }
 
         private async void DeleteProjectButton_Click(object? sender, RoutedEventArgs e)
         {
@@ -148,22 +167,25 @@ namespace QuickCutter_Avalonia.Views
                 return;
 
             //viewModel.ResetMediaPlayer();
+            //MessageBus.Current.SendMessage("Delete project which has output files", "LogHandler");
+            MessageBoxResult result = MessageBoxResult.Yes;
             if (viewModel.SelectedProject[0].OutputFiles.Count > 0)
             {
-               // MessageBus.Current.SendMessage("Delete project which has output files", "LogHandler");
-                Debug.WriteLine("Delete project which has output files");
-                MessageBoxResult result = await MessageBox.ShowAsync("This Project has Output Files£¬Are you sure to delete this Project?", "Warning", MessageBoxIcon.Warning, MessageBoxButton.YesNo);
-                if (result == MessageBoxResult.No || result == MessageBoxResult.Cancel)
-                    return;
+                result = await MessageBox.ShowAsync("This Project has Output Files£¬Are you sure to delete this Project?", "Warning", MessageBoxIcon.Warning, MessageBoxButton.YesNo);
             }
 
-            //MessageBus.Current.SendMessage("Deleting project", "LogHandler");
-            Debug.WriteLine("Deleting project");
-            List<Project> selectedItems = ProjectsList.SelectedItems.OfType<Project>().ToList();
-            viewModel.Projects.Remove(selectedItems);
-            ProjectsList.SelectedItems.Clear();
-            Debug.WriteLine("Deleted project");
-            //MessageBus.Current.SendMessage("Deleted project", "LogHandler");
+            if (result == MessageBoxResult.Yes)
+            {
+                //MessageBus.Current.SendMessage("Deleting project", "LogHandler");
+                Debug.WriteLine("Deleting project");
+                List<Project> selectedItems = ProjectsList.SelectedItems.OfType<Project>().ToList();
+                viewModel.Projects.Remove(selectedItems);
+                ProjectsList.SelectedItems.Clear();
+                Debug.WriteLine("Deleted project");
+                //MessageBus.Current.SendMessage("Deleted project", "LogHandler");
+            }
+
+
         }
 
         private void MenuItem_Delete(object? sender, RoutedEventArgs e)
@@ -207,29 +229,23 @@ namespace QuickCutter_Avalonia.Views
             // Auto Complate Selected Output Files's Out Time
             viewModel.AutoComplateOutTime();
         }
+        #endregion
 
-        private void VideoGrid_SizeChanged(object? sender, SizeChangedEventArgs e)
+        private void VideoView_ChangeHeight(double height)
         {
-            if (viewModel == null)
-                return;
-            if (e.WidthChanged)
+            if (MediaPlayerGrid.Bounds.Width >= height * mediaPlayerAspectRatio)
             {
-                Debug.WriteLine("WidthChanged, CurWidth: {0} | Grid_SizeChanged", e.NewSize.Width);
-                if (e.NewSize.Height > e.NewSize.Width / mediaPlayerAspectRatio)
-                {
-                    VideoView.Width = e.NewSize.Width;
-                    VideoView.Height = VideoView.Width / mediaPlayerAspectRatio;
-                }
+                VideoView.Height = height;
+                VideoView.Width = height * mediaPlayerAspectRatio;
             }
-            if (e.HeightChanged)
-            {
-                Debug.WriteLine("HeightChanged, CurHeight: {0} | Grid_SizeChanged", e.NewSize.Height);
+        }
 
-                if (e.NewSize.Width > e.NewSize.Height * mediaPlayerAspectRatio )
-                {
-                    VideoView.Height = e.NewSize.Height;
-                    VideoView.Width = e.NewSize.Height * mediaPlayerAspectRatio;
-                }
+        private void VideoView_ChangeWidth(double width)
+        {
+            if (MediaPlayerGrid.Bounds.Height > width / mediaPlayerAspectRatio)
+            {
+                VideoView.Width = width;
+                VideoView.Height = VideoView.Width / mediaPlayerAspectRatio;
             }
         }
 
@@ -241,7 +257,8 @@ namespace QuickCutter_Avalonia.Views
 
         private void Button_Click(object? sender, RoutedEventArgs e)
         {
-            Debug.WriteLine(viewModel?.SelectedOutputFiles.Count());
+            VideoView.Width += 10;
+
         }
     }
 }
