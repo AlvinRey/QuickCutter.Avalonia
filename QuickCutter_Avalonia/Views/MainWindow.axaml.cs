@@ -1,8 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Data;
 using Avalonia.Interactivity;
-using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using DynamicData;
@@ -10,11 +8,9 @@ using LibVLCSharp.Shared;
 using QuickCutter_Avalonia.Handler;
 using QuickCutter_Avalonia.Models;
 using QuickCutter_Avalonia.ViewModels;
-using ReactiveUI;
-using Splat.ModeDetection;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
 using System.Linq;
 using Ursa.Controls;
 
@@ -26,6 +22,7 @@ namespace QuickCutter_Avalonia.Views
         #region Private field
         private MainWindowViewModel? viewModel;
         private double mediaPlayerAspectRatio = 16.0 / 9.0;
+        private Action? mVideoViewSizeInit;
         #endregion
 
         public MainWindow()
@@ -43,6 +40,7 @@ namespace QuickCutter_Avalonia.Views
             SubtitleTrackComboBox.PropertyChanged += SubtitleTrackComboBox_PropertyChanged;
             OutputFilesDataGrid.SelectionChanged += OutputFilesDataGrid_SelectionChanged;
             MediaPlayerGrid.SizeChanged += MediaPlayerGrid_SizeChanged;
+            VideoView.Loaded += VideoView_Loaded;
 
         }
 
@@ -62,6 +60,7 @@ namespace QuickCutter_Avalonia.Views
         {
             ExportHandler.CencelWithAppQuit();
             LogHandler.Dispose();
+            viewModel?.Dispose();
         }
 
         private void ProjectsList_SelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -109,7 +108,7 @@ namespace QuickCutter_Avalonia.Views
                     VideoView_ChangeWidth(MediaPlayerGrid.Bounds.Width - 1);
                 }
             }
-        }
+        } 
 
         private void AudioTrackComboBox_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
         {
@@ -151,6 +150,22 @@ namespace QuickCutter_Avalonia.Views
 
         private void MediaPlayerGrid_SizeChanged(object? sender, SizeChangedEventArgs e)
         {
+            if(!VideoView.IsLoaded)
+            {
+                mVideoViewSizeInit = () =>
+                {
+                    if (e.HeightChanged)
+                    {
+                        VideoView_ChangeHeight(e.NewSize.Height - 75.0 - 1);
+                    }
+                    if (e.WidthChanged)
+                    {
+                        VideoView_ChangeWidth(e.NewSize.Width - 1);
+                    }
+                };
+                return;
+            }
+
             if (e.HeightChanged)
             {
                 VideoView_ChangeHeight(e.NewSize.Height - 75.0 - 1);
@@ -161,31 +176,30 @@ namespace QuickCutter_Avalonia.Views
             }
         }
 
-        private async void DeleteProjectButton_Click(object? sender, RoutedEventArgs e)
+        private void VideoView_Loaded(object? sender, RoutedEventArgs e)
+        {
+            mVideoViewSizeInit?.Invoke();
+        }
+
+        private void DeleteProjectButton_Click(object? sender, RoutedEventArgs e)
         {
             if (viewModel is null || ProjectsList.SelectedItems is null || viewModel.SelectedProject.Count <= 0)
                 return;
 
-            //viewModel.ResetMediaPlayer();
-            //MessageBus.Current.SendMessage("Delete project which has output files", "LogHandler");
             MessageBoxResult result = MessageBoxResult.Yes;
-            if (viewModel.SelectedProject[0].OutputFiles.Count > 0)
-            {
-                result = await MessageBox.ShowAsync("This Project has Output Files£¬Are you sure to delete this Project?", "Warning", MessageBoxIcon.Warning, MessageBoxButton.YesNo);
-            }
+            //if (viewModel.SelectedProject[0].OutputFiles.Count > 0)
+            //{
+            //    result = await MessageBox.ShowAsync("This Project has Output Files£¬Are you sure to delete this Project?", "Warning", MessageBoxIcon.Warning, MessageBoxButton.YesNo);
+            //}
 
             if (result == MessageBoxResult.Yes)
             {
-                //MessageBus.Current.SendMessage("Deleting project", "LogHandler");
                 Debug.WriteLine("Deleting project");
                 List<Project> selectedItems = ProjectsList.SelectedItems.OfType<Project>().ToList();
                 viewModel.Projects.Remove(selectedItems);
                 ProjectsList.SelectedItems.Clear();
                 Debug.WriteLine("Deleted project");
-                //MessageBus.Current.SendMessage("Deleted project", "LogHandler");
             }
-
-
         }
 
         private void MenuItem_Delete(object? sender, RoutedEventArgs e)

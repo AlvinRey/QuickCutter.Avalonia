@@ -121,6 +121,7 @@ namespace QuickCutter_Avalonia.ViewModels
 
         public void ResetMediaPlayer()
         {
+            MediaPlayer.Pause();
             MediaPlayer.Stop();
             MediaPlayer.Media = null;
             refresh.OnNext(Unit.Default);
@@ -165,7 +166,7 @@ namespace QuickCutter_Avalonia.ViewModels
             IObservable<Unit> VLCEvent(string name)
                 => Observable.FromEventPattern(MediaPlayer, name).Select(_ => Unit.Default);
 
-            void Op(Action action)
+            void Operating(Action action)
             {
                 operationActive = true;
                 action();
@@ -184,6 +185,7 @@ namespace QuickCutter_Avalonia.ViewModels
             var stateChanged = Observable.Merge(playingChanged, stoppedChanged, endReachedChanged, pausedChanged);
             var audioTrackChanged = this.WhenAnyValue(v => v.SelectedAudioTrack).Select(_ => Unit.Default);
             var subtitleTrackChanged = this.WhenAnyValue(v => v.SelectedSubtitleTrack).Select(_ => Unit.Default);
+            var encounteredError = VLCEvent(nameof(MediaPlayer.EncounteredError));
 
             _subscriptions = new CompositeDisposable
             {
@@ -195,13 +197,14 @@ namespace QuickCutter_Avalonia.ViewModels
                 Wrap(playingChanged)        .DistinctUntilChanged(_=>SubtitleTrack)         .Subscribe(_=>this.RaisePropertyChanged(nameof(SubtitleTrack))),
                 Wrap(audioTrackChanged)     .DistinctUntilChanged(_=>SelectedAudioTrack)    .Subscribe(_=>{if(SelectedAudioTrack.HasValue){MediaPlayer.SetAudioTrack(SelectedAudioTrack.Value.Id); }}),
                 Wrap(subtitleTrackChanged)  .DistinctUntilChanged(_=>SelectedSubtitleTrack) .Subscribe(_=>{if(SelectedSubtitleTrack.HasValue){MediaPlayer.SetSpu(SelectedSubtitleTrack.Value.Id); }}),
-                Wrap(stateChanged)          .DistinctUntilChanged(_=>IsPlaying)             .Subscribe(_=>this.RaisePropertyChanged(nameof(IsPlaying)))
+                Wrap(stateChanged)          .DistinctUntilChanged(_=>IsPlaying)             .Subscribe(_=>this.RaisePropertyChanged(nameof(IsPlaying))),
+                Wrap(encounteredError)      .DistinctUntilChanged(_=>IsPlaying)             .Subscribe(_=>Debug.WriteLine("Media Player Encountered Error"))
             };
 
             bool active() => _subscriptions == null ? false : MediaPlayer.IsPlaying || MediaPlayer.CanPause;
             stateChanged = Wrap(stateChanged);
 
-            PlayOrPauseVideoCommand = ReactiveCommand.Create(() => Op(() =>
+            PlayOrPauseVideoCommand = ReactiveCommand.Create(() => Operating(() =>
             {
                 switch (MediaPlayer.State)
                 {

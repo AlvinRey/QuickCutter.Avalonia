@@ -69,7 +69,8 @@
                 <Separator Grid.Row="3" />
                 <StackPanel Grid.Row="4"
                             Height="40"
-                            Orientation="Horizontal">
+                            Orientation="Horizontal"
+                            Spacing="10">
                     <Button Name="SettingButton"
                             Classes="Tertiary"
                             Theme="{DynamicResource BorderlessButton}">

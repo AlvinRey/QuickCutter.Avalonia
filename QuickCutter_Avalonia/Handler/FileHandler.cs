@@ -15,7 +15,7 @@ namespace QuickCutter_Avalonia.Handler
 
         static public void Init(IStorageProvider? sp)
         {
-            mStorageProvider = sp;  
+            mStorageProvider = sp;
         }
 
         async static public Task<IReadOnlyList<VideoInfo>> ImportVideoFile()
