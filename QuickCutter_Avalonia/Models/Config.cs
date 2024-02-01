@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using FFMpegCore;
-
 namespace QuickCutter_Avalonia.Mode
 {
-    public class VideoInfo
+    /// <summary>
+    /// 本软件配置文件实体类
+    /// </summary>
+    [Serializable]
+    internal class Config
     {
-        public string VideoFullName { get; set; }
 
-        public IMediaAnalysis AnalysisResult { get; set; }
     }
 }

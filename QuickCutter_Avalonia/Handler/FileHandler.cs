@@ -1,6 +1,6 @@
 ﻿using Avalonia.Platform.Storage;
 using FFMpegCore;
-using QuickCutter_Avalonia.Models;
+using QuickCutter_Avalonia.Mode;
 using ReactiveUI;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -23,7 +23,7 @@ namespace QuickCutter_Avalonia.Handler
             var list = new List<VideoInfo>();
             if (mStorageProvider is null)
             {
-                MessageBus.Current.SendMessage("ImportVideoFile: mStorageProvider is Null.", "LogHandler");
+                Utils.SaveLog("ImportVideoFile: mStorageProvider is Null.");
                 return list.AsReadOnly();
             }
 
@@ -44,7 +44,6 @@ namespace QuickCutter_Avalonia.Handler
 
             if (files.Count <= 0)
             {
-                MessageBus.Current.SendMessage("ImportVideoFile: There are no files selected.", "LogHandler");
                 return list.AsReadOnly();
             }
 
@@ -65,7 +64,7 @@ namespace QuickCutter_Avalonia.Handler
         {
             if (mStorageProvider is null)
             {
-                MessageBus.Current.SendMessage("SelectExportFolder: mStorageProvider is Null.", "LogHandler");
+                Utils.SaveLog("SelectExportFolder: mStorageProvider is Null.");
                 return string.Empty;
             }
 
@@ -78,7 +77,6 @@ namespace QuickCutter_Avalonia.Handler
 
             if (folders.Count <= 0)
             {
-                MessageBus.Current.SendMessage("SelectExportFolder: There is no folder selected.", "LogHandler");
                 return string.Empty;
             }
 

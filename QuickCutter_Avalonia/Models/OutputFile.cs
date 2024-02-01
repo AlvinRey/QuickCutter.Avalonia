@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
-namespace QuickCutter_Avalonia.Models
+namespace QuickCutter_Avalonia.Mode
 {
     public partial class OutputFile : ReactiveObject, IDisposable
     {
@@ -53,7 +53,7 @@ namespace QuickCutter_Avalonia.Models
         public Action? cencelOutput;
 
         // FFmpeg Options
-        public IEnumerable<Codec> CodecOptions { get; } = Utility.GetCodec();
+        public IEnumerable<Codec> CodecOptions { get; } = Utils.GetCodec();
 
         [Reactive]
         public Codec SelectedCodec { get; set; } = VideoCodec.LibX264;

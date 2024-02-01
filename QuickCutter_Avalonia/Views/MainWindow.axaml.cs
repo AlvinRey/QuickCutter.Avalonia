@@ -6,7 +6,7 @@ using Avalonia.Styling;
 using DynamicData;
 using LibVLCSharp.Shared;
 using QuickCutter_Avalonia.Handler;
-using QuickCutter_Avalonia.Models;
+using QuickCutter_Avalonia.Mode;
 using QuickCutter_Avalonia.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -41,6 +41,7 @@ namespace QuickCutter_Avalonia.Views
             OutputFilesDataGrid.SelectionChanged += OutputFilesDataGrid_SelectionChanged;
             MediaPlayerGrid.SizeChanged += MediaPlayerGrid_SizeChanged;
             VideoView.Loaded += VideoView_Loaded;
+            SettingButton.Click += SettingButton_Click;
 
         }
 
@@ -242,6 +243,15 @@ namespace QuickCutter_Avalonia.Views
             }
             // Auto Complate Selected Output Files's Out Time
             viewModel.AutoComplateOutTime();
+        }
+
+        private void SettingButton_Click(object? sender, RoutedEventArgs e)
+        {
+            SettingWindow settingWindow = new SettingWindow()
+            {
+                DataContext = new SettingWindowViewModel()
+            };
+            settingWindow.Show(this);
         }
         #endregion
 

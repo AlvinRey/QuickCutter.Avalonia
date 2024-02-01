@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace QuickCutter_Avalonia.Models
+namespace QuickCutter_Avalonia.Mode
 {
 
     public class ExportInfo

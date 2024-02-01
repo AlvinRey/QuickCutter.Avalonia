@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 
 
-namespace QuickCutter_Avalonia.Models
+namespace QuickCutter_Avalonia.Mode
 {
     public partial class Project
     {

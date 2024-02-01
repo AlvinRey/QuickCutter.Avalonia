@@ -2,7 +2,7 @@
 using LibVLCSharp.Shared;
 using LibVLCSharp.Shared.Structures;
 using QuickCutter_Avalonia.Handler;
-using QuickCutter_Avalonia.Models;
+using QuickCutter_Avalonia.Mode;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;

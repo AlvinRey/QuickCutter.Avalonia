@@ -9,10 +9,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using ReactiveUI;
+using System.Text.Json;
 
 namespace QuickCutter_Avalonia.Handler
 {
-    internal class Utility
+    internal class Utils
     {
         static public IList<Codec>? Codec { get; set; }
 
@@ -90,6 +92,75 @@ namespace QuickCutter_Avalonia.Handler
             else
             {
                 return Path.Combine(_tempPath, filename);
+            }
+        }
+
+        public static string GetConfigPath(string filename = "")
+        {
+            string _tempPath = Path.Combine(StartupPath(), "guiConfigs");
+            if (!Directory.Exists(_tempPath))
+            {
+                Directory.CreateDirectory(_tempPath);
+            }
+            if (string.IsNullOrEmpty(filename))
+            {
+                return _tempPath;
+            }
+            else
+            {
+                return Path.Combine(_tempPath, filename);
+            }
+        }
+        #endregion
+
+        #region Json 
+        /// <summary>
+        /// 取得存储资源
+        /// </summary>
+        /// <returns></returns>
+        public static string? LoadResource(string res)
+        {
+            try
+            {
+                if (!File.Exists(res)) return null;
+                return File.ReadAllText(res);
+            }
+            catch (Exception ex)
+            {
+                SaveLog(ex.Message);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 反序列化成对象
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="strJson"></param>
+        /// <returns></returns>
+        public static T? FromJson<T>(string? strJson)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(strJson))
+                {
+                    return default;
+                }
+                return JsonSerializer.Deserialize<T>(strJson);
+            }
+            catch
+            {
+                return default;
+            }
+        }
+        #endregion
+
+        #region Log
+        public static void SaveLog(string message)
+        {
+            if(!string.IsNullOrEmpty(message))
+            {
+                MessageBus.Current.SendMessage(message, Global.LogTarget);
             }
         }
         #endregion

@@ -12,14 +12,13 @@ namespace QuickCutter_Avalonia.Handler
         #region  Private Member
 
         private static string? mLogDirectory;
-        private static string? mLogMsg;
         private static StreamWriter? mSw;
         #endregion
 
         public static void Init()
         {
-            MessageBus.Current.Listen<string>("LogHandler").Subscribe(x => { mLogMsg = x; DelegateAppendText(); });
-            mLogDirectory = Utility.GetLogPath();
+            MessageBus.Current.Listen<string>(Global.LogTarget).Subscribe(message => OutputLog(message));
+            mLogDirectory = Utils.GetLogPath();
             var fileName = DateTime.Now.ToString("yyyy-MM-dd") + ".txt";
             var fileFullName = Path.Combine(mLogDirectory, fileName);
             mSw = File.AppendText(fileFullName);
@@ -30,21 +29,16 @@ namespace QuickCutter_Avalonia.Handler
             mSw?.Dispose();
         }
 
-        private static void DelegateAppendText()
+        private static void OutputLog(string message)
         {
-            Dispatcher.UIThread.Invoke(OutputLog, DispatcherPriority.Send);
-        }
+            if (mSw is null || string.IsNullOrEmpty(message)) return;
 
-        private static void OutputLog()
-        {
-            if (mSw is null || string.IsNullOrEmpty(mLogMsg)) return;
-
-            mLogMsg = DateTime.Now.ToString() + ' ' + mLogMsg;
-            if (!mLogMsg.EndsWith(Environment.NewLine))
+            message = DateTime.Now.ToString() + ' ' + message;
+            if (!message.EndsWith(Environment.NewLine))
             {
-                mLogMsg += Environment.NewLine;
+                message += Environment.NewLine;
             }
-            mSw.WriteLineAsync(mLogMsg);
+            mSw.WriteLineAsync(message);
         }
     }
 }

@@ -6,7 +6,7 @@
         xmlns:converters="using:QuickCutter_Avalonia.Converters"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:ms="using:QuickCutter_Avalonia.Models"
+        xmlns:ms="using:QuickCutter_Avalonia.Mode"
         xmlns:vlc="clr-namespace:LibVLCSharp.Avalonia;assembly=LibVLCSharp.Avalonia"
         xmlns:vm="using:QuickCutter_Avalonia.ViewModels"
         Title="QuickCutter_Avalonia"

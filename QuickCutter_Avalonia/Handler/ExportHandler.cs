@@ -2,7 +2,7 @@
 using FFMpegCore.Arguments;
 using FFMpegCore.Exceptions;
 
-using QuickCutter_Avalonia.Models;
+using QuickCutter_Avalonia.Mode;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -27,9 +27,9 @@ namespace QuickCutter_Avalonia.Handler
 
         static public void Setup()
         {
-            if(File.Exists(Path.Combine(Utility.StartupPath(), @"bin\ffmpeg.exe")) && File.Exists(Path.Combine(Utility.StartupPath(), @"bin\ffprobe.exe")))
+            if(File.Exists(Path.Combine(Utils.StartupPath(), @"bin\ffmpeg.exe")) && File.Exists(Path.Combine(Utils.StartupPath(), @"bin\ffprobe.exe")))
             {
-                GlobalFFOptions.Configure(new FFOptions { BinaryFolder = Path.Combine(Utility.StartupPath(),"bin"), TemporaryFilesFolder = Path.Combine(Utility.StartupPath(), "temp") });
+                GlobalFFOptions.Configure(new FFOptions { BinaryFolder = Path.Combine(Utils.StartupPath(),"bin"), TemporaryFilesFolder = Path.Combine(Utils.StartupPath(), "temp") });
                 return;
             }
 
