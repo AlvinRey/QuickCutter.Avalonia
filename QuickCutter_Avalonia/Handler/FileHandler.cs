@@ -9,6 +9,23 @@ namespace QuickCutter_Avalonia.Handler
 {
     internal class FileHandler
     {
+        #region Static Member
+        static public FilePickerOpenOptions SelectAllVideo = new FilePickerOpenOptions()
+        {
+            Title = "Open File",
+            FileTypeFilter = new[] { new FilePickerFileType("VideoAll")
+                                                    {
+                                                        Patterns = new []
+                                                        {
+                                                            "*.mp4", "*.mov", "*.mkv"
+                                                        }
+                                                    }
+                                                },
+            AllowMultiple = true
+        };
+
+        #endregion
+
         #region Private Member
         static private IStorageProvider? mStorageProvider;
         #endregion
@@ -18,46 +35,31 @@ namespace QuickCutter_Avalonia.Handler
             mStorageProvider = sp;
         }
 
-        async static public Task<IReadOnlyList<VideoInfo>> ImportVideoFile()
+        async static public Task<IReadOnlyList<string>> SelectFiles(FilePickerOpenOptions openOptions)
         {
-            var list = new List<VideoInfo>();
+            List<string> filesFullName = new List<string>();
             if (mStorageProvider is null)
             {
                 Utils.SaveLog("ImportVideoFile: mStorageProvider is Null.");
-                return list.AsReadOnly();
+                return filesFullName.AsReadOnly();
             }
 
-
-            var files = await mStorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
-            {
-                Title = "Open File",
-                FileTypeFilter = new[] { new FilePickerFileType("VideoAll")
-                                            {
-                                                Patterns = new []
-                                                {
-                                                    "*.mp4", "*.mov", "*.mkv"
-                                                }
-                                            }
-                },
-                AllowMultiple = true,
-            });
+            var files = await mStorageProvider.OpenFilePickerAsync(openOptions);
 
             if (files.Count <= 0)
             {
-                return list.AsReadOnly();
+                return filesFullName.AsReadOnly();
             }
 
-
-            foreach(var file in files)
+            foreach (var file in files)
             {
                 string? videoFullName = file.TryGetLocalPath();
                 if (string.IsNullOrEmpty(videoFullName))
                     continue;
-                IMediaAnalysis mediaInfo;
-                mediaInfo = FFProbe.Analyse(videoFullName);
-                list.Add(new VideoInfo() { VideoFullName = videoFullName, AnalysisResult = mediaInfo });
+                filesFullName.Add(videoFullName);
             }
-            return list.AsReadOnly();
+
+            return filesFullName.AsReadOnly();
         }
 
         async static public Task<string> SelectExportFolder()

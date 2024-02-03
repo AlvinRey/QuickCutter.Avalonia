@@ -3,6 +3,7 @@ using LibVLCSharp.Shared;
 using LibVLCSharp.Shared.Structures;
 using QuickCutter_Avalonia.Handler;
 using QuickCutter_Avalonia.Mode;
+using QuickCutter_Avalonia.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
@@ -22,7 +23,7 @@ namespace QuickCutter_Avalonia.ViewModels
         #region Project List
         public ObservableCollection<Project> SelectedProject { get; set; }
         public ObservableCollection<Project> Projects { get; }
-        public IReactiveCommand ImportProjectFileCommand {  get; }
+        public IReactiveCommand ImportProjectFileCommand { get; }
         #endregion
 
         #region Media Player
@@ -130,9 +131,9 @@ namespace QuickCutter_Avalonia.ViewModels
 
         #region Output Data Grid
         [Reactive]
-        public bool IsExporting {  get; set; }
+        public bool IsExporting { get; set; }
         public ObservableCollection<OutputFile> SelectedOutputFiles { get; set; }
-        public IReactiveCommand<Unit,Unit> AddOutputFilesCommand { get; }
+        public IReactiveCommand<Unit, Unit> AddOutputFilesCommand { get; }
         public IReactiveCommand ExportCommand { get; }
         public IReactiveCommand CencelCommand { get; }
         #endregion
@@ -145,10 +146,25 @@ namespace QuickCutter_Avalonia.ViewModels
             ImportProjectFileCommand = ReactiveCommand.Create(
                 async () =>
                 {
-                    var videoInfoList = await FileHandler.ImportVideoFile();
-                    foreach(var videoInfo in videoInfoList)
+                    var filesFullName = await FileHandler.SelectFiles(FileHandler.SelectAllVideo);
+                    int beginIndex = Projects.Count;
+
+                    for (int i = 0; i < filesFullName.Count; i++)
                     {
-                        Projects.Add(new Project(videoInfo));
+                        Projects.Add(new Project());
+                    }
+
+                    var list = filesFullName
+                                .AsParallel()
+                                .AsOrdered()
+                                .Select(x => FFmpegHandler.AnaliysisMedia(x))
+                                .ToList();
+
+                    Debug.Assert(filesFullName.Count == list.Count);
+
+                    for (int i = beginIndex, j = 0; i < beginIndex + filesFullName.Count; i++, j++)
+                    {
+                        Projects[i].SetVideoInfo(new VideoInfo() { VideoFullName = filesFullName[j], AnalysisResult = list[j] });
                     }
                 });
             #endregion
@@ -235,15 +251,15 @@ namespace QuickCutter_Avalonia.ViewModels
 
             #region Init Data Grid
             SelectedOutputFiles = new ObservableCollection<OutputFile>();
-            var selectedProjectChanged = Observable.FromEventPattern(SelectedProject,nameof(SelectedProject.CollectionChanged)).Select(_ => SelectedProject.Count > 0);
+            var selectedProjectChanged = Observable.FromEventPattern(SelectedProject, nameof(SelectedProject.CollectionChanged)).Select(_ => SelectedProject.Count > 0);
             var selectedOutputFilesChanged = Observable.FromEventPattern(SelectedOutputFiles, nameof(SelectedOutputFiles.CollectionChanged)).Select(_ => SelectedOutputFiles.Count > 0);
-            
+
             AddOutputFilesCommand = ReactiveCommand.Create(
                 () => SelectedProject.First().AddChild(),
                 selectedProjectChanged);
 
             ExportCommand = ReactiveCommand.Create(
-                async () => 
+                async () =>
                 {
                     string folderFullName = await FileHandler.SelectExportFolder();
                     ExportHandler.GenerateExportInfo(folderFullName, SelectedOutputFiles.ToList());
@@ -261,7 +277,7 @@ namespace QuickCutter_Avalonia.ViewModels
         {
             if (SelectedOutputFiles.Count <= 0)
                 return;
-            foreach(var file in SelectedOutputFiles)
+            foreach (var file in SelectedOutputFiles)
             {
                 file.Edit_InTime = CurrentTime;
             }

@@ -7,6 +7,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ms="using:QuickCutter_Avalonia.Mode"
+        xmlns:u="https://irihi.tech/ursa"
         xmlns:vlc="clr-namespace:LibVLCSharp.Avalonia;assembly=LibVLCSharp.Avalonia"
         xmlns:vm="using:QuickCutter_Avalonia.ViewModels"
         Title="QuickCutter_Avalonia"
@@ -62,7 +63,9 @@
                     </ListBox.Styles>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding ImportVideoInfo.VideoFullName}" />
+                            <u:LoadingContainer IsLoading="{Binding Loading, Mode=OneWay}" LoadingMessage="Loading...">
+                                <TextBlock Text="{Binding MediaFullName}" />
+                            </u:LoadingContainer>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>

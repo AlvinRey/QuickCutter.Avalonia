@@ -251,6 +251,7 @@ namespace QuickCutter_Avalonia.Views
             {
                 DataContext = new SettingWindowViewModel()
             };
+            settingWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             settingWindow.Show(this);
         }
         #endregion
