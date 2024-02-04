@@ -111,6 +111,40 @@ namespace QuickCutter_Avalonia.Handler
                 return Path.Combine(_tempPath, filename);
             }
         }
+
+        public static string GetFFmpegPath(string filename = "")
+        {
+            string _tempPath = Path.Combine(StartupPath(), @"bin/FFmepg");
+            if (!Directory.Exists(_tempPath))
+            {
+                Directory.CreateDirectory(_tempPath);
+            }
+            if (string.IsNullOrEmpty(filename))
+            {
+                return _tempPath;
+            }
+            else
+            {
+                return Path.Combine(_tempPath, filename);
+            }
+        }
+
+        public static string GetFFmpegTempPath(string filename = "")
+        {
+            string _tempPath = Path.Combine(StartupPath(), @"temp/FFmpeg");
+            if (!Directory.Exists(_tempPath))
+            {
+                Directory.CreateDirectory(_tempPath);
+            }
+            if (string.IsNullOrEmpty(filename))
+            {
+                return _tempPath;
+            }
+            else
+            {
+                return Path.Combine(_tempPath, filename);
+            }
+        }
         #endregion
 
         #region Json 

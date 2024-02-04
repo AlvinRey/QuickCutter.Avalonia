@@ -53,8 +53,16 @@ namespace QuickCutter_Avalonia.Views
 
             Core.Initialize();
             FileHandler.Init(GetStorageProvider());
-            ExportHandler.Setup();
             LogHandler.Init();
+
+            try
+            {
+                FFmpegHandler.CheckFFmpegIsExist();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.ShowAsync(ex.Message, "Error", MessageBoxIcon.Error, MessageBoxButton.OK);
+            }
         }
 
         private void MainWindow_Unloaded(object? sender, RoutedEventArgs e)
@@ -76,11 +84,11 @@ namespace QuickCutter_Avalonia.Views
                 {
                     viewModel.SelectedProject.Remove(item);
                 }
-                viewModel.ResetMediaPlayer();
                 HeaderTitle.Text = null;
                 AudioTrackComboBox.ItemsSource = null;
                 SubtitleTrackComboBox.ItemsSource = null;
                 OutputFilesDataGrid.ItemsSource = null;
+                viewModel.ResetMediaPlayer();
             }
 
             if (e.AddedItems.Count > 0)
@@ -153,6 +161,8 @@ namespace QuickCutter_Avalonia.Views
         {
             if(!VideoView.IsLoaded)
             {
+                // Because the VideoView has not been loaded at this time, adjusting its Size is meaningless.
+                // Pack the current Grid's Size into mVideoViewSizeInit and wait until VideoView completes loading before executing it.
                 mVideoViewSizeInit = () =>
                 {
                     if (e.HeightChanged)

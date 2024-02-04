@@ -20,6 +20,7 @@ namespace QuickCutter_Avalonia.Mode
 
         public Project()
         {
+            MediaFullName = string.Empty;
             OutputFiles = new ObservableCollection<OutputFile>();
             OutputFiles.CollectionChanged += OutputFiles_CollectionChanged;
             Loading = true;

@@ -7,10 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using Ursa.Controls;
 
 namespace QuickCutter_Avalonia.Handler
 {
@@ -24,38 +21,6 @@ namespace QuickCutter_Avalonia.Handler
         static private bool mIsCencel = false;
         static private Action? mCencelAction;
         static public ExportInfo? ExportInfoInstance { get; set; }
-
-        static public void Setup()
-        {
-            if(File.Exists(Path.Combine(Utils.StartupPath(), @"bin\ffmpeg.exe")) && File.Exists(Path.Combine(Utils.StartupPath(), @"bin\ffprobe.exe")))
-            {
-                GlobalFFOptions.Configure(new FFOptions { BinaryFolder = Path.Combine(Utils.StartupPath(),"bin"), TemporaryFilesFolder = Path.Combine(Utils.StartupPath(), "temp") });
-                return;
-            }
-
-            string? pathVariable = Environment.GetEnvironmentVariable("PATH");
-
-            // must ToList(), in order to Linq Once.
-            var paths = pathVariable?.Split(';').Where(path => path.Contains("ffmpeg"));
-            bool containsFFmpeg = false;
-
-            if (paths != null)
-            {
-                foreach (var path in paths)
-                {
-                    containsFFmpeg = File.Exists(Path.Combine(path, "ffmpeg.exe")) && File.Exists(Path.Combine(path, "ffprobe.exe"));
-                    if(containsFFmpeg)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            if(!containsFFmpeg)
-            {
-                MessageBox.ShowAsync("Can not find FFmpeg in PATH, Plese download FFmpeg or add FFmpeg into PATH", "Error", MessageBoxIcon.Error, MessageBoxButton.OK);
-            }
-        }
 
         static public void ChangeExportDirectory(string exportDirectory)
         {

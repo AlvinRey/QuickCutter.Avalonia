@@ -5,7 +5,7 @@ In many cases, users do not need most of the features of professional editing so
 ## How to use
  - Bulid the project.
  - Download [FFmpeg](https://github.com/BtbN/FFmpeg-Builds/releases) if you do not hava FFmpeg
- - Add the `bin` folder of FFmpeg to environment path or copy it to the directory where the executable program is located.
+ - Add the `bin` folder of FFmpeg to environment path or copy the contents of the `bin` file to `#ApplicationPath/bin/FFmpeg`(create one if it do not exist).
  - Run QuickCutter_Avalonia.exe.
 
 ## Requirement

@@ -3,7 +3,6 @@ using LibVLCSharp.Shared;
 using LibVLCSharp.Shared.Structures;
 using QuickCutter_Avalonia.Handler;
 using QuickCutter_Avalonia.Mode;
-using QuickCutter_Avalonia.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
@@ -147,24 +146,11 @@ namespace QuickCutter_Avalonia.ViewModels
                 async () =>
                 {
                     var filesFullName = await FileHandler.SelectFiles(FileHandler.SelectAllVideo);
-                    int beginIndex = Projects.Count;
 
                     for (int i = 0; i < filesFullName.Count; i++)
-                    {
+                    { 
                         Projects.Add(new Project());
-                    }
-
-                    var list = filesFullName
-                                .AsParallel()
-                                .AsOrdered()
-                                .Select(x => FFmpegHandler.AnaliysisMedia(x))
-                                .ToList();
-
-                    Debug.Assert(filesFullName.Count == list.Count);
-
-                    for (int i = beginIndex, j = 0; i < beginIndex + filesFullName.Count; i++, j++)
-                    {
-                        Projects[i].SetVideoInfo(new VideoInfo() { VideoFullName = filesFullName[j], AnalysisResult = list[j] });
+                        FFmpegHandler.AnaliysisMedia(filesFullName[i], Projects.Last());
                     }
                 });
             #endregion

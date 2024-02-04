@@ -10,18 +10,14 @@ namespace QuickCutter_Avalonia.Handler
     internal class LogHandler
     {
         #region  Private Member
-
-        private static string? mLogDirectory;
         private static StreamWriter? mSw;
         #endregion
 
         public static void Init()
         {
             MessageBus.Current.Listen<string>(Global.LogTarget).Subscribe(message => OutputLog(message));
-            mLogDirectory = Utils.GetLogPath();
-            var fileName = DateTime.Now.ToString("yyyy-MM-dd") + ".txt";
-            var fileFullName = Path.Combine(mLogDirectory, fileName);
-            mSw = File.AppendText(fileFullName);
+            string fileName = DateTime.Now.ToString("yyyy-MM-dd") + ".txt";
+            mSw = File.AppendText(Utils.GetLogPath(fileName));
         }
 
         public static void Dispose()
