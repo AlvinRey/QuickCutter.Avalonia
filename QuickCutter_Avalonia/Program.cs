@@ -2,12 +2,16 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
+using QuickCutter_Avalonia.Handler;
+using QuickCutter_Avalonia.Mode;
 using System;
 
 namespace QuickCutter_Avalonia
 {
     internal sealed class Program
     {
+
+
         // Initialization code. Don't use any Avalonia, third-party APIs or any
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
         // yet and stuff might break.
@@ -20,7 +24,7 @@ namespace QuickCutter_Avalonia
                 Args = args,
                 ShutdownMode = ShutdownMode.OnLastWindowClose
             };
-            //lifetime.Exit += OnExit;
+
             appBulider.SetupWithLifetime(lifetime);
             lifetime.Start(args);
         }
@@ -33,10 +37,5 @@ namespace QuickCutter_Avalonia
                 .WithInterFont()
                 .LogToTrace()
                 .UseReactiveUI();
-
-        //static void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
-        //{
-
-        //}
     }
 }

@@ -53,7 +53,7 @@ namespace QuickCutter_Avalonia.Views
 
             Core.Initialize();
             FileHandler.Init(GetStorageProvider());
-            LogHandler.Init();
+
 
             try
             {
@@ -84,11 +84,11 @@ namespace QuickCutter_Avalonia.Views
                 {
                     viewModel.SelectedProject.Remove(item);
                 }
+                viewModel.ResetMediaPlayer();
                 HeaderTitle.Text = null;
                 AudioTrackComboBox.ItemsSource = null;
                 SubtitleTrackComboBox.ItemsSource = null;
                 OutputFilesDataGrid.ItemsSource = null;
-                viewModel.ResetMediaPlayer();
             }
 
             if (e.AddedItems.Count > 0)

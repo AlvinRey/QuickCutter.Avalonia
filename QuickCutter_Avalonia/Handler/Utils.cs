@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.IO;
 using ReactiveUI;
 using System.Text.Json;
+using System.Xml;
 
 namespace QuickCutter_Avalonia.Handler
 {
@@ -187,6 +188,32 @@ namespace QuickCutter_Avalonia.Handler
                 return default;
             }
         }
+
+
+        /// <summary>
+        /// 保存成json文件
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public static int ToJsonFile(object? obj, string filePath)
+        {
+            int result;
+            try
+            {
+                var options = new JsonSerializerOptions() { WriteIndented = true };
+                string jsonString = JsonSerializer.Serialize(obj);
+                File.WriteAllText(filePath, jsonString);
+                result = 0;
+            }
+            catch (Exception ex)
+            {
+                SaveLog(ex.Message);
+                result = -1;
+            }
+            return result;
+        }
+
         #endregion
 
         #region Log

@@ -57,10 +57,9 @@ namespace QuickCutter_Avalonia.Handler
             }
         }
 
-        static public async Task AnaliysisMedia(string mediaFullName, Project project)
+        static public async Task<IMediaAnalysis> AnaliysisMedia(string mediaFullName)
         {
-            IMediaAnalysis mediaAnalysis = await FFProbe.AnalyseAsync(mediaFullName);
-            project.SetVideoInfo(new VideoInfo() { VideoFullName = mediaFullName, AnalysisResult = mediaAnalysis });
+            return await FFProbe.AnalyseAsync(mediaFullName);
         }
     }
 }

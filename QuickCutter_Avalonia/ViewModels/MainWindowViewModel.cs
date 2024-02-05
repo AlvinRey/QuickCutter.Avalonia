@@ -146,11 +146,19 @@ namespace QuickCutter_Avalonia.ViewModels
                 async () =>
                 {
                     var filesFullName = await FileHandler.SelectFiles(FileHandler.SelectAllVideo);
-
+                    int startIndex = Projects.Count;
                     for (int i = 0; i < filesFullName.Count; i++)
-                    { 
+                    {
                         Projects.Add(new Project());
-                        FFmpegHandler.AnaliysisMedia(filesFullName[i], Projects.Last());
+                    }
+                    for (int i = 0; i < filesFullName.Count; i++)
+                    {
+                        VideoInfo videoInfo = new VideoInfo()
+                        {   
+                            VideoFullName = filesFullName[i], 
+                            AnalysisResult = await FFmpegHandler.AnaliysisMedia(filesFullName[i]) 
+                        };
+                        Projects[startIndex + i].SetVideoInfo(videoInfo); 
                     }
                 });
             #endregion
