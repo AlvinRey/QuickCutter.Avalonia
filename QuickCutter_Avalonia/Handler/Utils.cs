@@ -12,6 +12,7 @@ using System.IO;
 using ReactiveUI;
 using System.Text.Json;
 using System.Xml;
+using QuickCutter_Avalonia.Mode;
 
 namespace QuickCutter_Avalonia.Handler
 {
@@ -223,6 +224,19 @@ namespace QuickCutter_Avalonia.Handler
             {
                 MessageBus.Current.SendMessage(message, Global.LogTarget);
             }
+        }
+        #endregion
+
+        #region Config
+        static private Config _config;
+
+        static public void SetConfig(Config config)
+        {
+            _config = config;
+        }
+        static public Config GetConfig()
+        {
+            return _config;
         }
         #endregion
     }

@@ -18,5 +18,7 @@ namespace QuickCutter_Avalonia.Mode
     internal class Config
     {
         public WindowStartUpStyles windowStartUpStyles {  get; set; }
+        public double windowHistoryWidth { get; set; }
+        public double windowHistoryHeight { get; set;}
     }
 }

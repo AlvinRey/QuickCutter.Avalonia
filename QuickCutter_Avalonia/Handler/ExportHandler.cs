@@ -57,7 +57,7 @@ namespace QuickCutter_Avalonia.Handler
             FFMpegArgumentProcessor ffmprocessor;
             if (file.Edit_InTime != TimeSpan.Zero)
             {
-                FFMpegArguments ffmpegArgs = FFMpegArguments.FromFileInput(file.ParentFullName, true, options =>
+                FFMpegArguments ffmpegArgs = FFMpegArguments.FromFileInput(file.ParentFullName,  true, options =>
                 {
                     options.WithArgument(new HideBannerArgument());
                     options.Seek(file.Edit_InTime);

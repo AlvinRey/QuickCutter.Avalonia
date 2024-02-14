@@ -3,11 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:QuickCutter_Avalonia.ViewModels"
         Title="Setting"
         Width="800"
         Height="450"
         d:DesignHeight="450"
         d:DesignWidth="800"
+        x:DataType="vm:SettingWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
         mc:Ignorable="d">
     <Grid RowDefinitions="*,Auto,Auto">
         <TabControl Name="tab"
@@ -20,7 +23,9 @@
                     <StackPanel Spacing="10">
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <TextBlock VerticalAlignment="Center" Text="启动时窗口大小" />
-                            <ComboBox Width="200" />
+                            <ComboBox Width="200"
+                                      ItemsSource="{Binding WindowStartUpStyles}"
+                                      SelectedItem="{Binding SelectedStartUpStyles}" />
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
@@ -33,8 +38,12 @@
                     VerticalAlignment="Center"
                     Orientation="Horizontal"
                     Spacing="10">
-            <Button Width="80" Content="确定" />
-            <Button Width="80" Content="取消" />
+            <Button x:Name="ConfirmBtn"
+                    Width="80"
+                    Content="确定" />
+            <Button x:Name="CencelBtn"
+                    Width="80"
+                    Content="取消" />
         </StackPanel>
     </Grid>
 </Window>

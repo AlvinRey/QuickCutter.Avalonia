@@ -13,48 +13,28 @@ namespace QuickCutter_Avalonia.Handler
     {
         static public void CheckFFmpegIsExist()
         {
-            bool isFFmpegExist = false;
+            // Try to find FFmpeg in Utils.GetFFmpegPath()
             if (File.Exists(Utils.GetFFmpegPath("ffmpeg.exe")) && File.Exists(Utils.GetFFmpegPath("ffprobe.exe")))
             {
                 GlobalFFOptions.Configure(new FFOptions { BinaryFolder = Utils.GetFFmpegPath(), TemporaryFilesFolder = Utils.GetFFmpegTempPath() });
-                isFFmpegExist = true;
-            }
-            else
-            {
-                Utils.SaveLog($"Can not find ffmpeg.exe and ffprobe.exe in {Utils.GetFFmpegPath()}");
+                Utils.SaveLog($"Success to find ffmpeg.exe and ffprobe.exe in \"{Utils.GetFFmpegPath()}\"");
+                return;
             }
 
-            if(!isFFmpegExist)
+            Utils.SaveLog($"Can not find ffmpeg.exe and ffprobe.exe in \"{Utils.GetFFmpegPath()}\"");
+
+            // Try to find FFmpeg in Environment PATH
+            string? pathVariable = Environment.GetEnvironmentVariable("PATH");
+            if (!string.IsNullOrEmpty(pathVariable))
             {
-                // Try to find FFmpeg in ednvironment path
-                string? pathVariable = Environment.GetEnvironmentVariable("PATH");
-                if (!string.IsNullOrEmpty(pathVariable))
+                if (pathVariable.Split(';').Select(path => File.Exists(Path.Combine(path, "ffmpeg.exe")) && File.Exists(Path.Combine(path, "ffprobe.exe"))).Any(boolean => boolean == true))
                 {
-                    //var paths = pathVariable.Split(';').Where(path => path.Contains("ffmpeg"));
-                    //if (paths != null)
-                    //{
-                    //    foreach (var path in paths)
-                    //    {
-                    //        containsFFmpeg = File.Exists(Path.Combine(path, "ffmpeg.exe")) && File.Exists(Path.Combine(path, "ffprobe.exe"));
-                    //        if (containsFFmpeg)
-                    //        {
-                    //            break;
-                    //        }
-                    //    }
-                    //}
-                    isFFmpegExist = pathVariable.Split(';').Select(path => File.Exists(Path.Combine(path, "ffmpeg.exe")) && File.Exists(Path.Combine(path, "ffprobe.exe"))).Any(boolean => boolean == true);
+                    Utils.SaveLog($"Can not find ffmpeg.exe and ffprobe.exe in Environment PATH");
+                    return;
                 }
             }
 
-            if (!isFFmpegExist)
-            {
-                Utils.SaveLog("Can not find ffmpeg.exe and ffprobe.exe in Environment PATH");
-                throw new Exception($@"Can not find ffmpeg.exe or ffprobe.exe in Environment PATH or in ""{Utils.GetFFmpegPath()}""");
-            }
-            else
-            {
-                Utils.SaveLog("Success to find FFmepg");
-            }
+            throw new Exception($"Can not find ffmpeg.exe or ffprobe.exe in Environment PATH or in \"{Utils.GetFFmpegPath()}\"");
         }
 
         static public async Task<IMediaAnalysis> AnaliysisMedia(string mediaFullName)

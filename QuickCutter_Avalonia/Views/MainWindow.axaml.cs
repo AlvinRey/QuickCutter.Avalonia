@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
@@ -20,6 +21,7 @@ namespace QuickCutter_Avalonia.Views
     public partial class MainWindow : Window
     {
         #region Private field
+        private static Config _config;
         private MainWindowViewModel? viewModel;
         private double mediaPlayerAspectRatio = 16.0 / 9.0;
         private Action? mVideoViewSizeInit;
@@ -28,10 +30,6 @@ namespace QuickCutter_Avalonia.Views
         public MainWindow()
         {
             InitializeComponent();
-
-            Width = Screens.Primary.Bounds.Width * 0.66;
-            Height = Screens.Primary.Bounds.Height * 0.66;
-
 
             Loaded += MainWindow_Loaded;
             Unloaded += MainWindow_Unloaded;
@@ -42,31 +40,65 @@ namespace QuickCutter_Avalonia.Views
             MediaPlayerGrid.SizeChanged += MediaPlayerGrid_SizeChanged;
             VideoView.Loaded += VideoView_Loaded;
             SettingButton.Click += SettingButton_Click;
-
         }
 
         #region ++Event Handler++
 
-        private void MainWindow_Loaded(object? sender, RoutedEventArgs e)
+        private async void MainWindow_Loaded(object? sender, RoutedEventArgs e)
         {
             viewModel = DataContext as MainWindowViewModel;
 
             Core.Initialize();
+            LogHandler.Init();
+            if (ConfigHandler.LoadConfig(ref _config) != 0)
+            {
+                await MessageBox.ShowAsync(this, "加载GUI配置文件异常,请重启应用", "Error", MessageBoxIcon.Error, MessageBoxButton.OK);
+                Environment.Exit(0);
+                return;
+            }
+            Debug.WriteLine(_config.GetHashCode().ToString());
             FileHandler.Init(GetStorageProvider());
-
-
             try
             {
                 FFmpegHandler.CheckFFmpegIsExist();
             }
             catch (Exception ex)
             {
-                MessageBox.ShowAsync(ex.Message, "Error", MessageBoxIcon.Error, MessageBoxButton.OK);
+                await MessageBox.ShowAsync(this,ex.Message, "Error", MessageBoxIcon.Error, MessageBoxButton.OK);
+                Environment.Exit(0);
+                return;
+            }
+
+            switch(_config.windowStartUpStyles)
+            {
+                case WindowStartUpStyles.AUTOADJUST:
+                    Width = Screens.Primary.Bounds.Width * 0.66;
+                    Height = Screens.Primary.Bounds.Height * 0.66;
+                    break;
+                case WindowStartUpStyles.ALWAYSMAXIMIZE:
+                    WindowState = WindowState.Maximized; 
+                    break;
+                case WindowStartUpStyles.HISTORY:
+                    if(_config.windowHistoryWidth >= this.MinWidth && _config.windowHistoryHeight >= this.MinHeight)
+                    {
+                        Width = _config.windowHistoryWidth;
+                        Height = _config.windowHistoryHeight;
+                    }
+                    else
+                    {
+                        Width = this.MinWidth;
+                        Height = this.MinHeight;
+                    }
+                    break;
             }
         }
 
         private void MainWindow_Unloaded(object? sender, RoutedEventArgs e)
         {
+            _config.windowHistoryWidth = Width;
+            _config.windowHistoryHeight = Height;
+            ConfigHandler.SaveConfig(ref _config);
+
             ExportHandler.CencelWithAppQuit();
             LogHandler.Dispose();
             viewModel?.Dispose();

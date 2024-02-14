@@ -2,8 +2,6 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
-using QuickCutter_Avalonia.Handler;
-using QuickCutter_Avalonia.Mode;
 using System;
 
 namespace QuickCutter_Avalonia
@@ -27,6 +25,7 @@ namespace QuickCutter_Avalonia
 
             appBulider.SetupWithLifetime(lifetime);
             lifetime.Start(args);
+
         }
 
         // Avalonia configuration, don't remove; also used by visual designer.

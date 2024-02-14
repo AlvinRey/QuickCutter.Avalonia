@@ -25,7 +25,7 @@ namespace QuickCutter_Avalonia.Handler
         public static int LoadConfig(ref Config config)
         {
             string? result = Utils.LoadResource(Utils.GetConfigPath(configRes));
-            if(string.IsNullOrEmpty(result))
+            if(!string.IsNullOrEmpty(result))
             {
                 //转成Json
                 config = Utils.FromJson<Config>(result);
@@ -43,12 +43,12 @@ namespace QuickCutter_Avalonia.Handler
             {
                 config = new Config
                 {
+                    windowStartUpStyles = WindowStartUpStyles.AUTOADJUST
                 };
             }
 
-            config.windowStartUpStyles = WindowStartUpStyles.AUTOADJUST;
-
-            return 1;
+            Utils.SetConfig(config);
+            return 0;
         }
 
         /// <summary>
