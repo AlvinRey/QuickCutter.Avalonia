@@ -19,6 +19,7 @@ namespace QuickCutter_Avalonia.ViewModels
 {
     public partial class MainWindowViewModel : ReactiveObject, IDisposable
     {
+        private Config _config;
         #region Project List
         public ObservableCollection<Project> SelectedProject { get; set; }
         public ObservableCollection<Project> Projects { get; }
@@ -44,9 +45,15 @@ namespace QuickCutter_Avalonia.ViewModels
 
         public TimeSpan Duration => TimeSpan.FromMilliseconds(MediaPlayer.Length > -1 ? MediaPlayer.Length : 0);
 
+        private float InteralPosition;
         public float Position
         {
-            get => MediaPlayer.Position;
+            get
+            {
+                if(MediaPlayer.IsPlaying)
+                    InteralPosition = MediaPlayer.Position;
+                return InteralPosition;
+            }
             set
             {
                 MediaPlayer.Position = value;
@@ -132,6 +139,8 @@ namespace QuickCutter_Avalonia.ViewModels
         [Reactive]
         public bool IsExporting { get; set; }
         public ObservableCollection<OutputFile> SelectedOutputFiles { get; set; }
+        [Reactive]
+        public OutputFile SelectedSingleOutputFile { get; set; }
         public IReactiveCommand<Unit, Unit> AddOutputFilesCommand { get; }
         public IReactiveCommand ExportCommand { get; }
         public IReactiveCommand CencelCommand { get; }
@@ -139,6 +148,8 @@ namespace QuickCutter_Avalonia.ViewModels
 
         public MainWindowViewModel()
         {
+            _config = Utils.GetConfig();
+
             #region Init Project List
             Projects = new ObservableCollection<Project>();
             SelectedProject = new ObservableCollection<Project>();
@@ -183,7 +194,6 @@ namespace QuickCutter_Avalonia.ViewModels
                 operationActive = false;
                 refresh.OnNext(Unit.Default);
             }
-
             var positionChanged = VLCEvent(nameof(MediaPlayer.PositionChanged));
             var timeChanged = VLCEvent(nameof(MediaPlayer.TimeChanged));
             var lengthChanged = VLCEvent(nameof(MediaPlayer.LengthChanged));
@@ -208,7 +218,8 @@ namespace QuickCutter_Avalonia.ViewModels
                 Wrap(audioTrackChanged)     .DistinctUntilChanged(_=>SelectedAudioTrack)    .Subscribe(_=>{if(SelectedAudioTrack.HasValue){MediaPlayer.SetAudioTrack(SelectedAudioTrack.Value.Id); }}),
                 Wrap(subtitleTrackChanged)  .DistinctUntilChanged(_=>SelectedSubtitleTrack) .Subscribe(_=>{if(SelectedSubtitleTrack.HasValue){MediaPlayer.SetSpu(SelectedSubtitleTrack.Value.Id); }}),
                 Wrap(stateChanged)          .DistinctUntilChanged(_=>IsPlaying)             .Subscribe(_=>this.RaisePropertyChanged(nameof(IsPlaying))),
-                Wrap(encounteredError)      .DistinctUntilChanged(_=>IsPlaying)             .Subscribe(_=>Debug.WriteLine("Media Player Encountered Error"))
+                Wrap(encounteredError)      .DistinctUntilChanged(_=>IsPlaying)             .Subscribe(_=>Debug.WriteLine("Media Player Encountered Error")),
+                endReachedChanged           .Subscribe(_ =>{ InteralPosition = 1.0f; this.RaisePropertyChanged(nameof(Position)); })
             };
 
             bool active() => _subscriptions == null ? false : MediaPlayer.IsPlaying || MediaPlayer.CanPause;
@@ -231,11 +242,11 @@ namespace QuickCutter_Avalonia.ViewModels
             }));
 
             ForwardCommand = ReactiveCommand.Create(
-                () => MediaPlayer.Time += 1000,
+                () => MediaPlayer.Time += _config.moveStep * 1000,
                 stateChanged.Select(_ => active()));
 
             BackwardCommand = ReactiveCommand.Create(
-                () => MediaPlayer.Time -= 1000,
+                () => MediaPlayer.Time -= _config.moveStep * 1000,
                 stateChanged.Select(_ => active()));
 
             NextFrameCommand = ReactiveCommand.Create(
@@ -249,7 +260,11 @@ namespace QuickCutter_Avalonia.ViewModels
             var selectedOutputFilesChanged = Observable.FromEventPattern(SelectedOutputFiles, nameof(SelectedOutputFiles.CollectionChanged)).Select(_ => SelectedOutputFiles.Count > 0);
 
             AddOutputFilesCommand = ReactiveCommand.Create(
-                () => SelectedProject.First().AddChild(),
+                () => 
+                    { 
+                        SelectedProject.First().AddChild();
+                        SelectedSingleOutputFile = SelectedProject.First().GetLastChild();
+                    },
                 selectedProjectChanged);
 
             ExportCommand = ReactiveCommand.Create(

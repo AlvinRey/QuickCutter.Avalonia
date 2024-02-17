@@ -30,6 +30,21 @@
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
+            <TabItem Header="视频设置">
+                <ScrollViewer>
+                    <StackPanel Spacing="10">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock VerticalAlignment="Center" Text="Move Setp(second):" />
+                            <NumericUpDown Width="60"
+                                           Classes="Small"
+                                           Increment="1"
+                                           Maximum="30"
+                                           Minimum="1"
+                                           Value="{Binding MoveStep}" />
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
         </TabControl>
         <Separator Grid.Row="1" />
         <StackPanel Grid.Row="2"

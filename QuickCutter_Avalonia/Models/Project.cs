@@ -2,6 +2,8 @@
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
 
 
 namespace QuickCutter_Avalonia.Mode
@@ -53,6 +55,11 @@ namespace QuickCutter_Avalonia.Mode
         public void AddChild()
         {
             OutputFiles.Add(new OutputFile(ImportVideoInfo));
+        }
+
+        public OutputFile GetLastChild()
+        {
+            return OutputFiles.Last();
         }
 
         public bool HasChild(ref OutputFile item)

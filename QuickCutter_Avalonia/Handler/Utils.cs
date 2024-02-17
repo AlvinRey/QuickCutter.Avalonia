@@ -236,6 +236,7 @@ namespace QuickCutter_Avalonia.Handler
         }
         static public Config GetConfig()
         {
+            if (_config is null) throw new InvalidOperationException("Config is Invalid.");
             return _config;
         }
         #endregion

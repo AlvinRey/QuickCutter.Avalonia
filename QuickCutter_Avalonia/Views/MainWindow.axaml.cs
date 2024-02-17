@@ -31,6 +31,30 @@ namespace QuickCutter_Avalonia.Views
         {
             InitializeComponent();
 
+            _config = Utils.GetConfig();
+            switch (_config.windowStartUpStyles)
+            {
+                case WindowStartUpStyles.AUTOADJUST:
+                    Width = Screens.Primary.Bounds.Width * 0.66;
+                    Height = Screens.Primary.Bounds.Height * 0.66;
+                    break;
+                case WindowStartUpStyles.ALWAYSMAXIMIZE:
+                    WindowState = WindowState.Maximized;
+                    break;
+                case WindowStartUpStyles.HISTORY:
+                    if (_config.windowHistoryWidth >= this.MinWidth && _config.windowHistoryHeight >= this.MinHeight)
+                    {
+                        Width = _config.windowHistoryWidth;
+                        Height = _config.windowHistoryHeight;
+                    }
+                    else
+                    {
+                        Width = this.MinWidth;
+                        Height = this.MinHeight;
+                    }
+                    break;
+            }
+
             Loaded += MainWindow_Loaded;
             Unloaded += MainWindow_Unloaded;
             ProjectsList.SelectionChanged += ProjectsList_SelectionChanged;
@@ -50,13 +74,7 @@ namespace QuickCutter_Avalonia.Views
 
             Core.Initialize();
             LogHandler.Init();
-            if (ConfigHandler.LoadConfig(ref _config) != 0)
-            {
-                await MessageBox.ShowAsync(this, "加载GUI配置文件异常,请重启应用", "Error", MessageBoxIcon.Error, MessageBoxButton.OK);
-                Environment.Exit(0);
-                return;
-            }
-            Debug.WriteLine(_config.GetHashCode().ToString());
+
             FileHandler.Init(GetStorageProvider());
             try
             {
@@ -67,29 +85,6 @@ namespace QuickCutter_Avalonia.Views
                 await MessageBox.ShowAsync(this,ex.Message, "Error", MessageBoxIcon.Error, MessageBoxButton.OK);
                 Environment.Exit(0);
                 return;
-            }
-
-            switch(_config.windowStartUpStyles)
-            {
-                case WindowStartUpStyles.AUTOADJUST:
-                    Width = Screens.Primary.Bounds.Width * 0.66;
-                    Height = Screens.Primary.Bounds.Height * 0.66;
-                    break;
-                case WindowStartUpStyles.ALWAYSMAXIMIZE:
-                    WindowState = WindowState.Maximized; 
-                    break;
-                case WindowStartUpStyles.HISTORY:
-                    if(_config.windowHistoryWidth >= this.MinWidth && _config.windowHistoryHeight >= this.MinHeight)
-                    {
-                        Width = _config.windowHistoryWidth;
-                        Height = _config.windowHistoryHeight;
-                    }
-                    else
-                    {
-                        Width = this.MinWidth;
-                        Height = this.MinHeight;
-                    }
-                    break;
             }
         }
 

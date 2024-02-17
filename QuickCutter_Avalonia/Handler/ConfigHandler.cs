@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using QuickCutter_Avalonia.Mode;
+﻿using QuickCutter_Avalonia.Mode;
 using System.IO;
 
 namespace QuickCutter_Avalonia.Handler
@@ -43,10 +38,12 @@ namespace QuickCutter_Avalonia.Handler
             {
                 config = new Config
                 {
-                    windowStartUpStyles = WindowStartUpStyles.AUTOADJUST
+                    windowStartUpStyles = WindowStartUpStyles.AUTOADJUST,
+                    moveStep = 1
                 };
             }
 
+            VerifyConfig(config);
             Utils.SetConfig(config);
             return 0;
         }
@@ -94,7 +91,14 @@ namespace QuickCutter_Avalonia.Handler
                 }
             }
         }
-
+       
+        private static void VerifyConfig(Config config) 
+        {
+            if(config.moveStep < 1)
+            {
+                config.moveStep = 1;
+            }
+        }
         #endregion
     }
 }

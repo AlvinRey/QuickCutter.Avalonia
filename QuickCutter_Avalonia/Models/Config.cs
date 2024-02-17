@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace QuickCutter_Avalonia.Mode
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    enum WindowStartUpStyles
+    public enum WindowStartUpStyles
     {
         AUTOADJUST = 1,
         ALWAYSMAXIMIZE = AUTOADJUST<<1,
@@ -20,5 +20,8 @@ namespace QuickCutter_Avalonia.Mode
         public WindowStartUpStyles windowStartUpStyles {  get; set; }
         public double windowHistoryWidth { get; set; }
         public double windowHistoryHeight { get; set;}
+
+        // Video Setting
+        public int moveStep { get; set; }
     }
 }

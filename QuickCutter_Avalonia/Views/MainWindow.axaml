@@ -46,7 +46,7 @@
                         <TextBlock Margin="8,0"
                                    VerticalAlignment="Center"
                                    Classes="Subtitle2"
-                                   Text="ADD ITEM" />
+                                   Text="ADD VIDEO" />
                     </StackPanel>
                 </Button>
                 <Separator Grid.Row="1" />
@@ -296,6 +296,7 @@
                           GridLinesVisibility="All"
                           HeadersVisibility="Column"
                           RowHeaderWidth="30"
+                          SelectedItem="{Binding SelectedSingleOutputFile, Mode=OneWay}"
                           SelectionMode="Extended">
                     <DataGrid.Resources>
                         <converters:StringToTimeSpanConverter x:Key="StringToTimeSpanConverter" />
@@ -318,7 +319,7 @@
                                                 Header="In Time">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate x:DataType="ms:OutputFile">
-                                    <MaskedTextBox Margin="2" Mask="00:00:00.00" >
+                                    <MaskedTextBox Margin="2" Mask="00:00:00.00">
                                         <Interaction.Behaviors>
                                             <behaviors:LostFocusUpdateBindingBehavior Text="{Binding Edit_InTime, Converter={StaticResource StringToTimeSpanConverter}}" />
                                         </Interaction.Behaviors>
@@ -480,7 +481,26 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         <!--  =================================================  -->
-
+                        <DataGridTemplateColumn Width="*" Header="Progress bar">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate DataType="ms:OutputFile">
+                                    <ProgressBar Width="200"
+                                                 Classes="Success"
+                                                 IsVisible="{Binding IsReady}"
+                                                 Maximum="100"
+                                                 Minimum="0"
+                                                 ShowProgressText="True"
+                                                 Value="{Binding ProcessingPercent}">
+                                        <ProgressBar.IsIndeterminate>
+                                            <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                                <Binding Path="IsReady" />
+                                                <Binding Path="!IsProcessing" />
+                                            </MultiBinding>
+                                        </ProgressBar.IsIndeterminate>
+                                    </ProgressBar>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>
