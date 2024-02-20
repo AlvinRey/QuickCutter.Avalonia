@@ -203,7 +203,7 @@ namespace QuickCutter_Avalonia.Handler
             try
             {
                 var options = new JsonSerializerOptions() { WriteIndented = true };
-                string jsonString = JsonSerializer.Serialize(obj);
+                string jsonString = JsonSerializer.Serialize(obj, options);
                 File.WriteAllText(filePath, jsonString);
                 result = 0;
             }

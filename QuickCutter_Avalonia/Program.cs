@@ -2,7 +2,10 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
+using QuickCutter_Avalonia.Handler;
+using QuickCutter_Avalonia.Mode;
 using System;
+using System.Runtime.InteropServices;
 
 namespace QuickCutter_Avalonia
 {
@@ -22,11 +25,10 @@ namespace QuickCutter_Avalonia
                 Args = args,
                 ShutdownMode = ShutdownMode.OnLastWindowClose
             };
-
             appBulider.SetupWithLifetime(lifetime);
             lifetime.Start(args);
-
         }
+
 
         // Avalonia configuration, don't remove; also used by visual designer.
         public static AppBuilder BuildAvaloniaApp()

@@ -7,13 +7,19 @@ using QuickCutter_Avalonia.Mode;
 using QuickCutter_Avalonia.ViewModels;
 using QuickCutter_Avalonia.Views;
 using System;
+using System.Runtime.InteropServices;
+
 
 
 namespace QuickCutter_Avalonia
 {
     public partial class App : Application
     {
-        private Config _config;
+        private static Config _config;
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern int MessageBox(IntPtr hWnd, string text, string caption, uint type);
+
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
@@ -23,7 +29,9 @@ namespace QuickCutter_Avalonia
         {
             if (ConfigHandler.LoadConfig(ref _config) != 0)
             {
-                throw new Exception("加载GUI配置文件异常,请重启应用");
+                // 调用Win32 API显示MessageBox
+                MessageBox(IntPtr.Zero, "加载GUI配置文件异常,请重启应用", "Error", 0);
+                Environment.Exit(0);
             }
 
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)

@@ -21,11 +21,11 @@ namespace QuickCutter_Avalonia.ViewModels
     {
         private Config _config;
         #region Project List
-        public ObservableCollection<Project> SelectedProject { get; set; }
+        public ObservableCollection<Project> SelectedProjects { get; set; }
         public ObservableCollection<Project> Projects { get; }
         public IReactiveCommand ImportProjectFileCommand { get; }
         #endregion
-
+         
         #region Media Player
         private readonly LibVLC _libVlc;
         public MediaPlayer MediaPlayer { get; }
@@ -122,7 +122,7 @@ namespace QuickCutter_Avalonia.ViewModels
 
         public void LoadMedia()
         {
-            var media = new Media(_libVlc, new Uri(SelectedProject.First().ImportVideoInfo.VideoFullName!));
+            var media = new Media(_libVlc, new Uri(SelectedProjects.First().ImportVideoInfo.VideoFullName!));
             MediaPlayer.Media = media;
         }
 
@@ -131,6 +131,7 @@ namespace QuickCutter_Avalonia.ViewModels
             MediaPlayer.Pause();
             MediaPlayer.Stop();
             MediaPlayer.Media = null;
+            InteralPosition = 0;
             refresh.OnNext(Unit.Default);
         }
         #endregion
@@ -152,7 +153,7 @@ namespace QuickCutter_Avalonia.ViewModels
 
             #region Init Project List
             Projects = new ObservableCollection<Project>();
-            SelectedProject = new ObservableCollection<Project>();
+            SelectedProjects = new ObservableCollection<Project>();
             ImportProjectFileCommand = ReactiveCommand.Create(
                 async () =>
                 {
@@ -256,14 +257,14 @@ namespace QuickCutter_Avalonia.ViewModels
 
             #region Init Data Grid
             SelectedOutputFiles = new ObservableCollection<OutputFile>();
-            var selectedProjectChanged = Observable.FromEventPattern(SelectedProject, nameof(SelectedProject.CollectionChanged)).Select(_ => SelectedProject.Count > 0);
+            var selectedProjectChanged = Observable.FromEventPattern(SelectedProjects, nameof(SelectedProjects.CollectionChanged)).Select(_ => SelectedProjects.Count == 1);
             var selectedOutputFilesChanged = Observable.FromEventPattern(SelectedOutputFiles, nameof(SelectedOutputFiles.CollectionChanged)).Select(_ => SelectedOutputFiles.Count > 0);
 
             AddOutputFilesCommand = ReactiveCommand.Create(
                 () => 
                     { 
-                        SelectedProject.First().AddChild();
-                        SelectedSingleOutputFile = SelectedProject.First().GetLastChild();
+                        SelectedProjects.First().AddChild();
+                        SelectedSingleOutputFile = SelectedProjects.First().GetLastChild();
                     },
                 selectedProjectChanged);
 
@@ -271,6 +272,8 @@ namespace QuickCutter_Avalonia.ViewModels
                 async () =>
                 {
                     string folderFullName = await FileHandler.SelectExportFolder();
+                    if(string.IsNullOrEmpty(folderFullName))
+                        return;
                     ExportHandler.GenerateExportInfo(folderFullName, SelectedOutputFiles.ToList());
                     IsExporting = true;
                     await ExportHandler.ExecuteFFmpeg();

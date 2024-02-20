@@ -50,10 +50,18 @@
                     </StackPanel>
                 </Button>
                 <Separator Grid.Row="1" />
+                <Grid.Resources>
+                    <ContextMenu x:Key="ProjectsListContextMenu">
+                        <MenuItem Click="ProjectList_SelectAll" Header="Select All" />
+                        <MenuItem Click="ProjectList_Delete" Header="Delete" />
+                    </ContextMenu>
+                </Grid.Resources>
                 <ListBox x:Name="ProjectsList"
                          Grid.Row="2"
+                         ContextMenu="{StaticResource ProjectsListContextMenu}"
                          ItemsSource="{Binding Projects}"
-                         SelectionMode="Single">
+                         SelectedItems="{Binding SelectedProjects}"
+                         SelectionMode="Multiple">
                     <ListBox.Styles>
                         <Style Selector="ListBoxItem">
                             <Setter Property="Height" Value="48" />
@@ -112,7 +120,8 @@
                             Width="30"
                             Height="30"
                             Classes="Danger"
-                            Click="DeleteProjectButton_Click"
+                            IsEnabled="False"
+                            IsVisible="False"
                             Theme="{DynamicResource BorderlessButton}">
                         <PathIcon Width="20"
                                   Height="20"
@@ -135,7 +144,8 @@
                         <Grid Grid.Row="0"
                               VerticalAlignment="Center"
                               ColumnDefinitions="*,10,Auto">
-                            <Slider Grid.Column="0"
+                            <Slider x:Name="TimeSlider"
+                                    Grid.Column="0"
                                     Classes="Accent"
                                     IsSnapToTickEnabled="False"
                                     Maximum="1"
@@ -200,7 +210,7 @@
                                     Command="{Binding BackwardCommand}"
                                     HotKey="Left"
                                     Theme="{DynamicResource BorderlessButton}"
-                                    ToolTip.Tip="Move Backward 1s (Key: &lt;)">
+                                    ToolTip.Tip="Move Backward (Key: &lt;)">
                                 <PathIcon Width="15"
                                           Height="15"
                                           Data="M250.001-250.001v-459.998h59.998v459.998h-59.998ZM680-253.847 453.847-480 680-706.153 722.153-664l-184 184 184 184L680-253.847Z" />
@@ -212,7 +222,7 @@
                                     Command="{Binding ForwardCommand}"
                                     HotKey="Right"
                                     Theme="{DynamicResource BorderlessButton}"
-                                    ToolTip.Tip="Move Forward 1s (Key: >)">
+                                    ToolTip.Tip="Move Forward (Key: >)">
                                 <PathIcon Width="15"
                                           Height="15"
                                           Data="M280-253.847 237.847-296l184-184-184-184L280-706.153 506.153-480 280-253.847Zm370.001 3.846v-459.998h59.998v459.998h-59.998Z" />
@@ -282,10 +292,10 @@
                     Theme="{DynamicResource CardBorder}">
                 <Border.Resources>
                     <ContextMenu x:Key="DataGridContextMenu">
-                        <MenuItem Click="MenuItem_SelectAll"
+                        <MenuItem Click="DataGridMenu_SelectAll"
                                   Header="Select All"
                                   HotKey="Ctrl+A" />
-                        <MenuItem Click="MenuItem_Delete" Header="Delete" />
+                        <MenuItem Click="DataGridMenu_Delete" Header="Delete" />
                     </ContextMenu>
                 </Border.Resources>
                 <DataGrid Name="OutputFilesDataGrid"
