@@ -10,6 +10,12 @@ namespace QuickCutter_Avalonia.Mode
         ALWAYSMAXIMIZE = AUTOADJUST<<1,
         HISTORY = ALWAYSMAXIMIZE<<1
     }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum TextLanguages
+    {
+        ENGLISH = 1,
+        CHINESE = ENGLISH << 1
+    }
 
     /// <summary>
     /// 本软件配置文件实体类
@@ -20,7 +26,7 @@ namespace QuickCutter_Avalonia.Mode
         public WindowStartUpStyles windowStartUpStyles {  get; set; }
         public double windowHistoryWidth { get; set; }
         public double windowHistoryHeight { get; set;}
-
+        public TextLanguages Languages { get; set; }
         // Video Setting
         public int moveStep { get; set; }
     }

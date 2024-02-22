@@ -38,6 +38,7 @@ namespace QuickCutter_Avalonia.Handler
             {
                 config = new Config
                 {
+                    Languages = TextLanguages.CHINESE,
                     windowStartUpStyles = WindowStartUpStyles.AUTOADJUST,
                     moveStep = 1
                 };

@@ -1,0 +1,41 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
+    <!--  Main Window  -->
+    <system:String x:Key="Localization.MainWindowTitle">Quick Cutter</system:String>
+    <!--  Button Text  -->
+    <system:String x:Key="Localization.ButtonText.AddVideo">Import Video</system:String>
+    <system:String x:Key="Localization.ButtonText.AddOutputFiles">Add Output</system:String>
+    <system:String x:Key="Localization.ButtonText.Export">Export Selected</system:String>
+    <system:String x:Key="Localization.ButtonText.CancelExport">Cancel Export</system:String>
+    <!--  Text  -->
+    <system:String x:Key="Localization.AudioTrackText">Audio Track:</system:String>
+    <system:String x:Key="Localization.SubtitleTrackText">Subtitle:</system:String>
+    <!--  DataGrid Header  -->
+    <system:String x:Key="Localization.DataGrid.FileName">Output File Name</system:String>
+    <system:String x:Key="Localization.DataGrid.InTime">In Time</system:String>
+    <system:String x:Key="Localization.DataGrid.OutTime">Out Time</system:String>
+    <system:String x:Key="Localization.DataGrid.CodecMode_Copy">Copy</system:String>
+    <system:String x:Key="Localization.DataGrid.CodecMode_Transcoding">Transcoding</system:String>
+    <system:String x:Key="Localization.DataGrid.Codec">Codec</system:String>
+    <system:String x:Key="Localization.DataGrid.Preset">Preset</system:String>
+    <system:String x:Key="Localization.DataGrid.CRF">CRF</system:String>
+    <system:String x:Key="Localization.DataGrid.Resolution">Resolution</system:String>
+    <system:String x:Key="Localization.DataGrid.ProgressBar">Progress Bar</system:String>
+
+    <!--  Setting Window  -->
+    <system:String x:Key="Localization.Setting.WindowTitle">Setting</system:String>
+
+    <system:String x:Key="Localization.Setting.TabHeader.Common">Common</system:String>
+    <system:String x:Key="Localization.Setting.StartUpSize">StartUp Window Size</system:String>
+    <system:String x:Key="Localization.Setting.Languages">Languages</system:String>
+
+    <system:String x:Key="Localization.Setting.TabHeader.PlayerSetting">PlayerSetting</system:String>
+    <system:String x:Key="Localization.Setting.PlayerMoveStep">Forward(Backward) Move Step(second):</system:String>
+
+    <system:String x:Key="Localization.Setting.ButtonText.Confirm">Confirm</system:String>
+    <system:String x:Key="Localization.Setting.ButtonText.Cencel">Cencel</system:String>
+
+
+
+</ResourceDictionary>

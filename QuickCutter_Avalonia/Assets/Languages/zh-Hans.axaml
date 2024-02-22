@@ -1,0 +1,38 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
+    <!--  Main Window  -->
+    <system:String x:Key="Localization.MainWindowTitle">Quick Cutter</system:String>
+    <!--  Button Text  -->
+    <system:String x:Key="Localization.ButtonText.AddVideo">导入视频</system:String>
+    <system:String x:Key="Localization.ButtonText.AddOutputFiles">添加输出</system:String>
+    <system:String x:Key="Localization.ButtonText.Export">导出所选</system:String>
+    <system:String x:Key="Localization.ButtonText.CancelExport">取消导出</system:String>
+    <!--  Text  -->
+    <system:String x:Key="Localization.AudioTrackText">音轨:</system:String>
+    <system:String x:Key="Localization.SubtitleTrackText">字幕:</system:String>
+    <!--  DataGrid Header  -->
+    <system:String x:Key="Localization.DataGrid.FileName">输出文件名</system:String>
+    <system:String x:Key="Localization.DataGrid.InTime">入点</system:String>
+    <system:String x:Key="Localization.DataGrid.OutTime">出点</system:String>
+    <system:String x:Key="Localization.DataGrid.CodecMode_Copy">拷贝</system:String>
+    <system:String x:Key="Localization.DataGrid.CodecMode_Transcoding">转码</system:String>
+    <system:String x:Key="Localization.DataGrid.Codec">编码器</system:String>
+    <system:String x:Key="Localization.DataGrid.Preset">速度预设</system:String>
+    <system:String x:Key="Localization.DataGrid.CRF">CRF</system:String>
+    <system:String x:Key="Localization.DataGrid.Resolution">分辨率</system:String>
+    <system:String x:Key="Localization.DataGrid.ProgressBar">进度条</system:String>
+
+    <!--  Setting Window  -->
+    <system:String x:Key="Localization.Setting.WindowTitle">设置</system:String>
+
+    <system:String x:Key="Localization.Setting.TabHeader.Common">常规</system:String>
+    <system:String x:Key="Localization.Setting.StartUpSize">启动时窗口大小</system:String>
+    <system:String x:Key="Localization.Setting.Languages">语言</system:String>
+
+    <system:String x:Key="Localization.Setting.TabHeader.PlayerSetting">播放器设置</system:String>
+    <system:String x:Key="Localization.Setting.PlayerMoveStep">快进(倒退)步长(秒):</system:String>
+
+    <system:String x:Key="Localization.Setting.ButtonText.Confirm">确定</system:String>
+    <system:String x:Key="Localization.Setting.ButtonText.Cencel">取消</system:String>
+</ResourceDictionary>

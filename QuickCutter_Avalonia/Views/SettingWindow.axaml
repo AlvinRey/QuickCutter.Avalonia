@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:QuickCutter_Avalonia.ViewModels"
-        Title="Setting"
+        Title="{DynamicResource Localization.Setting.WindowTitle}"
         Width="800"
         Height="450"
         d:DesignHeight="450"
@@ -18,23 +18,44 @@
                     Margin="8"
                     Padding="8,8,0,0"
                     HorizontalAlignment="Stretch">
-            <TabItem Header="通用">
+            <TabItem Header="{DynamicResource Localization.Setting.TabHeader.Common}">
                 <ScrollViewer>
                     <StackPanel Spacing="10">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock VerticalAlignment="Center" Text="启动时窗口大小" />
+                            <TextBlock VerticalAlignment="Center" Text="{DynamicResource Localization.Setting.StartUpSize}" />
                             <ComboBox Width="200"
                                       ItemsSource="{Binding WindowStartUpStyles}"
                                       SelectedItem="{Binding SelectedStartUpStyles}" />
                         </StackPanel>
+                        <Grid RowDefinitions="*,Auto,*">
+                            <SelectableTextBlock Grid.Row="0"
+                                                 VerticalAlignment="Center"
+                                                 Classes="H6"
+                                                 Text="{DynamicResource Localization.Setting.Languages}"
+                                                 Theme="{StaticResource TitleSelectableTextBlock}" />
+                            <Separator Grid.Row="1" />
+                            <StackPanel Grid.Row="2"
+                                        Orientation="Horizontal"
+                                        Spacing="10">
+                                <RadioButton Content="English"
+                                             GroupName="Language"
+                                             IsChecked="{Binding SelecteEnglish}"
+                                             Theme="{DynamicResource PureCardRadioButton}" />
+                                <RadioButton Content="简体中文"
+                                             GroupName="Language"
+                                             IsChecked="{Binding SelecteChinese}"
+                                             Theme="{DynamicResource PureCardRadioButton}" />
+                            </StackPanel>
+                        </Grid>
+
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
-            <TabItem Header="视频设置">
+            <TabItem Header="{DynamicResource Localization.Setting.TabHeader.PlayerSetting}">
                 <ScrollViewer>
                     <StackPanel Spacing="10">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock VerticalAlignment="Center" Text="Move Setp(second):" />
+                            <TextBlock VerticalAlignment="Center" Text="{DynamicResource Localization.Setting.PlayerMoveStep}" />
                             <NumericUpDown Width="60"
                                            Classes="Small"
                                            Increment="1"
@@ -55,10 +76,10 @@
                     Spacing="10">
             <Button x:Name="ConfirmBtn"
                     Width="80"
-                    Content="确定" />
+                    Content="{DynamicResource Localization.Setting.ButtonText.Confirm}" />
             <Button x:Name="CencelBtn"
                     Width="80"
-                    Content="取消" />
+                    Content="{DynamicResource Localization.Setting.ButtonText.Cencel}" />
         </StackPanel>
     </Grid>
 </Window>

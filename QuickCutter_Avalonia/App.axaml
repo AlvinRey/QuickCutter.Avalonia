@@ -10,11 +10,20 @@
         <local:ViewLocator />
     </Application.DataTemplates>
 
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="/Assets/Languages/zh-Hans.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+
+    </Application.Resources>
+
+
     <Application.Styles>
-		<!--FluentTheme /-->
         <StyleInclude Source="avares://Semi.Avalonia/Themes/Index.axaml" />
-		<StyleInclude Source="avares://Semi.Avalonia.DataGrid/Index.axaml" />
-		<u-semi:SemiTheme Locale="en-US"/>
-        <!--  StyleInclude Source="/Styles/AnimatedPopup.axaml" /  -->
+        <StyleInclude Source="avares://Semi.Avalonia.DataGrid/Index.axaml" />
+        <u-semi:SemiTheme Locale="en-US" />
+
     </Application.Styles>
 </Application>

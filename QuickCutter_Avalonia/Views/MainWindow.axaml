@@ -10,7 +10,7 @@
         xmlns:u="https://irihi.tech/ursa"
         xmlns:vlc="clr-namespace:LibVLCSharp.Avalonia;assembly=LibVLCSharp.Avalonia"
         xmlns:vm="using:QuickCutter_Avalonia.ViewModels"
-        Title="QuickCutter_Avalonia"
+        Title="{DynamicResource Localization.MainWindowTitle}"
         Width="1600"
         Height="900"
         MinWidth="1280"
@@ -46,7 +46,7 @@
                         <TextBlock Margin="8,0"
                                    VerticalAlignment="Center"
                                    Classes="Subtitle2"
-                                   Text="ADD VIDEO" />
+                                   Text="{DynamicResource Localization.ButtonText.AddVideo}" />
                     </StackPanel>
                 </Button>
                 <Separator Grid.Row="1" />
@@ -264,13 +264,13 @@
                                            VerticalAlignment="Center"
                                            Text="{Binding Duration, StringFormat=hh\\:mm\\:ss\\.ff}" />
                             </StackPanel>
-                            <TextBlock VerticalAlignment="Center" Text="Audio Tracks:" />
+                            <TextBlock VerticalAlignment="Center" Text="{DynamicResource Localization.AudioTrackText}" />
                             <ComboBox Name="AudioTrackComboBox"
                                       Width="200"
                                       DisplayMemberBinding="{Binding Name}"
                                       ItemsSource="{Binding AudioTrack}"
                                       SelectedItem="{Binding SelectedAudioTrack}" />
-                            <TextBlock VerticalAlignment="Center" Text="Subtitle Tracks:" />
+                            <TextBlock VerticalAlignment="Center" Text="{DynamicResource Localization.SubtitleTrackText}" />
                             <ComboBox Name="SubtitleTrackComboBox"
                                       Width="200"
                                       DisplayMemberBinding="{Binding Name}"
@@ -321,12 +321,12 @@
                         <DataGridTextColumn Width="300"
                                             x:DataType="ms:OutputFile"
                                             Binding="{Binding OutputFileName}"
-                                            Header="Output File Name"
+                                            Header="{DynamicResource Localization.DataGrid.FileName}"
                                             IsReadOnly="True" />
                         <!--  =================================================  -->
                         <DataGridTemplateColumn Width="Auto"
                                                 CanUserResize="False"
-                                                Header="In Time">
+                                                Header="{DynamicResource Localization.DataGrid.InTime}">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate x:DataType="ms:OutputFile">
                                     <MaskedTextBox Margin="2" Mask="00:00:00.00">
@@ -340,7 +340,7 @@
                         <!--  =================================================  -->
                         <DataGridTemplateColumn Width="Auto"
                                                 CanUserResize="False"
-                                                Header="Out Time">
+                                                Header="{DynamicResource Localization.DataGrid.OutTime}">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate x:DataType="ms:OutputFile">
                                     <MaskedTextBox Margin="2" Mask="00:00:00.00">
@@ -356,11 +356,11 @@
                             <DataGridTemplateColumn.Header>
                                 <StackPanel Orientation="Horizontal" Spacing="2">
                                     <Border Background="#FF5DC264" CornerRadius="5">
-                                        <TextBlock Text="Copy" />
+                                        <TextBlock Text="{DynamicResource Localization.DataGrid.CodecMode_Copy}" />
                                     </Border>
                                     <TextBlock Text="|" />
                                     <Border Background="#FFFC725A" CornerRadius="5">
-                                        <TextBlock Text="Transcoding" />
+                                        <TextBlock Text="{DynamicResource Localization.DataGrid.CodecMode_Transcoding}" />
                                     </Border>
                                 </StackPanel>
                             </DataGridTemplateColumn.Header>
@@ -402,7 +402,7 @@
                         <!--  =================================================  -->
                         <DataGridTemplateColumn Width="Auto"
                                                 CanUserResize="False"
-                                                Header="Codec">
+                                                Header="{DynamicResource Localization.DataGrid.Codec}">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate x:DataType="ms:OutputFile">
                                     <ComboBox Margin="2"
@@ -416,7 +416,7 @@
                         <!--  =================================================  -->
                         <DataGridTemplateColumn Width="Auto"
                                                 CanUserResize="False"
-                                                Header="Preset">
+                                                Header="{DynamicResource Localization.DataGrid.Preset}">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate x:DataType="ms:OutputFile">
                                     <ComboBox Margin="2"
@@ -429,7 +429,7 @@
                         <!--  =================================================  -->
                         <DataGridTemplateColumn Width="Auto"
                                                 CanUserResize="False"
-                                                Header="CRF">
+                                                Header="{DynamicResource Localization.DataGrid.CRF}">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate x:DataType="ms:OutputFile">
                                     <NumericUpDown Margin="2"
@@ -447,7 +447,7 @@
                         <!--  =================================================  -->
                         <DataGridTemplateColumn Width="Auto"
                                                 CanUserResize="False"
-                                                Header="Resolution">
+                                                Header="{DynamicResource Localization.DataGrid.Resolution}">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate DataType="ms:OutputFile">
                                     <StackPanel Margin="2"
@@ -491,7 +491,7 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         <!--  =================================================  -->
-                        <DataGridTemplateColumn Width="*" Header="Progress bar">
+                        <DataGridTemplateColumn Width="*" Header="{DynamicResource Localization.DataGrid.ProgressBar}">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate DataType="ms:OutputFile">
                                     <ProgressBar Width="200"
@@ -535,12 +535,11 @@
                             <TextBlock Margin="8,0"
                                        VerticalAlignment="Center"
                                        Classes="Subtitle2"
-                                       Text="ADD OUTPUT" />
+                                       Text="{DynamicResource Localization.ButtonText.AddOutputFiles}" />
                         </StackPanel>
                     </Button>
                     <Grid DockPanel.Dock="Right">
                         <Button x:Name="ExportSelectedtButton"
-                                Width="200"
                                 Height="40"
                                 HorizontalAlignment="Right"
                                 Classes="Default"
@@ -554,11 +553,10 @@
                                 <TextBlock Margin="8,0"
                                            VerticalAlignment="Center"
                                            Classes="Subtitle2"
-                                           Text="EXPORT SELECTED" />
+                                           Text="{DynamicResource Localization.ButtonText.Export}" />
                             </StackPanel>
                         </Button>
                         <Button x:Name="CencelExporttButton"
-                                Width="200"
                                 Height="40"
                                 HorizontalAlignment="Right"
                                 Classes="Danger"
@@ -572,7 +570,7 @@
                                 <TextBlock Margin="8,0"
                                            VerticalAlignment="Center"
                                            Classes="Subtitle2"
-                                           Text="CENCEL EXPORT" />
+                                           Text="{DynamicResource Localization.ButtonText.CancelExport}" />
                             </StackPanel>
                         </Button>
                     </Grid>

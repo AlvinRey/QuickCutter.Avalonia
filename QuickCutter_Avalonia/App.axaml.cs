@@ -2,11 +2,13 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using Avalonia.Markup.Xaml.Styling;
 using QuickCutter_Avalonia.Handler;
 using QuickCutter_Avalonia.Mode;
 using QuickCutter_Avalonia.ViewModels;
 using QuickCutter_Avalonia.Views;
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 
@@ -34,6 +36,16 @@ namespace QuickCutter_Avalonia
                 Environment.Exit(0);
             }
 
+            switch (_config.Languages)
+            {
+                case TextLanguages.ENGLISH:
+                    SetLanguages("en-US");
+                    break;
+                case TextLanguages.CHINESE:
+                    SetLanguages("zh-Hans");
+                    break;
+            }
+
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 // Line below is needed to remove Avalonia data validation.
@@ -45,6 +57,23 @@ namespace QuickCutter_Avalonia
                 };
             }
             base.OnFrameworkInitializationCompleted();
+        }
+
+        public static void SetLanguages(string targetLanguage)
+        {
+
+            var translations = App.Current.Resources.MergedDictionaries.OfType<ResourceInclude>().FirstOrDefault(x => x.Source?.OriginalString?.Contains("/Languages/") ?? false);
+
+            if (translations != null)
+                App.Current.Resources.MergedDictionaries.Remove(translations);
+
+            // var resource = AssetLoader.Open(new Uri($"avares://LocalizationSample/Assets/Lang/{targetLanguage}.axaml"));
+
+            App.Current.Resources.MergedDictionaries.Add(
+                new ResourceInclude(new Uri($"avares://QuickCutter_Avalonia/Assets/Languages/{targetLanguage}.axaml"))
+                {
+                    Source = new Uri($"avares://QuickCutter_Avalonia/Assets/Languages/{targetLanguage}.axaml")
+                });
         }
     }
 }
