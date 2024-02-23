@@ -7,14 +7,14 @@ namespace QuickCutter_Avalonia.Mode
     public enum WindowStartUpStyles
     {
         AUTOADJUST = 1,
-        ALWAYSMAXIMIZE = AUTOADJUST<<1,
-        HISTORY = ALWAYSMAXIMIZE<<1
+        ALWAYSMAXIMIZE = 2,
+        HISTORY = 3
     }
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum TextLanguages
     {
         ENGLISH = 1,
-        CHINESE = ENGLISH << 1
+        CHINESE = 2
     }
 
     /// <summary>

@@ -23,9 +23,11 @@
                     <StackPanel Spacing="10">
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <TextBlock VerticalAlignment="Center" Text="{DynamicResource Localization.Setting.StartUpSize}" />
-                            <ComboBox Width="200"
-                                      ItemsSource="{Binding WindowStartUpStyles}"
-                                      SelectedItem="{Binding SelectedStartUpStyles}" />
+                            <ComboBox Width="200" SelectedIndex="{Binding WindowStartUpStylesComboBoxSelectedIndex}">
+                                <ComboBoxItem Content="{DynamicResource Localization.Setting.ComboBoxItem.AutoAdjust}" />
+                                <ComboBoxItem Content="{DynamicResource Localization.Setting.ComboBoxItem.Maximize}" />
+                                <ComboBoxItem Content="{DynamicResource Localization.Setting.ComboBoxItem.History}" />
+                            </ComboBox>
                         </StackPanel>
                         <Grid RowDefinitions="*,Auto,*">
                             <SelectableTextBlock Grid.Row="0"

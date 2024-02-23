@@ -116,7 +116,7 @@ namespace QuickCutter_Avalonia.Handler
 
         public static string GetFFmpegPath(string filename = "")
         {
-            string _tempPath = Path.Combine(StartupPath(), @"bin/FFmepg");
+            string _tempPath = Path.Combine(StartupPath(), @"bin\FFmepg");
             if (!Directory.Exists(_tempPath))
             {
                 Directory.CreateDirectory(_tempPath);
@@ -133,7 +133,7 @@ namespace QuickCutter_Avalonia.Handler
 
         public static string GetFFmpegTempPath(string filename = "")
         {
-            string _tempPath = Path.Combine(StartupPath(), @"temp/FFmpeg");
+            string _tempPath = Path.Combine(StartupPath(), @"temp\FFmpeg");
             if (!Directory.Exists(_tempPath))
             {
                 Directory.CreateDirectory(_tempPath);

@@ -105,7 +105,7 @@ namespace QuickCutter_Avalonia.Mode
             var customHeightChanged = this.WhenAnyValue(v => v.CustomHeight);
 
             // CRF Setting
-            ConstantRateFactor = 21;
+            ConstantRateFactor = 23;
 
             // Codec Setting
             SelectedCodec = VideoCodec.LibX264;

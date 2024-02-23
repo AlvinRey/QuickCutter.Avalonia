@@ -16,9 +16,18 @@ namespace QuickCutter_Avalonia.ViewModels
         private Config _config;
         #endregion
 
-        public List<WindowStartUpStyles> WindowStartUpStyles { get; set; }
-        [Reactive]
-        public WindowStartUpStyles SelectedStartUpStyles { get; set; }
+        private List<WindowStartUpStyles> WindowStartUpStyles { get; set; }
+        private WindowStartUpStyles m_SelectedStartUpStyles;
+        public int WindowStartUpStylesComboBoxSelectedIndex {
+            get
+            {
+                return (int)m_SelectedStartUpStyles - 1;
+            } 
+            set
+            {
+                this.RaiseAndSetIfChanged(ref m_SelectedStartUpStyles, (WindowStartUpStyles)(value + 1), "WindowStartUpStylesComboBoxSelectedIndex");
+            }
+        }
 
         private bool m_SelectEnglish = false;
         public bool SelecteEnglish { get => m_SelectEnglish;
@@ -71,14 +80,14 @@ namespace QuickCutter_Avalonia.ViewModels
 
         private void ReadConfig()
         {
-            SelectedStartUpStyles = _config.windowStartUpStyles;
+            m_SelectedStartUpStyles = _config.windowStartUpStyles;
             MoveStep = _config.moveStep;
             Languages = _config.Languages;
         }
 
         public void SaveConfig()
         {
-            _config.windowStartUpStyles = SelectedStartUpStyles;
+            _config.windowStartUpStyles = m_SelectedStartUpStyles;
             _config.moveStep = MoveStep;
             _config.Languages = Languages;
             OnConfigSaved();

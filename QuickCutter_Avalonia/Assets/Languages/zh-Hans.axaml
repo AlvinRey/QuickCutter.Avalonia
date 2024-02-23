@@ -22,7 +22,13 @@
     <system:String x:Key="Localization.DataGrid.CRF">CRF</system:String>
     <system:String x:Key="Localization.DataGrid.Resolution">分辨率</system:String>
     <system:String x:Key="Localization.DataGrid.ProgressBar">进度条</system:String>
-
+    <!--  ToolTip  -->
+    <system:String x:Key="Localization.ToolTip.CRF">
+        恒定速率因子 (CRF) 是 x264 和 x265 编码器的默认质量（和速率控制）设置。
+        您可以将值设置在0到51之间，其中值越低，质量越好，但文件大小越大。
+        较高的值意味着更多的压缩，大于28能明显察觉到质量的下降。
+        正常值介于18和28之间，默认值为 23。
+    </system:String>
     <!--  Setting Window  -->
     <system:String x:Key="Localization.Setting.WindowTitle">设置</system:String>
 
@@ -35,4 +41,8 @@
 
     <system:String x:Key="Localization.Setting.ButtonText.Confirm">确定</system:String>
     <system:String x:Key="Localization.Setting.ButtonText.Cencel">取消</system:String>
+
+    <system:String x:Key="Localization.Setting.ComboBoxItem.AutoAdjust">自适应</system:String>
+    <system:String x:Key="Localization.Setting.ComboBoxItem.Maximize">总是最大化</system:String>
+    <system:String x:Key="Localization.Setting.ComboBoxItem.History">历史</system:String>
 </ResourceDictionary>
