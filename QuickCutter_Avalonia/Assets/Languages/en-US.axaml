@@ -23,6 +23,10 @@
     <system:String x:Key="Localization.DataGrid.Resolution">Resolution</system:String>
     <system:String x:Key="Localization.DataGrid.ProgressBar">Progress Bar</system:String>
     <!--  ToolTip  -->
+    <system:String x:Key="Localization.ToolTip.InBtn">Select In Time(HotKey: I)</system:String>
+    <system:String x:Key="Localization.ToolTip.OutBtn">Select Out Time(HotKey: O)</system:String>
+    <system:String x:Key="Localization.ToolTip.BackwardBtn">Move Backward(HotKey: ←)</system:String>
+    <system:String x:Key="Localization.ToolTip.ForwardBtn">Move Forwarward(HotKey: →)</system:String>
     <system:String x:Key="Localization.ToolTip.CRF">
         The Constant Rate Factor (CRF) is the default quality (and rate control) setting for the x264 and x265 encoders.
         You can set the values between 0 and 51, where lower values would result in better quality, at the expense of higher file sizes.

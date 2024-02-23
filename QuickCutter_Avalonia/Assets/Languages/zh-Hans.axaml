@@ -23,6 +23,10 @@
     <system:String x:Key="Localization.DataGrid.Resolution">分辨率</system:String>
     <system:String x:Key="Localization.DataGrid.ProgressBar">进度条</system:String>
     <!--  ToolTip  -->
+    <system:String x:Key="Localization.ToolTip.InBtn">选取入点(快捷键: I)</system:String>
+    <system:String x:Key="Localization.ToolTip.OutBtn">选取出点(快捷键: O)</system:String>
+    <system:String x:Key="Localization.ToolTip.BackwardBtn">倒退(快捷键: ←)</system:String>
+    <system:String x:Key="Localization.ToolTip.ForwardBtn">快进(快捷键: →)</system:String>
     <system:String x:Key="Localization.ToolTip.CRF">
         恒定速率因子 (CRF) 是 x264 和 x265 编码器的默认质量（和速率控制）设置。
         您可以将值设置在0到51之间，其中值越低，质量越好，但文件大小越大。

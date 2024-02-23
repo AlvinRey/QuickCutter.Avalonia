@@ -227,7 +227,7 @@
                                     Command="{Binding BackwardCommand}"
                                     HotKey="Left"
                                     Theme="{DynamicResource BorderlessButton}"
-                                    ToolTip.Tip="Move Backward (Key: &lt;)">
+                                    ToolTip.Tip="{DynamicResource Localization.ToolTip.BackwardBtn}">
                                 <PathIcon Width="15"
                                           Height="15"
                                           Data="M250.001-250.001v-459.998h59.998v459.998h-59.998ZM680-253.847 453.847-480 680-706.153 722.153-664l-184 184 184 184L680-253.847Z" />
@@ -239,7 +239,7 @@
                                     Command="{Binding ForwardCommand}"
                                     HotKey="Right"
                                     Theme="{DynamicResource BorderlessButton}"
-                                    ToolTip.Tip="Move Forward (Key: >)">
+                                    ToolTip.Tip="{DynamicResource Localization.ToolTip.ForwardBtn}">
                                 <PathIcon Width="15"
                                           Height="15"
                                           Data="M280-253.847 237.847-296l184-184-184-184L280-706.153 506.153-480 280-253.847Zm370.001 3.846v-459.998h59.998v459.998h-59.998Z" />
@@ -251,7 +251,7 @@
                                     Click="InButton_Click"
                                     HotKey="I"
                                     Theme="{DynamicResource BorderlessButton}"
-                                    ToolTip.Tip="Select In Time (Key: i)">
+                                    ToolTip.Tip="{DynamicResource Localization.ToolTip.InBtn}">
                                 <PathIcon Width="15"
                                           Height="15"
                                           Data="M440-120v-80h80v80h-80Zm0-640v-80h80v80h-80Zm160 640v-80h80v80h-80Zm0-640v-80h80v80h-80Zm160 640v-80h80v80h-80Zm0-640v-80h80v80h-80ZM120-120v-80h80v-560h-80v-80h240v80h-80v560h80v80H120Zm560-200-56-56 63-64H400v-80h287l-63-64 56-56 160 160-160 160Z" />
@@ -263,7 +263,7 @@
                                     Click="OutButton_Click"
                                     HotKey="O"
                                     Theme="{DynamicResource BorderlessButton}"
-                                    ToolTip.Tip="Select Out Time (Key: o)">
+                                    ToolTip.Tip="{DynamicResource Localization.ToolTip.OutBtn}">
                                 <PathIcon Width="15"
                                           Height="15"
                                           Data="M440-760v-80h80v80h-80Zm0 640v-80h80v80h-80ZM280-760v-80h80v80h-80Zm0 640v-80h80v80h-80ZM120-760v-80h80v80h-80Zm0 640v-80h80v80h-80Zm480 0v-80h80v-560h-80v-80h240v80h-80v560h80v80H600ZM280-320 120-480l160-160 56 56-63 64h287v80H273l63 64-56 56Z" />
