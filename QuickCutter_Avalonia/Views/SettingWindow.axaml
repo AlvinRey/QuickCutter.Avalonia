@@ -20,37 +20,36 @@
                     HorizontalAlignment="Stretch">
             <TabItem Header="{DynamicResource Localization.Setting.TabHeader.Common}">
                 <ScrollViewer>
-                    <StackPanel Spacing="10">
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock VerticalAlignment="Center" Text="{DynamicResource Localization.Setting.StartUpSize}" />
-                            <ComboBox Width="200" SelectedIndex="{Binding WindowStartUpStylesComboBoxSelectedIndex}">
-                                <ComboBoxItem Content="{DynamicResource Localization.Setting.ComboBoxItem.AutoAdjust}" />
-                                <ComboBoxItem Content="{DynamicResource Localization.Setting.ComboBoxItem.Maximize}" />
-                                <ComboBoxItem Content="{DynamicResource Localization.Setting.ComboBoxItem.History}" />
-                            </ComboBox>
-                        </StackPanel>
-                        <Grid RowDefinitions="*,Auto,*">
-                            <SelectableTextBlock Grid.Row="0"
-                                                 VerticalAlignment="Center"
-                                                 Classes="H6"
-                                                 Text="{DynamicResource Localization.Setting.Languages}"
-                                                 Theme="{StaticResource TitleSelectableTextBlock}" />
-                            <Separator Grid.Row="1" />
-                            <StackPanel Grid.Row="2"
-                                        Orientation="Horizontal"
-                                        Spacing="10">
-                                <RadioButton Content="English"
-                                             GroupName="Language"
-                                             IsChecked="{Binding SelecteEnglish}"
-                                             Theme="{DynamicResource PureCardRadioButton}" />
-                                <RadioButton Content="简体中文"
-                                             GroupName="Language"
-                                             IsChecked="{Binding SelecteChinese}"
-                                             Theme="{DynamicResource PureCardRadioButton}" />
-                            </StackPanel>
-                        </Grid>
+                    <Grid ColumnDefinitions="Auto,20,*" RowDefinitions="Auto,Auto">
+                        <TextBlock Grid.Row="0"
+                                   Grid.Column="0"
+                                   Margin="0,0,0,10"
+                                   VerticalAlignment="Center"
+                                   Text="{DynamicResource Localization.Setting.StartUpSize}" />
+                        <ComboBox Grid.Row="0"
+                                  Grid.Column="2"
+                                  Width="200"
+                                  Margin="0,0,0,10"
+                                  SelectedIndex="{Binding WindowStartUpStylesComboBoxSelectedIndex}">
+                            <ComboBoxItem Content="{DynamicResource Localization.Setting.ComboBoxItem.AutoAdjust}" />
+                            <ComboBoxItem Content="{DynamicResource Localization.Setting.ComboBoxItem.Maximize}" />
+                            <ComboBoxItem Content="{DynamicResource Localization.Setting.ComboBoxItem.History}" />
+                        </ComboBox>
 
-                    </StackPanel>
+                        <TextBlock Grid.Row="1"
+                                   Grid.Column="0"
+                                   Margin="0,0,0,10"
+                                   VerticalAlignment="Center"
+                                   Text="{DynamicResource Localization.Setting.Languages}" />
+                        <ComboBox Grid.Row="1"
+                                  Grid.Column="2"
+                                  Width="200"
+                                  Margin="0,0,0,10"
+                                  SelectedIndex="{Binding LanguageComboBoxSelectedIndex}">
+                            <ComboBoxItem Content="English" />
+                            <ComboBoxItem Content="简体中文" />
+                        </ComboBox>
+                    </Grid>
                 </ScrollViewer>
             </TabItem>
             <TabItem Header="{DynamicResource Localization.Setting.TabHeader.PlayerSetting}">

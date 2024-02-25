@@ -18,6 +18,7 @@ namespace QuickCutter_Avalonia
     public partial class App : Application
     {
         private static Config _config;
+        private static string m_CurLanguage;
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         public static extern int MessageBox(IntPtr hWnd, string text, string caption, uint type);
@@ -40,9 +41,11 @@ namespace QuickCutter_Avalonia
             {
                 case TextLanguages.ENGLISH:
                     SetLanguages("en-US");
+                    m_CurLanguage = "en-US";
                     break;
                 case TextLanguages.CHINESE:
                     SetLanguages("zh-Hans");
+                    m_CurLanguage = "zh-Hans";
                     break;
             }
 
@@ -61,7 +64,8 @@ namespace QuickCutter_Avalonia
 
         public static void SetLanguages(string targetLanguage)
         {
-
+            if (targetLanguage == m_CurLanguage)
+                return;
             var translations = App.Current.Resources.MergedDictionaries.OfType<ResourceInclude>().FirstOrDefault(x => x.Source?.OriginalString?.Contains("/Languages/") ?? false);
 
             if (translations != null)
@@ -74,6 +78,7 @@ namespace QuickCutter_Avalonia
                 {
                     Source = new Uri($"avares://QuickCutter_Avalonia/Assets/Languages/{targetLanguage}.axaml")
                 });
+            m_CurLanguage = targetLanguage;
         }
     }
 }

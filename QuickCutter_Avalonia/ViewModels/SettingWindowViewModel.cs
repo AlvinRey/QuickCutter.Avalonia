@@ -16,7 +16,6 @@ namespace QuickCutter_Avalonia.ViewModels
         private Config _config;
         #endregion
 
-        private List<WindowStartUpStyles> WindowStartUpStyles { get; set; }
         private WindowStartUpStyles m_SelectedStartUpStyles;
         public int WindowStartUpStylesComboBoxSelectedIndex {
             get
@@ -29,33 +28,18 @@ namespace QuickCutter_Avalonia.ViewModels
             }
         }
 
-        private bool m_SelectEnglish = false;
-        public bool SelecteEnglish { get => m_SelectEnglish;
-            set
-            {
-                if (value)
-                {
-                    Languages = TextLanguages.ENGLISH;
-                }
-                this.RaiseAndSetIfChanged(ref m_SelectEnglish, value, "SelecteEnglish");
-            }
-        }
-
-        private bool m_SelecteChinese = false;
-        public bool SelecteChinese
+        private TextLanguages m_Languages;
+        public int LanguageComboBoxSelectedIndex
         {
-            get => m_SelecteChinese;
+            get
+            {
+                return (int)m_Languages - 1;
+            }
             set
             {
-                if (value)
-                {
-                    Languages = TextLanguages.CHINESE;
-                }
-                this.RaiseAndSetIfChanged(ref m_SelecteChinese, value, "SelecteChinese");
+                this.RaiseAndSetIfChanged(ref m_Languages, (TextLanguages)(value + 1), "LanguageComboBoxSelectedIndex");
             }
         }
-
-        public TextLanguages Languages { get; set; }
 
         [Reactive]
         public int MoveStep { get; set; }
@@ -64,32 +48,20 @@ namespace QuickCutter_Avalonia.ViewModels
         {
             _config = Utils.GetConfig();
             ReadConfig();
-
-            WindowStartUpStyles = Enum.GetValues(typeof(WindowStartUpStyles)).Cast<WindowStartUpStyles>().ToList();
-            switch (Languages)
-            {
-                case TextLanguages.ENGLISH:
-                    m_SelectEnglish = true;
-                    break;
-                case TextLanguages.CHINESE:
-                    m_SelecteChinese = true;
-                    break;
-            }
-
         }
 
         private void ReadConfig()
         {
             m_SelectedStartUpStyles = _config.windowStartUpStyles;
             MoveStep = _config.moveStep;
-            Languages = _config.Languages;
+            m_Languages = _config.Languages;
         }
 
         public void SaveConfig()
         {
             _config.windowStartUpStyles = m_SelectedStartUpStyles;
             _config.moveStep = MoveStep;
-            _config.Languages = Languages;
+            _config.Languages = m_Languages;
             OnConfigSaved();
         }
 
@@ -104,7 +76,6 @@ namespace QuickCutter_Avalonia.ViewModels
                     App.SetLanguages("zh-Hans");
                     break;
             }
-            
         }
     }
 }
