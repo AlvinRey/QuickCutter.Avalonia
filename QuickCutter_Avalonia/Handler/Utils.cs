@@ -13,6 +13,7 @@ using ReactiveUI;
 using System.Text.Json;
 using System.Xml;
 using QuickCutter_Avalonia.Mode;
+using System.Runtime.InteropServices;
 
 namespace QuickCutter_Avalonia.Handler
 {
@@ -228,7 +229,7 @@ namespace QuickCutter_Avalonia.Handler
         #endregion
 
         #region Config
-        static private Config _config;
+        static private Config? _config = null;
 
         static public void SetConfig(Config config)
         {
@@ -236,8 +237,28 @@ namespace QuickCutter_Avalonia.Handler
         }
         static public Config GetConfig()
         {
-            if (_config is null) throw new InvalidOperationException("Config is Invalid.");
+            Console.WriteLine("GetConfig");
+            //if (_config is null) throw new InvalidOperationException("Config is Invalid.");
+            if (_config is null)
+            {
+                if(ConfigHandler.LoadConfig(ref _config) !=0)
+                {
+                    ShowNativeMessageBox("加载GUI配置文件异常,请重启应用");
+                    Environment.Exit(0);
+                }
+            }
+
             return _config;
+        }
+        #endregion
+
+        #region Native MessageBox
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern int MessageBox(IntPtr hWnd, string text, string caption, uint type);
+
+        public static void ShowNativeMessageBox(string message)
+        {
+            MessageBox(IntPtr.Zero, message, "Error", 0);
         }
         #endregion
     }

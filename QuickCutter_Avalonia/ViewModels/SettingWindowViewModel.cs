@@ -42,6 +42,9 @@ namespace QuickCutter_Avalonia.ViewModels
         }
 
         [Reactive]
+        public bool AutoPlay { get; set; }
+
+        [Reactive]
         public int MoveStep { get; set; }
 
         public SettingWindowViewModel()
@@ -53,15 +56,19 @@ namespace QuickCutter_Avalonia.ViewModels
         private void ReadConfig()
         {
             m_SelectedStartUpStyles = _config.windowStartUpStyles;
-            MoveStep = _config.moveStep;
             m_Languages = _config.Languages;
+
+            MoveStep = _config.moveStep;
+            AutoPlay = _config.autoPlay;
         }
 
         public void SaveConfig()
         {
             _config.windowStartUpStyles = m_SelectedStartUpStyles;
-            _config.moveStep = MoveStep;
             _config.Languages = m_Languages;
+
+            _config.autoPlay = AutoPlay;
+            _config.moveStep = MoveStep;
             OnConfigSaved();
         }
 

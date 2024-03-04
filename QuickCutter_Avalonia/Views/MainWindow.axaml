@@ -67,6 +67,7 @@
                             <Setter Property="Height" Value="48" />
                             <Setter Property="Padding" Value="16,0" />
                             <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Setter Property="HorizontalAlignment" Value="Left" />
                         </Style>
                     </ListBox.Styles>
                     <ListBox.ItemTemplate>
@@ -155,7 +156,7 @@
                                    Grid.Row="0"
                                    HorizontalAlignment="Stretch"
                                    VerticalAlignment="Stretch"
-                                   MediaPlayer="{Binding MediaPlayer}" />
+                                   MediaPlayer="{Binding VLCMediaplayer.Player}" />
                     <Separator Grid.Row="1" />
                     <Grid Grid.Row="2" RowDefinitions="36,34">
                         <Grid Grid.Row="0"
@@ -168,7 +169,7 @@
                                     Maximum="1"
                                     Minimum="0"
                                     TickFrequency="0.01"
-                                    Value="{Binding Position}" />
+                                    Value="{Binding VLCMediaplayer.Position}" />
                             <StackPanel Grid.Column="2"
                                         Orientation="Horizontal"
                                         Spacing="10">
@@ -182,7 +183,7 @@
                                         Maximum="100"
                                         Minimum="0"
                                         TickFrequency="1"
-                                        Value="{Binding Volume}" />
+                                        Value="{Binding VLCMediaplayer.Volume}" />
                             </StackPanel>
 
                         </Grid>
@@ -208,14 +209,14 @@
                                     <PathIcon Name="PlayIcon"
                                               Width="15"
                                               Height="15"
-                                              Classes.playing="{Binding !IsPlaying}"
+                                              Classes.playing="{Binding !VLCMediaplayer.IsPlaying}"
                                               Data="M340.001-236.156v-487.688L723.074-480 340.001-236.156ZM400-480Zm0 134 210.769-134L400-614v268Z"
                                               Foreground="#FF5AC262" />
 
                                     <PathIcon Name="PauseIcon"
                                               Width="15"
                                               Height="15"
-                                              Classes.playing="{Binding IsPlaying}"
+                                              Classes.playing="{Binding VLCMediaplayer.IsPlaying}"
                                               Data="M530.001-220.001v-519.998h209.998v519.998H530.001Zm-310 0v-519.998h209.998v519.998H220.001ZM589.999-280H680v-400h-90.001v400ZM280-280h90.001v-400H280v400Zm0-400v400-400Zm309.999 0v400-400Z"
                                               Foreground="#FFFB9078" />
                                 </Grid>
@@ -272,27 +273,27 @@
                                 <TextBlock Width="80"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
-                                           Text="{Binding CurrentTime, StringFormat=hh\\:mm\\:ss\\.ff}" />
+                                           Text="{Binding VLCMediaplayer.CurrentTime, StringFormat=hh\\:mm\\:ss\\.ff}" />
                                 <TextBlock HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
                                            Text=" / " />
                                 <TextBlock Width="80"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
-                                           Text="{Binding Duration, StringFormat=hh\\:mm\\:ss\\.ff}" />
+                                           Text="{Binding VLCMediaplayer.Duration, StringFormat=hh\\:mm\\:ss\\.ff}" />
                             </StackPanel>
                             <TextBlock VerticalAlignment="Center" Text="{DynamicResource Localization.AudioTrackText}" />
                             <ComboBox Name="AudioTrackComboBox"
                                       Width="200"
                                       DisplayMemberBinding="{Binding Name}"
-                                      ItemsSource="{Binding AudioTrack}"
-                                      SelectedItem="{Binding SelectedAudioTrack}" />
+                                      ItemsSource="{Binding VLCMediaplayer.AudioTrack}"
+                                      SelectedItem="{Binding VLCMediaplayer.SelectedAudioTrack}" />
                             <TextBlock VerticalAlignment="Center" Text="{DynamicResource Localization.SubtitleTrackText}" />
                             <ComboBox Name="SubtitleTrackComboBox"
                                       Width="200"
                                       DisplayMemberBinding="{Binding Name}"
-                                      ItemsSource="{Binding SubtitleTrack}"
-                                      SelectedItem="{Binding SelectedSubtitleTrack}" />
+                                      ItemsSource="{Binding VLCMediaplayer.SubtitleTrack}"
+                                      SelectedItem="{Binding VLCMediaplayer.SelectedSubtitleTrack}" />
                             <Button Name="TestButton"
                                     Click="Button_Click"
                                     Content="Test"

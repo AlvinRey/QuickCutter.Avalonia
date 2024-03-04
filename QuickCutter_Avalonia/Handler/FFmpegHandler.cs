@@ -29,7 +29,7 @@ namespace QuickCutter_Avalonia.Handler
             {
                 if (pathVariable.Split(';').Select(path => File.Exists(Path.Combine(path, "ffmpeg.exe")) && File.Exists(Path.Combine(path, "ffprobe.exe"))).Any(boolean => boolean == true))
                 {
-                    Utils.SaveLog($"Can not find ffmpeg.exe and ffprobe.exe in Environment PATH");
+                    Utils.SaveLog($"Success to find ffmpeg.exe and ffprobe.exe in Environment PATH");
                     return;
                 }
             }

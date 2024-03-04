@@ -54,17 +54,27 @@
             </TabItem>
             <TabItem Header="{DynamicResource Localization.Setting.TabHeader.PlayerSetting}">
                 <ScrollViewer>
-                    <StackPanel Spacing="10">
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock VerticalAlignment="Center" Text="{DynamicResource Localization.Setting.PlayerMoveStep}" />
-                            <NumericUpDown Width="60"
-                                           Classes="Small"
-                                           Increment="1"
-                                           Maximum="30"
-                                           Minimum="1"
-                                           Value="{Binding MoveStep}" />
-                        </StackPanel>
-                    </StackPanel>
+                    <Grid ColumnDefinitions="Auto,20,*" RowDefinitions="Auto,Auto">
+                        <TextBlock Grid.Row="0"
+                                   Grid.Column="0"
+                                   VerticalAlignment="Center"
+                                   Text="{DynamicResource Localization.Setting.AutoPlay}" />
+                        <CheckBox Grid.Row="0"
+                                  Grid.Column="2"
+                                  IsChecked="{Binding AutoPlay}" />
+                        <TextBlock Grid.Row="1"
+                                   Grid.Column="0"
+                                   VerticalAlignment="Center"
+                                   Text="{DynamicResource Localization.Setting.PlayerMoveStep}" />
+                        <NumericUpDown Grid.Row="1"
+                                       Grid.Column="2"
+                                       Width="60"
+                                       HorizontalAlignment="Left"
+                                       Increment="1"
+                                       Maximum="30"
+                                       Minimum="1"
+                                       Value="{Binding MoveStep}" />
+                    </Grid>
                 </ScrollViewer>
             </TabItem>
         </TabControl>

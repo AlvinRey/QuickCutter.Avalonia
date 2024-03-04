@@ -14,9 +14,6 @@ namespace QuickCutter_Avalonia.Handler
         #region ConfigHandler 
         ///<summary>
         /// Load Config
-        /// </summary>
-        ///<param name="config"></param>
-        /// <returns></returns>
         public static int LoadConfig(ref Config config)
         {
             string? result = Utils.LoadResource(Utils.GetConfigPath(configRes));
@@ -36,12 +33,7 @@ namespace QuickCutter_Avalonia.Handler
 
             if (config == null)
             {
-                config = new Config
-                {
-                    Languages = TextLanguages.CHINESE,
-                    windowStartUpStyles = WindowStartUpStyles.AUTOADJUST,
-                    moveStep = 1
-                };
+                config = Config.DefaultConfig;
             }
 
             VerifyConfig(config);
@@ -54,9 +46,9 @@ namespace QuickCutter_Avalonia.Handler
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static int SaveConfig(ref Config config, bool reload = true)
+        public static int SaveConfig()
         {
-            ToJsonFile(config);
+            ToJsonFile(Utils.GetConfig());
 
             return 0;
         }

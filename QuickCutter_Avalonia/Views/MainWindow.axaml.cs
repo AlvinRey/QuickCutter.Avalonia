@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Data;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
@@ -8,6 +9,7 @@ using DynamicData;
 using LibVLCSharp.Shared;
 using QuickCutter_Avalonia.Handler;
 using QuickCutter_Avalonia.Mode;
+using QuickCutter_Avalonia.Models;
 using QuickCutter_Avalonia.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -31,7 +33,6 @@ namespace QuickCutter_Avalonia.Views
         public MainWindow()
         {
             InitializeComponent();
-
             _config = Utils.GetConfig();
             switch (_config.windowStartUpStyles)
             {
@@ -43,61 +44,55 @@ namespace QuickCutter_Avalonia.Views
                     WindowState = WindowState.Maximized;
                     break;
                 case WindowStartUpStyles.HISTORY:
-                    if (_config.windowHistoryWidth >= this.MinWidth && _config.windowHistoryHeight >= this.MinHeight)
+                    if (_config.windowHistoryWidth >= MinWidth && _config.windowHistoryHeight >= MinHeight)
                     {
                         Width = _config.windowHistoryWidth;
                         Height = _config.windowHistoryHeight;
                     }
                     else
                     {
-                        Width = this.MinWidth;
-                        Height = this.MinHeight;
+                        Width = MinWidth;
+                        Height = MinHeight;
                     }
                     break;
             }
-
             Loaded += MainWindow_Loaded;
             Unloaded += MainWindow_Unloaded;
             ProjectsList.SelectionChanged += ProjectsList_SelectionChanged;
-            AudioTrackComboBox.PropertyChanged += AudioTrackComboBox_PropertyChanged;
-            SubtitleTrackComboBox.PropertyChanged += SubtitleTrackComboBox_PropertyChanged;
             OutputFilesDataGrid.SelectionChanged += OutputFilesDataGrid_SelectionChanged;
             MediaPlayerGrid.SizeChanged += MediaPlayerGrid_SizeChanged;
             VideoView.Loaded += VideoView_Loaded;
             SettingButton.Click += SettingButton_Click;
         }
-
         #region ++Event Handler++
 
-        private async void MainWindow_Loaded(object? sender, RoutedEventArgs e)
+        private void MainWindow_Loaded(object? sender, RoutedEventArgs e)
         {
             viewModel = DataContext as MainWindowViewModel;
 
-            Core.Initialize();
-            LogHandler.Init();
+            //Core.Initialize();
+            //LogHandler.Init();
 
-            FileHandler.Init(GetStorageProvider());
-            try
-            {
-                FFmpegHandler.CheckFFmpegIsExist();
-            }
-            catch (Exception ex)
-            {
-                await MessageBox.ShowAsync(this,ex.Message, "Error", MessageBoxIcon.Error, MessageBoxButton.OK);
-                Environment.Exit(0);
-                return;
-            }
+            //FileHandler.Init(GetStorageProvider());
+            //try
+            //{
+            //    FFmpegHandler.CheckFFmpegIsExist();
+            //}
+            //catch (Exception ex)
+            //{
+            //    await MessageBox.ShowAsync(this,ex.Message, "Error", MessageBoxIcon.Error, MessageBoxButton.OK);
+            //    Environment.Exit(0);
+            //    return;
+            //}
         }
 
         private void MainWindow_Unloaded(object? sender, RoutedEventArgs e)
         {
             _config.windowHistoryWidth = Width;
             _config.windowHistoryHeight = Height;
-            ConfigHandler.SaveConfig(ref _config);
-
-            ExportHandler.CencelWithAppQuit();
-            LogHandler.Dispose();
-            viewModel?.Dispose();
+            //ConfigHandler.SaveConfig(ref _config);
+            //ExportHandler.CencelWithAppQuit();
+            //LogHandler.Dispose();
         }
 
         private void ProjectsList_SelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -125,22 +120,6 @@ namespace QuickCutter_Avalonia.Views
                 SelectedEditingProject = null;
             }
         } 
-
-        private void AudioTrackComboBox_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
-        {
-            if ("ItemsSource" == e.Property.Name)
-            {
-                viewModel?.SelectCurrentAudioTrack();
-            }
-        }
-
-        private void SubtitleTrackComboBox_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
-        {
-            if ("ItemsSource" == e.Property.Name)
-            {
-                viewModel?.SelectCurrentSubtitleTrack();
-            }
-        }
 
         private void OutputFilesDataGrid_SelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
@@ -302,7 +281,7 @@ namespace QuickCutter_Avalonia.Views
                 return;
             // Load stuff about Selection
             HeaderTitle.Text = SelectedEditingProject.ImportVideoInfo.VideoFullName;
-            viewModel.LoadMedia();
+            MediaPlayerHandler.LoadMedia(new Uri(viewModel.SelectedProjects[0].MediaFullName));
             OutputFilesDataGrid.ItemsSource = SelectedEditingProject.OutputFiles;
 
             // Resize Video View
@@ -323,10 +302,10 @@ namespace QuickCutter_Avalonia.Views
         {
             if (viewModel is null)
                 return;
-            viewModel.ResetMediaPlayer();
+            MediaPlayerHandler.ResetMediaPlayer();
             HeaderTitle.Text = null;
-            AudioTrackComboBox.ItemsSource = null;
-            SubtitleTrackComboBox.ItemsSource = null;
+            //AudioTrackComboBox.ItemsSource = null;
+            //SubtitleTrackComboBox.ItemsSource = null;
             OutputFilesDataGrid.ItemsSource = null;
 
         }
