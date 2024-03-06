@@ -102,7 +102,12 @@ namespace QuickCutter_Avalonia.Views
 
             if (viewModel.SelectedProjects.Count == 1)
             {
-                if(SelectedEditingProject == viewModel.SelectedProjects[0])
+                if(SelectedEditingProject == null)
+                {
+                    SelectedEditingProject = viewModel.SelectedProjects[0];
+                    InitEditingArea();
+                }
+                else if(SelectedEditingProject == viewModel.SelectedProjects[0])
                 {
                     InitEditingArea();
                 }
@@ -176,25 +181,6 @@ namespace QuickCutter_Avalonia.Views
         private void VideoView_Loaded(object? sender, RoutedEventArgs e)
         {
             mVideoViewSizeInit?.Invoke();
-        }
-
-        private void DeleteProjectButton_Click(object? sender, RoutedEventArgs e)
-        {
-            if (viewModel is null || ProjectsList.SelectedItems is null || viewModel.SelectedProjects.Count <= 0)
-                return;
-
-            MessageBoxResult result = MessageBoxResult.Yes;
-            //if (viewModel.SelectedProject[0].OutputFiles.Count > 0)
-            //{
-            //    result = await MessageBox.ShowAsync("This Project has Output Files£¬Are you sure to delete this Project?", "Warning", MessageBoxIcon.Warning, MessageBoxButton.YesNo);
-            //}
-
-            if (result == MessageBoxResult.Yes)
-            {
-                Debug.WriteLine("Deleting project");
-
-                Debug.WriteLine("Deleted project");
-            }
         }
 
         private void DataGridMenu_SelectAll(object? sender, RoutedEventArgs e)
@@ -279,10 +265,6 @@ namespace QuickCutter_Avalonia.Views
         {
             if (viewModel is null || SelectedEditingProject is null)
                 return;
-            // Load stuff about Selection
-            HeaderTitle.Text = SelectedEditingProject.ImportVideoInfo.VideoFullName;
-            MediaPlayerHandler.LoadMedia(new Uri(viewModel.SelectedProjects[0].MediaFullName));
-            OutputFilesDataGrid.ItemsSource = SelectedEditingProject.OutputFiles;
 
             // Resize Video View
             double videoHeight = SelectedEditingProject.ImportVideoInfo.AnalysisResult.VideoStreams[0].Height;
@@ -296,6 +278,11 @@ namespace QuickCutter_Avalonia.Views
             {
                 VideoView_ChangeWidth(MediaPlayerGrid.Bounds.Width - 1);
             }
+
+            // Load stuff about Selection
+            HeaderTitle.Text = SelectedEditingProject.ImportVideoInfo.VideoFullName;
+            OutputFilesDataGrid.ItemsSource = SelectedEditingProject.OutputFiles;
+            MediaPlayerHandler.LoadMedia(new Uri(viewModel.SelectedProjects[0].MediaFullName));
         }
 
         private void ResetEditingArea()
@@ -328,16 +315,12 @@ namespace QuickCutter_Avalonia.Views
             }
         }
 
-        private IStorageProvider? GetStorageProvider()
-        {
-            var topLevel = TopLevel.GetTopLevel(this);
-            return topLevel?.StorageProvider;
-        }
-
         private void Button_Click(object? sender, RoutedEventArgs e)
         {
-            VideoView.Width += 10;
+            if(viewModel.SelectedProjects.Count == 1 && viewModel.SelectedOutputFiles.Count == 1) 
+            { 
 
+            }
         }
     }
 }

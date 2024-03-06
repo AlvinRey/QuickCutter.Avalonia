@@ -47,8 +47,6 @@ namespace QuickCutter_Avalonia
                     break;
             }
 
-            Core.Initialize();
-
             LogHandler.Init();
 
             // Init FileHandler

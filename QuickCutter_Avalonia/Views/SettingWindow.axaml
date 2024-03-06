@@ -54,7 +54,7 @@
             </TabItem>
             <TabItem Header="{DynamicResource Localization.Setting.TabHeader.PlayerSetting}">
                 <ScrollViewer>
-                    <Grid ColumnDefinitions="Auto,20,*" RowDefinitions="Auto,Auto">
+                    <Grid ColumnDefinitions="Auto,20,*" RowDefinitions="Auto,Auto,Auto">
                         <TextBlock Grid.Row="0"
                                    Grid.Column="0"
                                    VerticalAlignment="Center"
@@ -65,8 +65,15 @@
                         <TextBlock Grid.Row="1"
                                    Grid.Column="0"
                                    VerticalAlignment="Center"
+                                   Text="{DynamicResource Localization.Setting.LoopPlayback}" />
+                        <CheckBox Grid.Row="1"
+                                  Grid.Column="2"
+                                  IsChecked="{Binding LoopPlayback}" />
+                        <TextBlock Grid.Row="2"
+                                   Grid.Column="0"
+                                   VerticalAlignment="Center"
                                    Text="{DynamicResource Localization.Setting.PlayerMoveStep}" />
-                        <NumericUpDown Grid.Row="1"
+                        <NumericUpDown Grid.Row="2"
                                        Grid.Column="2"
                                        Width="60"
                                        HorizontalAlignment="Left"

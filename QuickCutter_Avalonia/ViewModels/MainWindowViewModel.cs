@@ -6,7 +6,6 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
 using Ursa.Controls;
 
@@ -27,6 +26,7 @@ namespace QuickCutter_Avalonia.ViewModels
         public IReactiveCommand ForwardCommand { get; }
         public IReactiveCommand BackwardCommand { get; }
         public IReactiveCommand NextFrameCommand { get; }
+        public IReactiveCommand ReplayCommand { get; }
         #endregion
 
         #region Output Data Grid
@@ -35,7 +35,7 @@ namespace QuickCutter_Avalonia.ViewModels
         public ObservableCollection<OutputFile> SelectedOutputFiles { get; set; }
         [Reactive]
         public OutputFile SelectedSingleOutputFile { get; set; }
-        public IReactiveCommand<Unit, Unit> AddOutputFilesCommand { get; }
+        public IReactiveCommand AddOutputFilesCommand { get; }
         public IReactiveCommand ExportCommand { get; }
         public IReactiveCommand CencelCommand { get; }
         #endregion
@@ -89,12 +89,14 @@ namespace QuickCutter_Avalonia.ViewModels
 
             //NextFrameCommand = ReactiveCommand.Create(
             //    () => MediaPlayer.NextFrame());
+
+            
             #endregion
 
             #region Init Data Grid
             SelectedOutputFiles = new ObservableCollection<OutputFile>();
-            var selectedProjectChanged = Observable.FromEventPattern(SelectedProjects, nameof(SelectedProjects.CollectionChanged)).Select(_ => SelectedProjects.Count == 1);
-            var selectedOutputFilesChanged = Observable.FromEventPattern(SelectedOutputFiles, nameof(SelectedOutputFiles.CollectionChanged)).Select(_ => SelectedOutputFiles.Count > 0);
+            var selectedProjectChanged = Observable.FromEventPattern(SelectedProjects, nameof(SelectedProjects.CollectionChanged));
+            var selectedOutputFilesChanged = Observable.FromEventPattern(SelectedOutputFiles, nameof(SelectedOutputFiles.CollectionChanged));
 
             AddOutputFilesCommand = ReactiveCommand.Create(
                 () => 
@@ -102,7 +104,7 @@ namespace QuickCutter_Avalonia.ViewModels
                         SelectedProjects.First().AddChild();
                         SelectedSingleOutputFile = SelectedProjects.First().GetLastChild();
                     },
-                selectedProjectChanged);
+                selectedProjectChanged.Select(_ => SelectedProjects.Count == 1));
 
             ExportCommand = ReactiveCommand.Create(
                 async () =>
@@ -114,11 +116,20 @@ namespace QuickCutter_Avalonia.ViewModels
                     IsExporting = true;
                     await ExportHandler.ExecuteFFmpeg();
                     IsExporting = false;
-                }, selectedOutputFilesChanged);
+                }, selectedOutputFilesChanged.Select(_ => SelectedOutputFiles.Count > 0));
 
             CencelCommand = ReactiveCommand.Create(
                 () => { ExportHandler.CencelExport(); IsExporting = false; });
             #endregion
+
+            ReplayCommand = ReactiveCommand.Create(
+                () =>
+                {
+                    var startTime = SelectedOutputFiles[0].Edit_InTime.TotalMilliseconds;
+                    var endTime = SelectedOutputFiles[0].Edit_OutTime.TotalMilliseconds;
+                    MediaPlayerHandler.Replay((long)startTime, (long)endTime);
+                },
+                selectedOutputFilesChanged.Select(_ => SelectedOutputFiles.Count == 1));
         }
 
         public void AutoComplateInTime()

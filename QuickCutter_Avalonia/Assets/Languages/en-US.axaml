@@ -8,6 +8,7 @@
     <system:String x:Key="Localization.ButtonText.AddOutputFiles">Add Output</system:String>
     <system:String x:Key="Localization.ButtonText.Export">Export Selected</system:String>
     <system:String x:Key="Localization.ButtonText.CancelExport">Cancel Export</system:String>
+    <system:String x:Key="Localization.ButtonText.Replay">Replay Selected</system:String>
     <!--  Text  -->
     <system:String x:Key="Localization.AudioTrackText">Audio Track:</system:String>
     <system:String x:Key="Localization.SubtitleTrackText">Subtitle:</system:String>
@@ -32,11 +33,12 @@
     <system:String x:Key="Localization.Setting.WindowTitle">Setting</system:String>
 
     <system:String x:Key="Localization.Setting.TabHeader.Common">Common</system:String>
-    <system:String x:Key="Localization.Setting.StartUpSize">StartUp Window Size</system:String>
+    <system:String x:Key="Localization.Setting.StartUpSize">Start up window size</system:String>
     <system:String x:Key="Localization.Setting.Languages">Languages</system:String>
 
     <system:String x:Key="Localization.Setting.TabHeader.PlayerSetting">PlayerSetting</system:String>
-    <system:String x:Key="Localization.Setting.AutoPlay">AutoPlay</system:String>
+    <system:String x:Key="Localization.Setting.AutoPlay">Auto playback</system:String>
+    <system:String x:Key="Localization.Setting.LoopPlayback">Loop playback</system:String>
     <system:String x:Key="Localization.Setting.PlayerMoveStep">Forward(Backward) Move Step(second)</system:String>
 
     <system:String x:Key="Localization.Setting.ButtonText.Confirm">Confirm</system:String>

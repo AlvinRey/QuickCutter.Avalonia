@@ -33,10 +33,10 @@ namespace QuickCutter_Avalonia.Mode
         public int DefaultWidth { get; }
 
         [Reactive]
-        public TimeSpan? Edit_InTime { get; set; }
+        public TimeSpan Edit_InTime { get; set; }
 
         [Reactive]
-        public TimeSpan? Edit_OutTime { get; set; }
+        public TimeSpan Edit_OutTime { get; set; }
 
         [Reactive]
         public bool IsTransCode { get; set; }

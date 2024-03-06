@@ -45,6 +45,9 @@ namespace QuickCutter_Avalonia.ViewModels
         public bool AutoPlay { get; set; }
 
         [Reactive]
+        public bool LoopPlayback { get; set; }
+
+        [Reactive]
         public int MoveStep { get; set; }
 
         public SettingWindowViewModel()
@@ -60,6 +63,7 @@ namespace QuickCutter_Avalonia.ViewModels
 
             MoveStep = _config.moveStep;
             AutoPlay = _config.autoPlay;
+            LoopPlayback = _config.loopPlayback;
         }
 
         public void SaveConfig()
@@ -69,6 +73,7 @@ namespace QuickCutter_Avalonia.ViewModels
 
             _config.autoPlay = AutoPlay;
             _config.moveStep = MoveStep;
+            _config.loopPlayback = LoopPlayback;
             OnConfigSaved();
         }
 

@@ -17,7 +17,7 @@ namespace QuickCutter_Avalonia.Handler
                                                     {
                                                         Patterns = new []
                                                         {
-                                                            "*.mp4", "*.mov", "*.mkv"
+                                                            "*.mp4", "*.mov", "*.mkv", "*.ts"
                                                         }
                                                     }
                                                 },

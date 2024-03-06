@@ -5,7 +5,9 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 
 namespace QuickCutter_Avalonia.Models
 {
@@ -86,6 +88,7 @@ namespace QuickCutter_Avalonia.Models
 
         public VLCMediaplayer()
         {
+            //ThreadPool.QueueUserWorkItem(_ => MediaPlayerHandler.InitMediaPlayer(this));
             MediaPlayerHandler.InitMediaPlayer(this);
         }
 
@@ -112,10 +115,12 @@ namespace QuickCutter_Avalonia.Models
         }
         public void UpdateUIPlayingState()
         {
+            Debug.WriteLine("[Update UI] Play State");
             IsPlaying = Player.IsPlaying;
         }
         public void UpdateUIAudioTrackOptions()
         {
+            Debug.WriteLine("[Update UI] Audio Track Options");
             this.RaisePropertyChanged(nameof(AudioTrack));
             foreach (var track in Player.AudioTrackDescription)
             {
@@ -128,6 +133,7 @@ namespace QuickCutter_Avalonia.Models
         }
         public void UpdateUISubtitleTrackOptions()
         {
+            Debug.WriteLine("[Update UI] Subtitle Track Options");
             this.RaisePropertyChanged(nameof(SubtitleTrack));
             foreach (var track in Player.SpuDescription)
             {

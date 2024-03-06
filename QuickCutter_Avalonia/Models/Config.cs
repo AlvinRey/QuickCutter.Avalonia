@@ -30,6 +30,7 @@ namespace QuickCutter_Avalonia.Mode
             windowHistoryHeight = 0,
             Languages = TextLanguages.ENGLISH,
             autoPlay = false,
+            loopPlayback = false,
             moveStep = 1
         };
         public WindowStartUpStyles windowStartUpStyles {  get; set; }
@@ -38,6 +39,7 @@ namespace QuickCutter_Avalonia.Mode
         public TextLanguages Languages { get; set; }
         // Video Setting
         public bool autoPlay { get; set; }
+        public bool loopPlayback { get; set; }
         public int moveStep { get; set; }
     }
 

@@ -8,6 +8,7 @@
     <system:String x:Key="Localization.ButtonText.AddOutputFiles">添加输出</system:String>
     <system:String x:Key="Localization.ButtonText.Export">导出所选</system:String>
     <system:String x:Key="Localization.ButtonText.CancelExport">取消导出</system:String>
+    <system:String x:Key="Localization.ButtonText.Replay">回放所选</system:String>
     <!--  Text  -->
     <system:String x:Key="Localization.AudioTrackText">音轨:</system:String>
     <system:String x:Key="Localization.SubtitleTrackText">字幕:</system:String>
@@ -37,6 +38,7 @@
 
     <system:String x:Key="Localization.Setting.TabHeader.PlayerSetting">播放器设置</system:String>
     <system:String x:Key="Localization.Setting.AutoPlay">自动播放</system:String>
+    <system:String x:Key="Localization.Setting.LoopPlayback">循环播放</system:String>
     <system:String x:Key="Localization.Setting.PlayerMoveStep">快进(倒退)步长(秒)</system:String>
 
     <system:String x:Key="Localization.Setting.ButtonText.Confirm">确定</system:String>
