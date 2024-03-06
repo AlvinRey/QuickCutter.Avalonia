@@ -13,7 +13,7 @@ In many cases, users do not need most of the features of professional editing so
  - [FFmpeg](https://github.com/BtbN/FFmpeg-Builds/releases)
 
  ## TODO
- - Preview output
+ - [x] Preview output
  - Add Subitile to the video
  - Separate audio and video
  - Merge multiple videos
