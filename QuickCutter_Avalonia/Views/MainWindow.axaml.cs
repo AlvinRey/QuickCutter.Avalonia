@@ -314,13 +314,5 @@ namespace QuickCutter_Avalonia.Views
                 VideoView.Height = VideoView.Width / mediaPlayerAspectRatio;
             }
         }
-
-        private void Button_Click(object? sender, RoutedEventArgs e)
-        {
-            if(viewModel.SelectedProjects.Count == 1 && viewModel.SelectedOutputFiles.Count == 1) 
-            { 
-
-            }
-        }
     }
 }

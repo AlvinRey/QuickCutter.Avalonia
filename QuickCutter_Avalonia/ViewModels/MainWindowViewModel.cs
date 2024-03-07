@@ -26,7 +26,6 @@ namespace QuickCutter_Avalonia.ViewModels
         public IReactiveCommand ForwardCommand { get; }
         public IReactiveCommand BackwardCommand { get; }
         public IReactiveCommand NextFrameCommand { get; }
-        public IReactiveCommand ReplayCommand { get; }
         #endregion
 
         #region Output Data Grid
@@ -121,15 +120,6 @@ namespace QuickCutter_Avalonia.ViewModels
             CencelCommand = ReactiveCommand.Create(
                 () => { ExportHandler.CencelExport(); IsExporting = false; });
             #endregion
-
-            ReplayCommand = ReactiveCommand.Create(
-                () =>
-                {
-                    var startTime = SelectedOutputFiles[0].Edit_InTime.TotalMilliseconds;
-                    var endTime = SelectedOutputFiles[0].Edit_OutTime.TotalMilliseconds;
-                    MediaPlayerHandler.Replay((long)startTime, (long)endTime);
-                },
-                selectedOutputFilesChanged.Select(_ => SelectedOutputFiles.Count == 1));
         }
 
         public void AutoComplateInTime()

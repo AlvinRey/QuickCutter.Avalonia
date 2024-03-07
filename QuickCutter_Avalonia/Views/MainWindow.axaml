@@ -296,9 +296,7 @@
                                       DisplayMemberBinding="{Binding Name}"
                                       ItemsSource="{Binding VLCMediaplayer.SubtitleTrack}"
                                       SelectedItem="{Binding VLCMediaplayer.SelectedSubtitleTrack}" />
-                            <Button Name="ReplayButton"
-                                    Command="{Binding ReplayCommand}"
-                                    Content="{DynamicResource Localization.ButtonText.Replay}" />
+                            <Button Name="TestButton" IsVisible="False" />
                         </StackPanel>
                     </Grid>
                 </Grid>
@@ -329,12 +327,37 @@
                     <DataGrid.Resources>
                         <converters:StringToTimeSpanConverter x:Key="StringToTimeSpanConverter" />
                     </DataGrid.Resources>
+                    <DataGrid.Styles>
+
+                        <Style Selector="DataGridRow:pointerover Button.Replay">
+                            <Setter Property="IsVisible" Value="True" />
+                        </Style>
+                        <Style Selector="DataGridRow:not(:pointerover) Button.Replay">
+                            <Setter Property="IsVisible" Value="False" />
+                        </Style>
+                    </DataGrid.Styles>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Width="35"
-                                            x:DataType="ms:OutputFile"
-                                            Binding="{Binding RowIndex}"
-                                            Header=""
-                                            IsReadOnly="True" />
+                        <DataGridTemplateColumn Width="35"
+                                                x:DataType="ms:OutputFile"
+                                                Header="">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="ms:OutputFile">
+                                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   Text="{Binding RowIndex}" />
+                                        <Button Margin="3,2,2,2"
+                                                Classes="Success Replay"
+                                                Command="{Binding ReplayCommand}"
+                                                Theme="{DynamicResource SolidButton}">
+                                            <PathIcon Width="15"
+                                                      Height="15"
+                                                      Data="M340.001-236.156v-487.688L723.074-480 340.001-236.156ZM400-480Zm0 134 210.769-134L400-614v268Z" />
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                         <!--  =================================================  -->
                         <DataGridTextColumn Width="300"
                                             MinWidth="100"

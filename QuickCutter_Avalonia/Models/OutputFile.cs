@@ -15,6 +15,9 @@ namespace QuickCutter_Avalonia.Mode
         #region Private Member
         private CompositeDisposable _subscriptions;
         #endregion
+
+        public IReactiveCommand ReplayCommand { get; }
+
         [Reactive]
         public int RowIndex { get; set; }
 
@@ -150,6 +153,7 @@ namespace QuickCutter_Avalonia.Mode
                     }
                 }),
             };
+            ReplayCommand = ReactiveCommand.Create(() => MediaPlayerHandler.Replay((long)Edit_InTime.TotalMilliseconds, (long)Edit_OutTime.TotalMilliseconds));
         }
 
         private static List<Size> GetResolutionPreset()
