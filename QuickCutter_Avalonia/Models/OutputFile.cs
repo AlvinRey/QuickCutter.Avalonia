@@ -25,8 +25,6 @@ namespace QuickCutter_Avalonia.Mode
 
         public string OutputFileName { get; set; }
 
-        public string OutputFileExt { get; set; }
-
         public TimeSpan Duration { get; set; }
 
         public TimeSpan Default_OutTime { get; }
@@ -34,6 +32,11 @@ namespace QuickCutter_Avalonia.Mode
         public int DefaultHeight { get; }
 
         public int DefaultWidth { get; }
+
+        public List<string> OutputFileExtOptions { get; set; }
+
+        [Reactive]
+        public string OutputFileExt { get; set; }
 
         [Reactive]
         public TimeSpan Edit_InTime { get; set; }
@@ -78,7 +81,7 @@ namespace QuickCutter_Avalonia.Mode
         [Reactive]
         public int CustomHeight { get; set; }
 
-        public ObservableCollection<Size> ResolutionPreset { get; set; }
+        public List<Size> ResolutionPreset { get; set; }
 
         public OutputFile(VideoInfo parentVideoInfo)
         {
@@ -88,9 +91,16 @@ namespace QuickCutter_Avalonia.Mode
 
             // File Name Setting
             //OutputFileExt = System.IO.Path.GetExtension(importFileFullName);
-            OutputFileExt = ".mp4";
             string fileName = System.IO.Path.GetFileNameWithoutExtension(parentVideoInfo.VideoFullName!);
-            OutputFileName = $"{fileName}_Output_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}{OutputFileExt}";
+            OutputFileName = $"{fileName}_Output_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
+
+            OutputFileExtOptions = new List<string>
+            {
+                new string(".mp4"),
+                new string(".mov")
+            };
+            OutputFileExt = OutputFileExtOptions.First();
+
             // Time Setting
             Edit_InTime = TimeSpan.Zero;
             Default_OutTime = parentVideoInfo.AnalysisResult!.Duration;
@@ -113,7 +123,14 @@ namespace QuickCutter_Avalonia.Mode
             // Codec Setting
             SelectedCodec = VideoCodec.LibX264;
 
-            ResolutionPreset = new ObservableCollection<Size>(GetResolutionPreset());
+            ResolutionPreset = new List<Size>
+            {
+                new Size(3840, 2160),
+                new Size(2560, 1440),
+                new Size(1920, 1080),
+                new Size(1280, 720),
+                new Size(640, 480)
+            };
 
             _subscriptions = new CompositeDisposable
             {
@@ -154,18 +171,6 @@ namespace QuickCutter_Avalonia.Mode
                 }),
             };
             ReplayCommand = ReactiveCommand.Create(() => MediaPlayerHandler.Replay((long)Edit_InTime.TotalMilliseconds, (long)Edit_OutTime.TotalMilliseconds));
-        }
-
-        private static List<Size> GetResolutionPreset()
-        {
-            return new List<Size>
-            {
-                new Size(3840, 2160),
-                new Size(2560, 1440),
-                new Size(1920, 1080),
-                new Size(1280, 720),
-                new Size(640, 480)
-            };
         }
 
         public void Dispose()

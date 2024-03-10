@@ -69,13 +69,13 @@ namespace QuickCutter_Avalonia.ViewModels
 
             #region Init Media Player
             VLCMediaplayer = new VLCMediaplayer();
-            PlayOrPauseVideoCommand = ReactiveCommand.Create(async () =>
+            PlayOrPauseVideoCommand = ReactiveCommand.Create(() =>
             {
                 if(SelectedProjects.Count != 1)
                 {
                     var title = (string)App.Current.FindResource("Localization.WindowsTitle.Notice");
                     var message = (string)App.Current.FindResource("Localization.Message.SelectOneProject");
-                    MessageBox.ShowAsync(message, title,MessageBoxIcon.Information, MessageBoxButton.OK);
+                    _ = MessageBox.ShowAsync(message, title,MessageBoxIcon.Information, MessageBoxButton.OK);
                     return;
                 }
                 MediaPlayerHandler.TogglePlay();

@@ -1,19 +1,14 @@
-﻿using FFMpegCore.Enums;
+﻿using FFMpegCore;
+using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
-using FFMpegCore;
+using QuickCutter_Avalonia.Mode;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-//using System.Management;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-using ReactiveUI;
-using System.Text.Json;
-using System.Xml;
-using QuickCutter_Avalonia.Mode;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 
 namespace QuickCutter_Avalonia.Handler
 {

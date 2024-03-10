@@ -11,8 +11,17 @@ namespace QuickCutter_Avalonia.Views
         {
             InitializeComponent();
             this.Loaded += SettingWindow_Loaded;
+            this.Unloaded += SettingWindow_Unloaded;
             ConfirmBtn.Click += ConfirmBtn_Click;
             CencelBtn.Click += CencelBtn_Click;
+        }
+
+        private void SettingWindow_Unloaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            if(!viewModel.IsConfigSaved)
+            {
+                viewModel?.SaveConfig();
+            }
         }
 
         private void SettingWindow_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

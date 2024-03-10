@@ -16,6 +16,8 @@ namespace QuickCutter_Avalonia.ViewModels
         private Config _config;
         #endregion
 
+        public bool IsConfigSaved { get; set; } = false;
+
         private WindowStartUpStyles m_SelectedStartUpStyles;
         public int WindowStartUpStylesComboBoxSelectedIndex {
             get
@@ -75,6 +77,7 @@ namespace QuickCutter_Avalonia.ViewModels
             _config.moveStep = MoveStep;
             _config.loopPlayback = LoopPlayback;
             OnConfigSaved();
+            IsConfigSaved = true;
         }
 
         private void OnConfigSaved()

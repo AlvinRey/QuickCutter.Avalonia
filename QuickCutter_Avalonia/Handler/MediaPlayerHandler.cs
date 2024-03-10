@@ -98,7 +98,7 @@ namespace QuickCutter_Avalonia.Handler
             m_libVLC?.Dispose();
         }
 
-        static public async void LoadMedia(Uri filePath)
+        static public void LoadMedia(Uri filePath)
         {
             HostedVLCMediaplayer.Player.Media = new Media(m_libVLC, filePath);
             ReadyForPlay(() =>

@@ -65,7 +65,7 @@ namespace QuickCutter_Avalonia.Handler
                         options.EndSeek(file.Edit_OutTime);
                 });
 
-                ffmprocessor = ffmpegArgs.OutputToFile(@$"{ExportInfoInstance!.ExportDirectory}\{file.OutputFileName}",
+                ffmprocessor = ffmpegArgs.OutputToFile(@$"{ExportInfoInstance!.ExportDirectory}\{file.OutputFileName}{file.OutputFileExt}",
                                     true,
                                     options =>
                                     {
@@ -78,7 +78,7 @@ namespace QuickCutter_Avalonia.Handler
                 {
                     options.WithArgument(new HideBannerArgument());
                 });
-                ffmprocessor = ffmpegArgs.OutputToFile(@$"{ExportInfoInstance!.ExportDirectory}\{file.OutputFileName}",
+                ffmprocessor = ffmpegArgs.OutputToFile(@$"{ExportInfoInstance!.ExportDirectory}\{file.OutputFileName}{file.OutputFileExt}",
                     true,
                     options =>
                     {
@@ -97,7 +97,7 @@ namespace QuickCutter_Avalonia.Handler
             {
                 options.WithArgument(new HideBannerArgument());
             });
-            ffmprocessor = ffmpegArgs.OutputToFile(@$"{ExportInfoInstance!.ExportDirectory}\{file.OutputFileName}",
+            ffmprocessor = ffmpegArgs.OutputToFile(@$"{ExportInfoInstance!.ExportDirectory}\{file.OutputFileName}{file.OutputFileExt}",
                     true,
                     options =>
                     {

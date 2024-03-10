@@ -308,9 +308,7 @@
                     Theme="{DynamicResource CardBorder}">
                 <Border.Resources>
                     <ContextMenu x:Key="DataGridContextMenu">
-                        <MenuItem Click="DataGridMenu_SelectAll"
-                                  Header="Select All"
-                                  HotKey="Ctrl+A" />
+                        <MenuItem Click="DataGridMenu_SelectAll" Header="Select All" />
                         <MenuItem Click="DataGridMenu_Delete" Header="Delete" />
                     </ContextMenu>
                 </Border.Resources>
@@ -368,6 +366,20 @@
                                 <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.FileName}" />
                             </DataGridTextColumn.Header>
                         </DataGridTextColumn>
+                        <!--  =================================================  -->
+                        <DataGridTemplateColumn Width="Auto" CanUserResize="False">
+                            <DataGridTemplateColumn.Header>
+                                <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.FileFormat}" />
+                            </DataGridTemplateColumn.Header>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="ms:OutputFile">
+                                    <ComboBox Margin="2"
+                                              HorizontalAlignment="Center"
+                                              ItemsSource="{Binding OutputFileExtOptions}"
+                                              SelectedItem="{Binding OutputFileExt}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                         <!--  =================================================  -->
                         <DataGridTemplateColumn Width="Auto" CanUserResize="False">
                             <DataGridTemplateColumn.Header>

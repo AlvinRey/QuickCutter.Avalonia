@@ -14,6 +14,7 @@
     <system:String x:Key="Localization.SubtitleTrackText">字幕:</system:String>
     <!--  DataGrid Header  -->
     <system:String x:Key="Localization.DataGrid.FileName">输出文件名</system:String>
+    <system:String x:Key="Localization.DataGrid.FileFormat">文件格式</system:String>
     <system:String x:Key="Localization.DataGrid.InTime">入点</system:String>
     <system:String x:Key="Localization.DataGrid.OutTime">出点</system:String>
     <system:String x:Key="Localization.DataGrid.CodecMode_Copy">拷贝</system:String>

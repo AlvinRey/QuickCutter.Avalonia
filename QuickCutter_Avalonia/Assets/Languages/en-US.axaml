@@ -14,6 +14,7 @@
     <system:String x:Key="Localization.SubtitleTrackText">Subtitle:</system:String>
     <!--  DataGrid Header  -->
     <system:String x:Key="Localization.DataGrid.FileName">Output File Name</system:String>
+    <system:String x:Key="Localization.DataGrid.FileFormat">File Format</system:String>
     <system:String x:Key="Localization.DataGrid.InTime">In Time</system:String>
     <system:String x:Key="Localization.DataGrid.OutTime">Out Time</system:String>
     <system:String x:Key="Localization.DataGrid.CodecMode_Copy">Copy</system:String>

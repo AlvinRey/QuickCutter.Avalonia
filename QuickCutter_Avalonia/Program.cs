@@ -25,7 +25,7 @@ namespace QuickCutter_Avalonia
             var lifetime = new ClassicDesktopStyleApplicationLifetime()
             {
                 Args = args,
-                ShutdownMode = ShutdownMode.OnLastWindowClose
+                ShutdownMode = ShutdownMode.OnMainWindowClose
             };
             lifetime.Startup += Lifetime_Startup;
             lifetime.Exit += Lifetime_Exit;

@@ -27,7 +27,8 @@ namespace QuickCutter_Avalonia.Views
         private MainWindowViewModel? viewModel;
         private double mediaPlayerAspectRatio = 16.0 / 9.0;
         private Action? mVideoViewSizeInit;
-        private Project? SelectedEditingProject { get; set; }
+        private Project? mSelectedEditingProject;
+        private SettingWindow? mSettingWindow;
         #endregion
 
         public MainWindow()
@@ -102,19 +103,19 @@ namespace QuickCutter_Avalonia.Views
 
             if (viewModel.SelectedProjects.Count == 1)
             {
-                if(SelectedEditingProject == null)
+                if(mSelectedEditingProject == null)
                 {
-                    SelectedEditingProject = viewModel.SelectedProjects[0];
+                    mSelectedEditingProject = viewModel.SelectedProjects[0];
                     InitEditingArea();
                 }
-                else if(SelectedEditingProject == viewModel.SelectedProjects[0])
+                else if(mSelectedEditingProject == viewModel.SelectedProjects[0])
                 {
                     InitEditingArea();
                 }
                 else
                 {
                     ResetEditingArea();
-                    SelectedEditingProject = viewModel.SelectedProjects[0];
+                    mSelectedEditingProject = viewModel.SelectedProjects[0];
                     InitEditingArea();
                 }
                 
@@ -122,7 +123,7 @@ namespace QuickCutter_Avalonia.Views
             else // Select more than one Project or do not select anyone
             {
                 ResetEditingArea();
-                SelectedEditingProject = null;
+                mSelectedEditingProject = null;
             }
         } 
 
@@ -242,12 +243,16 @@ namespace QuickCutter_Avalonia.Views
 
         private void SettingButton_Click(object? sender, RoutedEventArgs e)
         {
-            SettingWindow settingWindow = new SettingWindow()
+            if(mSettingWindow is null)
             {
-                DataContext = new SettingWindowViewModel()
-            };
-            settingWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            settingWindow.Show(this);
+                mSettingWindow = new SettingWindow()
+                {
+                    DataContext = new SettingWindowViewModel()
+                };
+                mSettingWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                mSettingWindow.Closed += (s, e) => mSettingWindow = null;
+            }
+            mSettingWindow.Show();
         }
 
         private void ToggleButton_OnIsCheckedChanged(object sender, RoutedEventArgs e)
@@ -263,12 +268,12 @@ namespace QuickCutter_Avalonia.Views
 
         private void InitEditingArea()
         {
-            if (viewModel is null || SelectedEditingProject is null)
+            if (viewModel is null || mSelectedEditingProject is null)
                 return;
 
             // Resize Video View
-            double videoHeight = SelectedEditingProject.ImportVideoInfo.AnalysisResult.VideoStreams[0].Height;
-            double videoWidth = SelectedEditingProject.ImportVideoInfo.AnalysisResult.VideoStreams[0].Width;
+            double videoHeight = mSelectedEditingProject.ImportVideoInfo.AnalysisResult.VideoStreams[0].Height;
+            double videoWidth = mSelectedEditingProject.ImportVideoInfo.AnalysisResult.VideoStreams[0].Width;
             mediaPlayerAspectRatio = double.IsNaN(videoWidth / videoHeight) ? mediaPlayerAspectRatio : videoWidth / videoHeight;
             if (MediaPlayerGrid.Bounds.Width >= MediaPlayerGrid.Bounds.Height * mediaPlayerAspectRatio)
             {
@@ -280,8 +285,8 @@ namespace QuickCutter_Avalonia.Views
             }
 
             // Load stuff about Selection
-            HeaderTitle.Text = SelectedEditingProject.ImportVideoInfo.VideoFullName;
-            OutputFilesDataGrid.ItemsSource = SelectedEditingProject.OutputFiles;
+            HeaderTitle.Text = mSelectedEditingProject.ImportVideoInfo.VideoFullName;
+            OutputFilesDataGrid.ItemsSource = mSelectedEditingProject.OutputFiles;
             MediaPlayerHandler.LoadMedia(new Uri(viewModel.SelectedProjects[0].MediaFullName));
         }
 
