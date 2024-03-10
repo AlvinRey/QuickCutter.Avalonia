@@ -101,23 +101,28 @@ namespace QuickCutter_Avalonia.Models
         {
             Position = Player.Position;
         }
+
         public void UpdateUIVolume()
         {
             if (Player.Volume >= 0) Volume = Player.Volume;
         }
+
         public void UpdateCurrentTime()
         {
             CurrentTime = TimeSpan.FromMilliseconds(Player.Time > -1 ? Player.Time : 0);
         }
+
         public void UpdateUIDuration()
         {
             Duration = TimeSpan.FromMilliseconds(Player.Length > -1 ? Player.Length : 0);
         }
+
         public void UpdateUIPlayingState()
         {
             Debug.WriteLine("[Update UI] Play State");
             IsPlaying = Player.IsPlaying;
         }
+
         public void UpdateUIAudioTrackOptions()
         {
             Debug.WriteLine("[Update UI] Audio Track Options");
@@ -131,6 +136,7 @@ namespace QuickCutter_Avalonia.Models
                 }
             }
         }
+
         public void UpdateUISubtitleTrackOptions()
         {
             Debug.WriteLine("[Update UI] Subtitle Track Options");

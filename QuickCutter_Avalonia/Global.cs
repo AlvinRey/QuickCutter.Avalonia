@@ -6,5 +6,8 @@ namespace QuickCutter_Avalonia
     {
         public const string LogTarget = "LogHandler";
         public const string ConfigFileName = "Config.json";
+        public const string LogFolder = @"QuickCutter\Log";
+        public const string ConfigFolder = @"QuickCutter\Config";
+        public const string FFmpegTempFolder = @"QuickCutter\temp\FFmpeg";
     }
 }

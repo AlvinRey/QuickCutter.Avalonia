@@ -33,12 +33,7 @@ namespace QuickCutter_Avalonia.Handler
             }
             HostedVLCMediaplayer = obj as VLCMediaplayer;
             m_Config = Utils.GetConfig();
-            string adcanceOptions = string.Empty;
-            if (false)
-            {
-                adcanceOptions += "--input-repeat=65535";
-            }
-            m_libVLC = new LibVLC(adcanceOptions);
+            m_libVLC = new LibVLC("--vout=glwin32");
             HostedVLCMediaplayer.Player = new MediaPlayer(m_libVLC);
             //HostedVLCMediaplayer = hostedVLCMediaplayer;
 
@@ -53,7 +48,6 @@ namespace QuickCutter_Avalonia.Handler
             var volumeChanged = Wrap(VLCEvent(nameof(HostedVLCMediaplayer.Player.VolumeChanged)));
             var timeChanged = Wrap(VLCEvent(nameof(HostedVLCMediaplayer.Player.TimeChanged)));
             var durationChanged = Wrap(VLCEvent(nameof(HostedVLCMediaplayer.Player.LengthChanged)));
-
 
             var startedPlayback = VLCEvent(nameof(HostedVLCMediaplayer.Player.Playing));
             var pausedPlayback = VLCEvent(nameof(HostedVLCMediaplayer.Player.Paused));
@@ -83,7 +77,7 @@ namespace QuickCutter_Avalonia.Handler
         // Some libvlc methods will not have any effect when the video is paused, such as SeekTo()
         // Update event(such as PositionChanged, TimeChanged .etc) will not be call when change Time in MediaPlayer when the video is paused.
         // This methods let you to do this operation when the video is playing.
-        static private async void Op(Action action)
+        static private async void ReadyForPlay(Action action, bool pauseAfterAction = true)
         {
             m_CanUpdateUI = false;
             HostedVLCMediaplayer.Player.Play();
@@ -93,7 +87,8 @@ namespace QuickCutter_Avalonia.Handler
                 await Task.Delay(25);
             }
             action();
-            HostedVLCMediaplayer.Player.Pause();
+            if (pauseAfterAction)
+                HostedVLCMediaplayer.Player.Pause();
             m_CanUpdateUI = true;
         }
 
@@ -103,33 +98,27 @@ namespace QuickCutter_Avalonia.Handler
             m_libVLC?.Dispose();
         }
 
-        static private void ReadyForPlay(bool autoPlay)
-        {
-            Debug.WriteLine("Execute ReadyForPlay()");
-            if (autoPlay)
-                HostedVLCMediaplayer.Player.Play();
-            else
-                Op(() => HostedVLCMediaplayer.Player.SeekTo(TimeSpan.Zero));
-        }
-
         static public async void LoadMedia(Uri filePath)
         {
             HostedVLCMediaplayer.Player.Media = new Media(m_libVLC, filePath);
-            ReadyForPlay(m_Config.autoPlay);
-            while (HostedVLCMediaplayer.Player.AudioTrackCount == 0 && HostedVLCMediaplayer.Player.SpuCount == 0)
+            ReadyForPlay(() =>
             {
-                Debug.WriteLine("Wait for Load Tracks...");
-                await Task.Delay(25);
-            }
-            HostedVLCMediaplayer.UpdateUIAudioTrackOptions();
-            HostedVLCMediaplayer.UpdateUISubtitleTrackOptions();
+                HostedVLCMediaplayer.UpdateUIAudioTrackOptions();
+                HostedVLCMediaplayer.UpdateUISubtitleTrackOptions();
+                HostedVLCMediaplayer.Player.SeekTo(TimeSpan.Zero);
+            }, !m_Config.autoPlay);
         }
 
         static public void ReloadMedia()
         {
             Debug.WriteLine("Execute ReloadMedia()");
             HostedVLCMediaplayer.Player.Stop();
-            ReadyForPlay(m_Config.loopPlayback);
+            ReadyForPlay(() =>
+            {
+                HostedVLCMediaplayer.UpdateUIAudioTrackOptions();
+                HostedVLCMediaplayer.UpdateUISubtitleTrackOptions();
+                HostedVLCMediaplayer.Player.SeekTo(TimeSpan.Zero);
+            }, !m_Config.loopPlayback);
         }
 
         static public void ResetMediaPlayer()
@@ -166,7 +155,7 @@ namespace QuickCutter_Avalonia.Handler
             }
             else if (HostedVLCMediaplayer.Player.State == VLCState.Paused) // UI will not update when paused, so we need to play first and then change time.
             {
-                Op(() => HostedVLCMediaplayer.Player.Time = t <= deltaTime ? HostedVLCMediaplayer.Player.Length : HostedVLCMediaplayer.Player.Time + deltaTime);
+                ReadyForPlay(() => HostedVLCMediaplayer.Player.Time = t <= deltaTime ? HostedVLCMediaplayer.Player.Length : HostedVLCMediaplayer.Player.Time + deltaTime);
             }
         }
 
@@ -178,7 +167,7 @@ namespace QuickCutter_Avalonia.Handler
             }
             else if (HostedVLCMediaplayer.Player.State == VLCState.Paused) // UI will not update when paused, so we need to play first and then change time.
             {
-                Op(() => HostedVLCMediaplayer.Player.Time = HostedVLCMediaplayer.Player.Time <= deltaTime ? 0 : HostedVLCMediaplayer.Player.Time - deltaTime);
+                ReadyForPlay(() => HostedVLCMediaplayer.Player.Time = HostedVLCMediaplayer.Player.Time <= deltaTime ? 0 : HostedVLCMediaplayer.Player.Time - deltaTime);
             }
         }
 
@@ -196,7 +185,7 @@ namespace QuickCutter_Avalonia.Handler
 
             m_RelpayStopAction = () =>
             {
-                if(HostedVLCMediaplayer.Player.Time < startTime - 500 || HostedVLCMediaplayer.Player.Time > endTime + 500)
+                if (HostedVLCMediaplayer.Player.Time < startTime - 500 || HostedVLCMediaplayer.Player.Time > endTime + 500)
                 {
                     m_RelpayStopAction = null;
                     return;

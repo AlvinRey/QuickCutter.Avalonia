@@ -81,9 +81,14 @@ namespace QuickCutter_Avalonia.Handler
             return AppDomain.CurrentDomain.BaseDirectory;
         }
 
+        public static string ApplicationDataPath()
+        {
+            return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        }
+
         public static string GetLogPath(string filename = "")
         {
-            string _tempPath = Path.Combine(StartupPath(), "Logs");
+            string _tempPath = Path.Combine(ApplicationDataPath(), Global.LogFolder);
             if (!Directory.Exists(_tempPath))
             {
                 Directory.CreateDirectory(_tempPath);
@@ -100,7 +105,7 @@ namespace QuickCutter_Avalonia.Handler
 
         public static string GetConfigPath(string filename = "")
         {
-            string _tempPath = Path.Combine(StartupPath(), "guiConfigs");
+            string _tempPath = Path.Combine(ApplicationDataPath(), Global.ConfigFolder);
             if (!Directory.Exists(_tempPath))
             {
                 Directory.CreateDirectory(_tempPath);
@@ -134,7 +139,7 @@ namespace QuickCutter_Avalonia.Handler
 
         public static string GetFFmpegTempPath(string filename = "")
         {
-            string _tempPath = Path.Combine(StartupPath(), @"temp\FFmpeg");
+            string _tempPath = Path.Combine(ApplicationDataPath(), Global.FFmpegTempFolder);
             if (!Directory.Exists(_tempPath))
             {
                 Directory.CreateDirectory(_tempPath);
