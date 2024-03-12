@@ -431,36 +431,33 @@
                             </DataGridTemplateColumn.Header>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate x:DataType="ms:OutputFile">
-                                    <CheckBox Margin="2"
-                                              HorizontalAlignment="Center"
-                                              IsChecked="{Binding IsTransCode}">
-                                        <Grid>
-                                            <Grid.Styles>
-                                                <Style Selector="Border.Show">
-                                                    <Setter Property="IsVisible" Value="True" />
-                                                </Style>
-                                                <Style Selector="Border:not(.Show)">
-                                                    <Setter Property="IsVisible" Value="False" />
-                                                </Style>
-                                            </Grid.Styles>
-                                            <Border Width="100"
+                                    <ToggleSwitch Padding="0"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  IsChecked="{Binding IsTransCode}"
+                                                  Theme="{DynamicResource ButtonToggleSwitch}">
+                                        <ToggleSwitch.OnContent>
+                                            <Border Width="50"
                                                     Height="20"
-                                                    Padding="3,0"
-                                                    Background="#995DC264"
-                                                    Classes.Show="{Binding !IsTransCode}"
-                                                    CornerRadius="5">
-                                                <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.CodecMode_Copy}" />
-                                            </Border>
-                                            <Border Width="100"
-                                                    Height="20"
-                                                    Padding="3,0"
                                                     Background="#99FC725A"
-                                                    Classes.Show="{Binding IsTransCode}"
                                                     CornerRadius="5">
-                                                <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.CodecMode_Transcoding}" />
+                                                <TextBlock HorizontalAlignment="Center"
+                                                           FontSize="14"
+                                                           Text="{DynamicResource Localization.DataGrid.CodecMode_Transcoding}" />
                                             </Border>
-                                        </Grid>
-                                    </CheckBox>
+                                        </ToggleSwitch.OnContent>
+                                        <ToggleSwitch.OffContent>
+                                            <Border Width="50"
+                                                    Height="20"
+                                                    Background="#995DC264"
+                                                    CornerRadius="5">
+                                                <TextBlock HorizontalAlignment="Center"
+                                                           FontSize="14"
+                                                           Text="{DynamicResource Localization.DataGrid.CodecMode_Copy}" />
+                                            </Border>
+                                        </ToggleSwitch.OffContent>
+                                    </ToggleSwitch>
+
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
@@ -530,6 +527,7 @@
                                                 Orientation="Horizontal"
                                                 Spacing="5">
                                         <AutoCompleteBox Width="75"
+                                                         HorizontalAlignment="Center"
                                                          ItemsSource="{Binding ResolutionPreset}"
                                                          ValueMemberBinding="{ReflectionBinding Width}"
                                                          Watermark="Width">
@@ -538,7 +536,7 @@
                                             </Interaction.Behaviors>
                                             <AutoCompleteBox.ItemTemplate>
                                                 <DataTemplate>
-                                                    <TextBlock Text="{ReflectionBinding Width}" />
+                                                    <TextBlock HorizontalAlignment="Center" Text="{ReflectionBinding Width}" />
                                                 </DataTemplate>
                                             </AutoCompleteBox.ItemTemplate>
                                         </AutoCompleteBox>
@@ -546,9 +544,12 @@
                                                       Height="30"
                                                       Classes="Success"
                                                       IsChecked="{Binding IsLinkResolution}">
-                                            <PathIcon Data="M440-280H280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h160v80H280q-50 0-85 35t-35 85q0 50 35 85t85 35h160v80ZM320-440v-80h320v80H320Zm200 160v-80h160q50 0 85-35t35-85q0-50-35-85t-85-35H520v-80h160q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H520Z" />
+                                            <PathIcon Width="16"
+                                                      Height="16"
+                                                      Data="M440-280H280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h160v80H280q-50 0-85 35t-35 85q0 50 35 85t85 35h160v80ZM320-440v-80h320v80H320Zm200 160v-80h160q50 0 85-35t35-85q0-50-35-85t-85-35H520v-80h160q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H520Z" />
                                         </ToggleButton>
                                         <AutoCompleteBox Width="75"
+                                                         HorizontalAlignment="Center"
                                                          ItemsSource="{Binding ResolutionPreset}"
                                                          ValueMemberBinding="{ReflectionBinding Height}"
                                                          Watermark="Height">
@@ -557,7 +558,7 @@
                                             </Interaction.Behaviors>
                                             <AutoCompleteBox.ItemTemplate>
                                                 <DataTemplate>
-                                                    <TextBlock Text="{ReflectionBinding Height}" />
+                                                    <TextBlock HorizontalAlignment="Center" Text="{ReflectionBinding Height}" />
                                                 </DataTemplate>
                                             </AutoCompleteBox.ItemTemplate>
                                         </AutoCompleteBox>
