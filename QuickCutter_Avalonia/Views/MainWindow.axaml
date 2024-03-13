@@ -337,6 +337,7 @@
                     <DataGrid.Columns>
                         <DataGridTemplateColumn Width="35"
                                                 x:DataType="ms:OutputFile"
+                                                CanUserResize="False"
                                                 Header="">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate x:DataType="ms:OutputFile">
@@ -413,16 +414,93 @@
                         <!--  =================================================  -->
                         <DataGridTemplateColumn Width="Auto" CanUserResize="False">
                             <DataGridTemplateColumn.Header>
+                                <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.OutputAudioStream}" />
+                            </DataGridTemplateColumn.Header>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="ms:OutputFile">
+                                    <Button Margin="2" Content="{DynamicResource Localization.ButtonText.Select}">
+                                        <Button.Flyout>
+                                            <Flyout Placement="Top">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="*" />
+                                                    </Grid.RowDefinitions>
+                                                    <StackPanel Grid.Row="0"
+                                                                VerticalAlignment="Center"
+                                                                Orientation="Horizontal"
+                                                                Spacing="10">
+                                                        <Button Command="{Binding SelectAllAudioCommand}" Content="{DynamicResource Localization.ButtonText.SelectAll}" />
+                                                        <Button Command="{Binding CencelSelectAllAudioCommand}" Content="{DynamicResource Localization.ButtonText.UnselectAll}" />
+                                                    </StackPanel>
+                                                    <ScrollViewer Grid.Row="1" MaxHeight="250">
+                                                        <ItemsControl ItemsSource="{Binding AudioStreams}">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding Mapped}" />
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </ScrollViewer>
+                                                </Grid>
+                                            </Flyout>
+                                        </Button.Flyout>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <!--  =================================================  -->
+                        <DataGridTemplateColumn Width="Auto" CanUserResize="False">
+                            <DataGridTemplateColumn.Header>
+                                <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.OutputSubtitleStream}" />
+                            </DataGridTemplateColumn.Header>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="ms:OutputFile">
+                                    <Button Margin="2" Content="{DynamicResource Localization.ButtonText.Select}">
+                                        <Button.Flyout>
+                                            <Flyout Placement="Top">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="*" />
+                                                    </Grid.RowDefinitions>
+                                                    <StackPanel Grid.Row="0"
+                                                                VerticalAlignment="Center"
+                                                                Orientation="Horizontal"
+                                                                Spacing="10">
+                                                        <Button Command="{Binding SelectAllSubtitleCommand}" Content="{DynamicResource Localization.ButtonText.SelectAll}" />
+                                                        <Button Command="{Binding CencelSelectAllSubtitleCommand}" Content="{DynamicResource Localization.ButtonText.UnselectAll}" />
+                                                    </StackPanel>
+                                                    <ItemsControl Grid.Row="1" ItemsSource="{Binding SubtitleStreams}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <CheckBox Content="{Binding Name}" IsChecked="{Binding Mapped}" />
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </Grid>
+
+                                            </Flyout>
+                                        </Button.Flyout>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <!--  =================================================  -->
+                        <DataGridTemplateColumn Width="Auto" CanUserResize="False">
+                            <DataGridTemplateColumn.Header>
                                 <Grid HorizontalAlignment="Center" ColumnDefinitions="*,Auto,*">
                                     <Border Grid.Column="0"
+                                            Padding="5,0,5,0"
                                             Background="#995DC264"
                                             CornerRadius="5">
                                         <TextBlock Text="{DynamicResource Localization.DataGrid.CodecMode_Copy}" />
                                     </Border>
-                                    <TextBlock Grid.Column="1"
-                                               Margin="2,0,2,0"
-                                               Text="|" />
+                                    <u:Divider Grid.Column="1"
+                                               Margin="3,0,3,0"
+                                               Orientation="Vertical" />
                                     <Border Grid.Column="2"
+                                            Padding="5,0,5,0"
                                             Background="#99FC725A"
                                             CornerRadius="5">
                                         <TextBlock Text="{DynamicResource Localization.DataGrid.CodecMode_Transcoding}" />
@@ -437,8 +515,8 @@
                                                   IsChecked="{Binding IsTransCode}"
                                                   Theme="{DynamicResource ButtonToggleSwitch}">
                                         <ToggleSwitch.OnContent>
-                                            <Border Width="50"
-                                                    Height="20"
+                                            <Border Height="20"
+                                                    Padding="5,0,5,0"
                                                     Background="#99FC725A"
                                                     CornerRadius="5">
                                                 <TextBlock HorizontalAlignment="Center"
@@ -447,8 +525,8 @@
                                             </Border>
                                         </ToggleSwitch.OnContent>
                                         <ToggleSwitch.OffContent>
-                                            <Border Width="50"
-                                                    Height="20"
+                                            <Border Height="20"
+                                                    Padding="5,0,5,0"
                                                     Background="#995DC264"
                                                     CornerRadius="5">
                                                 <TextBlock HorizontalAlignment="Center"
@@ -458,6 +536,57 @@
                                         </ToggleSwitch.OffContent>
                                     </ToggleSwitch>
 
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <!--  =================================================  -->
+                        <DataGridTemplateColumn Width="Auto" CanUserResize="False">
+                            <DataGridTemplateColumn.Header>
+                                <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.Resolution}" />
+                            </DataGridTemplateColumn.Header>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate DataType="ms:OutputFile">
+                                    <StackPanel Margin="2"
+                                                IsEnabled="{Binding IsTransCode}"
+                                                Orientation="Horizontal"
+                                                Spacing="5">
+                                        <AutoCompleteBox Width="75"
+                                                         HorizontalAlignment="Center"
+                                                         ItemsSource="{Binding ResolutionPreset}"
+                                                         ValueMemberBinding="{ReflectionBinding Width}"
+                                                         Watermark="Width">
+                                            <Interaction.Behaviors>
+                                                <behaviors:LostFocusUpdateBindingBehavior_AutoCompleteBox Text="{Binding CustomWidth}" />
+                                            </Interaction.Behaviors>
+                                            <AutoCompleteBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock HorizontalAlignment="Center" Text="{ReflectionBinding Width}" />
+                                                </DataTemplate>
+                                            </AutoCompleteBox.ItemTemplate>
+                                        </AutoCompleteBox>
+                                        <ToggleButton Width="30"
+                                                      Height="30"
+                                                      Classes="Success"
+                                                      IsChecked="{Binding IsLinkResolution}">
+                                            <PathIcon Width="16"
+                                                      Height="16"
+                                                      Data="M440-280H280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h160v80H280q-50 0-85 35t-35 85q0 50 35 85t85 35h160v80ZM320-440v-80h320v80H320Zm200 160v-80h160q50 0 85-35t35-85q0-50-35-85t-85-35H520v-80h160q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H520Z" />
+                                        </ToggleButton>
+                                        <AutoCompleteBox Width="75"
+                                                         HorizontalAlignment="Center"
+                                                         ItemsSource="{Binding ResolutionPreset}"
+                                                         ValueMemberBinding="{ReflectionBinding Height}"
+                                                         Watermark="Height">
+                                            <Interaction.Behaviors>
+                                                <behaviors:LostFocusUpdateBindingBehavior_AutoCompleteBox Text="{Binding CustomHeight}" />
+                                            </Interaction.Behaviors>
+                                            <AutoCompleteBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock HorizontalAlignment="Center" Text="{ReflectionBinding Height}" />
+                                                </DataTemplate>
+                                            </AutoCompleteBox.ItemTemplate>
+                                        </AutoCompleteBox>
+                                    </StackPanel>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
@@ -515,81 +644,6 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <!--  =================================================  -->
-                        <DataGridTemplateColumn Width="Auto" CanUserResize="False">
-                            <DataGridTemplateColumn.Header>
-                                <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.Resolution}" />
-                            </DataGridTemplateColumn.Header>
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate DataType="ms:OutputFile">
-                                    <StackPanel Margin="2"
-                                                IsEnabled="{Binding IsTransCode}"
-                                                Orientation="Horizontal"
-                                                Spacing="5">
-                                        <AutoCompleteBox Width="75"
-                                                         HorizontalAlignment="Center"
-                                                         ItemsSource="{Binding ResolutionPreset}"
-                                                         ValueMemberBinding="{ReflectionBinding Width}"
-                                                         Watermark="Width">
-                                            <Interaction.Behaviors>
-                                                <behaviors:LostFocusUpdateBindingBehavior_AutoCompleteBox Text="{Binding CustomWidth}" />
-                                            </Interaction.Behaviors>
-                                            <AutoCompleteBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock HorizontalAlignment="Center" Text="{ReflectionBinding Width}" />
-                                                </DataTemplate>
-                                            </AutoCompleteBox.ItemTemplate>
-                                        </AutoCompleteBox>
-                                        <ToggleButton Width="30"
-                                                      Height="30"
-                                                      Classes="Success"
-                                                      IsChecked="{Binding IsLinkResolution}">
-                                            <PathIcon Width="16"
-                                                      Height="16"
-                                                      Data="M440-280H280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h160v80H280q-50 0-85 35t-35 85q0 50 35 85t85 35h160v80ZM320-440v-80h320v80H320Zm200 160v-80h160q50 0 85-35t35-85q0-50-35-85t-85-35H520v-80h160q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H520Z" />
-                                        </ToggleButton>
-                                        <AutoCompleteBox Width="75"
-                                                         HorizontalAlignment="Center"
-                                                         ItemsSource="{Binding ResolutionPreset}"
-                                                         ValueMemberBinding="{ReflectionBinding Height}"
-                                                         Watermark="Height">
-                                            <Interaction.Behaviors>
-                                                <behaviors:LostFocusUpdateBindingBehavior_AutoCompleteBox Text="{Binding CustomHeight}" />
-                                            </Interaction.Behaviors>
-                                            <AutoCompleteBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock HorizontalAlignment="Center" Text="{ReflectionBinding Height}" />
-                                                </DataTemplate>
-                                            </AutoCompleteBox.ItemTemplate>
-                                        </AutoCompleteBox>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <!--  =================================================  -->
-                        <DataGridTemplateColumn Width="200">
-                            <DataGridTemplateColumn.Header>
-                                <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.ProgressBar}" />
-                            </DataGridTemplateColumn.Header>
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate DataType="ms:OutputFile">
-                                    <ProgressBar Width="200"
-                                                 Classes="Success"
-                                                 IsVisible="{Binding IsReady}"
-                                                 Maximum="100"
-                                                 Minimum="0"
-                                                 ShowProgressText="True"
-                                                 Value="{Binding ProcessingPercent}">
-                                        <ProgressBar.IsIndeterminate>
-                                            <MultiBinding Converter="{x:Static BoolConverters.And}">
-                                                <Binding Path="IsReady" />
-                                                <Binding Path="!IsProcessing" />
-                                            </MultiBinding>
-                                        </ProgressBar.IsIndeterminate>
-                                    </ProgressBar>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>
@@ -617,6 +671,7 @@
                                        Text="{DynamicResource Localization.ButtonText.AddOutputFiles}" />
                         </StackPanel>
                     </Button>
+
                     <Grid DockPanel.Dock="Right">
                         <Button x:Name="ExportSelectedtButton"
                                 Height="40"
@@ -654,6 +709,25 @@
                         </Button>
                     </Grid>
 
+                    <StackPanel HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                DockPanel.Dock="Right"
+                                IsVisible="{Binding IsExporting}"
+                                Orientation="Horizontal">
+                        <TextBlock Margin="0,0,10,0" Text="{DynamicResource Localization.ProcessingText}" />
+                        <TextBlock MaxWidth="300"
+                                   Text="{Binding FileNameProcessing}"
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip.Tip="{Binding FileNameProcessing}" />
+                        <ProgressBar Width="200"
+                                     Margin="10,0,10,0"
+                                     Classes="Success"
+                                     Maximum="100"
+                                     Minimum="0"
+                                     ProgressTextFormat="\{0:0.00\}%"
+                                     ShowProgressText="True"
+                                     Value="{Binding ProcessingPercent}" />
+                    </StackPanel>
                 </DockPanel>
             </Border>
         </Grid>

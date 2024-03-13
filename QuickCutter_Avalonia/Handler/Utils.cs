@@ -14,6 +14,40 @@ namespace QuickCutter_Avalonia.Handler
 {
     internal class Utils
     {
+        static public Dictionary<string, string> ISO639_2_Converter { get; }
+            = new Dictionary<string, string>()
+            {
+                {"jpn", "Japanese"},
+                {"eng", "English"},
+                {"fre", "French"},
+                {"fra", "French"},
+                {"ger", "German"},
+                {"deu", "German"},
+                {"spa", "Spanish"},
+                {"dut", "Dutch"},
+                {"nld", "Dutch"},
+                {"chi", "Chinese"},
+                {"kor", "Korean"},
+                {"por", "Portuguese"},
+                {"ara", "Arabic"},
+                {"hrv", "Croatian"},
+                {"cze", "Czech"},
+                {"ces", "Czech"},
+                {"dan", "Danish"},
+                {"fin", "Finnish"},
+                {"gre", "Greek"},
+                {"ell", "Greek"},
+                {"heb", "Hebrew"},
+                {"hun", "Hungarian"},
+                {"nor", "Norwegian"},
+                {"pol", "Polish"},
+                {"rum", "Romanian"},
+                {"ron", "Romanian"},
+                {"rus", "Russian"},
+                {"swe", "Swedish"},
+                {"ita", "Italian"}
+            };
+
         static public IList<Codec>? Codec { get; set; }
 
         //static public string GetGraphicsCardManufacturer()

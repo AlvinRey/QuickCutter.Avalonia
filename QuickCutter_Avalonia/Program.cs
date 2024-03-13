@@ -67,7 +67,7 @@ namespace QuickCutter_Avalonia
         private static void Lifetime_Exit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
         {
             ConfigHandler.SaveConfig();
-            ExportHandler.CencelWithAppQuit();
+            ExportHandler.CencelExport();
             LogHandler.Dispose();
         }
 

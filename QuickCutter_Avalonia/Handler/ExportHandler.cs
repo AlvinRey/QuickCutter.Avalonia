@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace QuickCutter_Avalonia.Handler
@@ -18,46 +19,19 @@ namespace QuickCutter_Avalonia.Handler
 
     internal class ExportHandler
     {
-        static private bool mIsCencel = false;
         static private Action? mCencelAction;
-        static public ExportInfo? ExportInfoInstance { get; set; }
-
-        static public void ChangeExportDirectory(string exportDirectory)
-        {
-            ExportInfoInstance!.ExportDirectory = exportDirectory;
-        }
-
-        static public void CencelWithAppQuit()
-        {
-            if(mCencelAction != null)
-            {
-                CencelExport();
-            }
-        }
 
         static public void CencelExport()
         {
-            mIsCencel = true;
             mCencelAction?.Invoke();
         }
 
-        static public bool GenerateExportInfo(string exportDirectory, IList<OutputFile> outputFiles)
-        {
-            ExportInfoInstance = new ExportInfo()
-            {
-                ExportDirectory = exportDirectory,
-                OutputFiles = new ObservableCollection<OutputFile>(outputFiles)
-            };
-
-            return ExportInfoInstance != null ? true : false;
-        }
-
-        static private FFMpegArgumentProcessor GenerateCopyArgsProcessor(OutputFile file)
+        static private FFMpegArgumentProcessor GenerateCopyArgsProcessor(string exportDirectory, OutputFile file)
         {
             FFMpegArgumentProcessor ffmprocessor;
             if (file.Edit_InTime != TimeSpan.Zero)
             {
-                FFMpegArguments ffmpegArgs = FFMpegArguments.FromFileInput(file.ParentFullName,  true, options =>
+                FFMpegArguments ffmpegArgs = FFMpegArguments.FromFileInput(file.ParentFullName, true, options =>
                 {
                     options.WithArgument(new HideBannerArgument());
                     options.Seek(file.Edit_InTime);
@@ -65,11 +39,12 @@ namespace QuickCutter_Avalonia.Handler
                         options.EndSeek(file.Edit_OutTime);
                 });
 
-                ffmprocessor = ffmpegArgs.OutputToFile(@$"{ExportInfoInstance!.ExportDirectory}\{file.OutputFileName}{file.OutputFileExt}",
+                ffmprocessor = ffmpegArgs.OutputToFile(@$"{exportDirectory}\{file.OutputFileName}{file.OutputFileExt}",
                                     true,
                                     options =>
                                     {
-                                        options.WithVideoCodec("copy");
+                                        options.WithVideoCodec("copy")
+                                               .WithAudioCodec("copy");
                                     });
             }
             else
@@ -78,107 +53,63 @@ namespace QuickCutter_Avalonia.Handler
                 {
                     options.WithArgument(new HideBannerArgument());
                 });
-                ffmprocessor = ffmpegArgs.OutputToFile(@$"{ExportInfoInstance!.ExportDirectory}\{file.OutputFileName}{file.OutputFileExt}",
+                ffmprocessor = ffmpegArgs.OutputToFile(@$"{exportDirectory}\{file.OutputFileName}{file.OutputFileExt}",
                     true,
                     options =>
                     {
                         if (file.Edit_OutTime != TimeSpan.Zero)
                             options.EndSeek(file.Edit_OutTime);
-                        options.WithVideoCodec("copy");
+                        options.WithVideoCodec("copy")
+                               .WithAudioCodec("copy");
                     });
             }
             return ffmprocessor;
         }
 
-        static private FFMpegArgumentProcessor GenerateTransCodeArgsProcessor(OutputFile file)
+        static private FFMpegArgumentProcessor GenerateTransCodeArgsProcessor(string exportDirectory, OutputFile file)
         {
             FFMpegArgumentProcessor ffmprocessor;
             FFMpegArguments ffmpegArgs = FFMpegArguments.FromFileInput(file.ParentFullName, true, options =>
             {
                 options.WithArgument(new HideBannerArgument());
+                options.Seek(file.Edit_InTime);
+                options.EndSeek(file.Edit_OutTime);
             });
-            ffmprocessor = ffmpegArgs.OutputToFile(@$"{ExportInfoInstance!.ExportDirectory}\{file.OutputFileName}{file.OutputFileExt}",
+            ffmprocessor = ffmpegArgs.OutputToFile(@$"{exportDirectory}\{file.OutputFileName}{file.OutputFileExt}",
                     true,
                     options =>
                     {
                         options.WithVideoCodec(file.SelectedCodec);
                         options.WithSpeedPreset(file.SelectedSpeedPreset);
-                        options.WithConstantRateFactor((int)file.ConstantRateFactor);
+                        options.WithConstantRateFactor(file.ConstantRateFactor != null ? (int)file.ConstantRateFactor : 23);
                         options.WithVideoFilters(videoFilterOptions => videoFilterOptions.Scale(file.CustomWidth, file.CustomHeight));
-                        if (file.Edit_InTime != TimeSpan.Zero)
-                        {
-                            options.Seek(file.Edit_InTime);
-                        }
-                        if (file.Edit_OutTime != TimeSpan.Zero)
-                        {
-                            options.EndSeek(file.Edit_OutTime);
-                        }
+                        options.WithAudioCodec("copy");
                     });
 
             return ffmprocessor;
         }
 
-        async static public Task ExecuteFFmpeg()
+        async static public Task ExecuteFFmpeg(string exportDirectory, IList<OutputFile> outputFiles, Action<string> notifyProcessingFileName, Action<double> notifyProgressPercentage)
         {
             FFMpegArgumentProcessor processor;
-            foreach (var file in ExportInfoInstance!.OutputFiles)
-            {
-                file.IsReady = true;
-            }
 
-            foreach (var file in ExportInfoInstance!.OutputFiles)
+            foreach (var file in outputFiles)
             {
-                file.IsProcessing = true;
-
                 if (file.IsTransCode)
                 {
-                    processor = GenerateTransCodeArgsProcessor(file);
+                    processor = GenerateTransCodeArgsProcessor(exportDirectory, file);
                 }
                 else
                 {
-                    processor = GenerateCopyArgsProcessor(file);
+                    processor = GenerateCopyArgsProcessor(exportDirectory, file);
                 }
 
-                processor.NotifyOnProgress(new Action<double>(p =>
-                                                                {
-                                                                    file.ProcessingPercent = p;
-                                                                    Debug.WriteLine(file.ProcessingPercent);
-                                                                }), file.Duration)
+                processor.NotifyOnProgress(notifyProgressPercentage, file.Duration)
                          .CancellableThrough(out mCencelAction, 0);
 
-                if (mIsCencel)
-                    break;
-
-                try
-                {
-                    await processor.ProcessAsynchronously();
-                }
-                catch (Exception ex)
-                {
-                    // 处理异常
-                    FFMpegException? exception = ex as FFMpegException;
-                    if (exception != null)
-                    {
-                        Debug.WriteLine(exception.Message);
-                    }
-                }
-                finally
-                {
-                    file.IsProcessing = false;
-                    file.IsReady = false;
-                }
+                notifyProcessingFileName($"{file.OutputFileName}{file.OutputFileExt}");
+                await processor.ProcessAsynchronously();
             }
-
-            if(mIsCencel)
-            {
-                foreach (var file in ExportInfoInstance!.OutputFiles)
-                {
-                    file.IsProcessing = false;
-                    file.IsReady = false;
-                }
-                mIsCencel = false;
-            }
-            mCencelAction = null;
         }
     }
 }

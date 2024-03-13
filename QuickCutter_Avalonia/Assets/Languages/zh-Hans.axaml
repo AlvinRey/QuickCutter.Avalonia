@@ -9,14 +9,20 @@
     <system:String x:Key="Localization.ButtonText.Export">导出所选</system:String>
     <system:String x:Key="Localization.ButtonText.CancelExport">取消导出</system:String>
     <system:String x:Key="Localization.ButtonText.Replay">回放所选</system:String>
+    <system:String x:Key="Localization.ButtonText.Select">选择</system:String>
+    <system:String x:Key="Localization.ButtonText.SelectAll">全选</system:String>
+    <system:String x:Key="Localization.ButtonText.UnselectAll">全不选</system:String>
     <!--  Text  -->
     <system:String x:Key="Localization.AudioTrackText">音轨:</system:String>
     <system:String x:Key="Localization.SubtitleTrackText">字幕:</system:String>
+    <system:String x:Key="Localization.ProcessingText">正在输出:</system:String>
     <!--  DataGrid Header  -->
     <system:String x:Key="Localization.DataGrid.FileName">输出文件名</system:String>
     <system:String x:Key="Localization.DataGrid.FileFormat">文件格式</system:String>
     <system:String x:Key="Localization.DataGrid.InTime">入点</system:String>
     <system:String x:Key="Localization.DataGrid.OutTime">出点</system:String>
+    <system:String x:Key="Localization.DataGrid.OutputAudioStream">输出音轨</system:String>
+    <system:String x:Key="Localization.DataGrid.OutputSubtitleStream">输出字幕</system:String>
     <system:String x:Key="Localization.DataGrid.CodecMode_Copy">拷贝</system:String>
     <system:String x:Key="Localization.DataGrid.CodecMode_Transcoding">转码</system:String>
     <system:String x:Key="Localization.DataGrid.Codec">编码器</system:String>

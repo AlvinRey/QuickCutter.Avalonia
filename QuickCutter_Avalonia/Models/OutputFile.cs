@@ -1,6 +1,8 @@
 ﻿using Avalonia;
 using FFMpegCore.Enums;
+using LibVLCSharp.Shared;
 using QuickCutter_Avalonia.Handler;
+using QuickCutter_Avalonia.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
@@ -47,16 +49,16 @@ namespace QuickCutter_Avalonia.Mode
         [Reactive]
         public bool IsTransCode { get; set; }
 
-        [Reactive]
-        public double ProcessingPercent { get; set; }
-
-        [Reactive]
-        public bool IsReady { get; set; }
-
-        [Reactive]
-        public bool IsProcessing { get; set; }
-
         public Action? cencelOutput;
+
+        // Stream
+        public ObservableCollection<StreamInfo> AudioStreams { get; set; }
+        public IReactiveCommand SelectAllAudioCommand { get; }
+        public IReactiveCommand CencelSelectAllAudioCommand { get; }
+
+        public ObservableCollection<StreamInfo> SubtitleStreams { get; set; }
+        public IReactiveCommand SelectAllSubtitleCommand { get; }
+        public IReactiveCommand CencelSelectAllSubtitleCommand { get; }
 
         // FFmpeg Options
         public IEnumerable<Codec> CodecOptions { get; } = Utils.GetCodec();
@@ -64,33 +66,35 @@ namespace QuickCutter_Avalonia.Mode
         [Reactive]
         public Codec SelectedCodec { get; set; } = VideoCodec.LibX264;
 
-        public IEnumerable<Speed> SpeedPresetOptions { get; } = Enum.GetValues(typeof(Speed)).Cast<Speed>();
-
-        [Reactive]
-        public Speed SelectedSpeedPreset { get; set; } = Speed.Medium;
-
-        [Reactive]
-        public int ConstantRateFactor { get; set; }
-
         [Reactive]
         public int CustomWidth { get; set; }
 
         [Reactive]
-        public bool IsLinkResolution { get; set; }
+        public bool IsLinkResolution { get; set; } = true;
 
         [Reactive]
         public int CustomHeight { get; set; }
 
         public List<Size> ResolutionPreset { get; set; }
 
+
+        // Libx264 AvOption
+        public IEnumerable<Speed> SpeedPresetOptions { get; } = Enum.GetValues(typeof(Speed)).Cast<Speed>();
+
+        [Reactive]
+        public Speed SelectedSpeedPreset { get; set; } = Speed.Medium;
+
+        [Reactive]
+        public int? ConstantRateFactor { get; set; }
+
+
+
         public OutputFile(VideoInfo parentVideoInfo)
         {
             ParentFullName = parentVideoInfo.VideoFullName!;
             //Duration = parentVideoInfo.AnalysisResult!.Duration;
-            ProcessingPercent = 0.0;
 
             // File Name Setting
-            //OutputFileExt = System.IO.Path.GetExtension(importFileFullName);
             string fileName = System.IO.Path.GetFileNameWithoutExtension(parentVideoInfo.VideoFullName!);
             OutputFileName = $"{fileName}_Output_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
 
@@ -108,6 +112,20 @@ namespace QuickCutter_Avalonia.Mode
 
             var edit_InTimeChanged = this.WhenAnyValue(v => v.Edit_InTime);
             var edit_OutTimeChanged = this.WhenAnyValue(v => v.Edit_OutTime);
+
+            // Streams Setting
+            AudioStreams = new ObservableCollection<StreamInfo>();
+            SubtitleStreams = new ObservableCollection<StreamInfo>();
+            int index = 0;
+            foreach (var audio in parentVideoInfo.AnalysisResult.AudioStreams)
+            {
+                AudioStreams.Add(new StreamInfo() { Name = FFmpegHandler.GetStreamName(audio, ++index), AbsoluteStreamIndex = audio.Index });
+            }
+            index = 0;
+            foreach (var subtitle in parentVideoInfo.AnalysisResult.SubtitleStreams)
+            {
+                SubtitleStreams.Add(new StreamInfo() { Name = FFmpegHandler.GetStreamName(subtitle, ++index), AbsoluteStreamIndex = subtitle.Index });
+            }
 
             // Resolution Setting
             DefaultHeight = parentVideoInfo.AnalysisResult!.PrimaryVideoStream!.Height;
@@ -170,7 +188,40 @@ namespace QuickCutter_Avalonia.Mode
                     }
                 }),
             };
+
             ReplayCommand = ReactiveCommand.Create(() => MediaPlayerHandler.Replay((long)Edit_InTime.TotalMilliseconds, (long)Edit_OutTime.TotalMilliseconds));
+
+            SelectAllAudioCommand = ReactiveCommand.Create(() => 
+            {
+                foreach(var streamInfo in AudioStreams)
+                {
+                    streamInfo.Mapped = true;
+                }
+            });
+
+            CencelSelectAllAudioCommand = ReactiveCommand.Create(() =>
+            {
+                foreach (var streamInfo in AudioStreams)
+                {
+                    streamInfo.Mapped = false;
+                }
+            });
+
+            SelectAllSubtitleCommand = ReactiveCommand.Create(() =>
+            {
+                foreach (var streamInfo in SubtitleStreams)
+                {
+                    streamInfo.Mapped = true;
+                }
+            });
+
+            CencelSelectAllSubtitleCommand = ReactiveCommand.Create(() =>
+            {
+                foreach (var streamInfo in SubtitleStreams)
+                {
+                    streamInfo.Mapped = false;
+                }
+            });
         }
 
         public void Dispose()

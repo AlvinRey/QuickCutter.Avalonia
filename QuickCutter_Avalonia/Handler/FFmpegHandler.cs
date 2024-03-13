@@ -41,5 +41,36 @@ namespace QuickCutter_Avalonia.Handler
         {
             return await FFProbe.AnalyseAsync(mediaFullName);
         }
+
+        static public string GetStreamName(MediaStream stream, int index)
+        {
+            string title = string.Empty;
+            string language = string.Empty;
+
+            if (stream.Tags.ContainsKey("title"))
+            {
+                title = stream.Tags["title"];
+            }
+            else if (stream.Tags.ContainsKey("Title"))
+            {
+                title = stream.Tags["Title"];
+            }
+            else if (stream.Tags.ContainsKey("TITLE"))
+            {
+                title = stream.Tags["TITLE"];
+            }
+            else
+            {
+                title = $"Track {index}";
+            }
+
+            if (stream.Language != null)
+            {
+                language = Utils.ISO639_2_Converter.ContainsKey(stream.Language) ? Utils.ISO639_2_Converter[stream.Language] : stream.Language;
+                language = $" - [{language}]";
+            }
+
+            return title + language;
+        }
     }
 }

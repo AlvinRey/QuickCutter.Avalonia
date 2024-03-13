@@ -4,9 +4,12 @@ using QuickCutter_Avalonia.Mode;
 using QuickCutter_Avalonia.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Ursa.Controls;
 
 namespace QuickCutter_Avalonia.ViewModels
@@ -19,7 +22,7 @@ namespace QuickCutter_Avalonia.ViewModels
         public ObservableCollection<Project> Projects { get; }
         public IReactiveCommand ImportProjectFileCommand { get; }
         #endregion
-         
+
         #region Media Player
         public VLCMediaplayer VLCMediaplayer { get; }
         public IReactiveCommand PlayOrPauseVideoCommand { get; }
@@ -29,14 +32,22 @@ namespace QuickCutter_Avalonia.ViewModels
         #endregion
 
         #region Output Data Grid
-        [Reactive]
-        public bool IsExporting { get; set; }
         public ObservableCollection<OutputFile> SelectedOutputFiles { get; set; }
         [Reactive]
         public OutputFile SelectedSingleOutputFile { get; set; }
         public IReactiveCommand AddOutputFilesCommand { get; }
+
+        [Reactive]
+        public bool IsExporting { get; set; }
+        [Reactive]
+        public string FileNameProcessing { get; set; }
+        [Reactive]
+        public double ProcessingPercent { get; set; }
+
         public IReactiveCommand ExportCommand { get; }
         public IReactiveCommand CencelCommand { get; }
+
+
         #endregion
 
         public MainWindowViewModel()
@@ -58,11 +69,11 @@ namespace QuickCutter_Avalonia.ViewModels
                     for (int i = 0; i < filesFullName.Count; i++)
                     {
                         VideoInfo videoInfo = new VideoInfo()
-                        {   
-                            VideoFullName = filesFullName[i], 
-                            AnalysisResult = await FFmpegHandler.AnaliysisMedia(filesFullName[i]) 
+                        {
+                            VideoFullName = filesFullName[i],
+                            AnalysisResult = await FFmpegHandler.AnaliysisMedia(filesFullName[i])
                         };
-                        Projects[startIndex + i].SetVideoInfo(videoInfo); 
+                        Projects[startIndex + i].SetVideoInfo(videoInfo);
                     }
                 });
             #endregion
@@ -71,11 +82,11 @@ namespace QuickCutter_Avalonia.ViewModels
             VLCMediaplayer = new VLCMediaplayer();
             PlayOrPauseVideoCommand = ReactiveCommand.Create(() =>
             {
-                if(SelectedProjects.Count != 1)
+                if (SelectedProjects.Count != 1)
                 {
                     var title = (string)App.Current.FindResource("Localization.WindowsTitle.Notice");
                     var message = (string)App.Current.FindResource("Localization.Message.SelectOneProject");
-                    _ = MessageBox.ShowAsync(message, title,MessageBoxIcon.Information, MessageBoxButton.OK);
+                    _ = MessageBox.ShowAsync(message, title, MessageBoxIcon.Information, MessageBoxButton.OK);
                     return;
                 }
                 MediaPlayerHandler.TogglePlay();
@@ -89,7 +100,7 @@ namespace QuickCutter_Avalonia.ViewModels
             //NextFrameCommand = ReactiveCommand.Create(
             //    () => MediaPlayer.NextFrame());
 
-            
+
             #endregion
 
             #region Init Data Grid
@@ -98,27 +109,23 @@ namespace QuickCutter_Avalonia.ViewModels
             var selectedOutputFilesChanged = Observable.FromEventPattern(SelectedOutputFiles, nameof(SelectedOutputFiles.CollectionChanged));
 
             AddOutputFilesCommand = ReactiveCommand.Create(
-                () => 
-                    { 
+                () =>
+                    {
                         SelectedProjects.First().AddChild();
                         SelectedSingleOutputFile = SelectedProjects.First().GetLastChild();
                     },
                 selectedProjectChanged.Select(_ => SelectedProjects.Count == 1));
 
-            ExportCommand = ReactiveCommand.Create(
-                async () =>
+            ExportCommand = ReactiveCommand.Create(() =>
                 {
-                    string folderFullName = await FileHandler.SelectExportFolder();
-                    if(string.IsNullOrEmpty(folderFullName))
-                        return;
-                    ExportHandler.GenerateExportInfo(folderFullName, SelectedOutputFiles.ToList());
-                    IsExporting = true;
-                    await ExportHandler.ExecuteFFmpeg();
-                    IsExporting = false;
+                    ExportOutputFiles().Await(() => IsExporting = false, 
+                        e => { 
+                        IsExporting = false; 
+                        MessageBus.Current.SendMessage(e.Message, Global.LogTarget); 
+                        });
                 }, selectedOutputFilesChanged.Select(_ => SelectedOutputFiles.Count > 0));
 
-            CencelCommand = ReactiveCommand.Create(
-                () => { ExportHandler.CencelExport(); IsExporting = false; });
+            CencelCommand = ReactiveCommand.Create(ExportHandler.CencelExport);
             #endregion
         }
 
@@ -140,6 +147,17 @@ namespace QuickCutter_Avalonia.ViewModels
             {
                 file.Edit_OutTime = VLCMediaplayer.CurrentTime;
             }
+        }
+
+        async Task ExportOutputFiles()
+        {
+            string folderFullName = await FileHandler.SelectExportFolder();
+            if (string.IsNullOrEmpty(folderFullName))
+                return;
+            IsExporting = true;
+            await ExportHandler.ExecuteFFmpeg(folderFullName, SelectedOutputFiles.ToList(), 
+                fileName => FileNameProcessing = fileName,
+                percent => ProcessingPercent = percent);
         }
     }
 }
