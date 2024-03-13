@@ -1,3 +1,4 @@
+[中文](https://github.com/AlvinRey/QuickCutter.Avalonia/blob/main/README_CN.md) | [English](https://github.com/AlvinRey/QuickCutter.Avalonia/blob/main/README.md)
 # QuickCutter
 This is a GUI client for FFmpeg, designed to provide a simple and easy-to-use editing tool for people who are not professional editors. 
 In many cases, users do not need most of the features of professional editing software, but just want to quickly and simply cut videos without re-encoding. QuickCutter targets these light users and provides them with the most basic video editing functions based on FFmpeg.
