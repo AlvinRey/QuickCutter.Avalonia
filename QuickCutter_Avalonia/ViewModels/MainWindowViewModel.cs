@@ -1,10 +1,13 @@
 ﻿using Avalonia.Controls;
+using DynamicData;
+using FFMpegCore.Enums;
 using QuickCutter_Avalonia.Handler;
 using QuickCutter_Avalonia.Mode;
 using QuickCutter_Avalonia.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -18,8 +21,8 @@ namespace QuickCutter_Avalonia.ViewModels
     {
         private Config _config;
         #region Project List
-        public ObservableCollection<Project> SelectedProjects { get; set; }
-        public ObservableCollection<Project> Projects { get; }
+        public ObservableCollection<InputMieda> SelectedProjects { get; set; }
+        public ObservableCollection<InputMieda> Projects { get; }
         public IReactiveCommand ImportProjectFileCommand { get; }
         #endregion
 
@@ -35,6 +38,13 @@ namespace QuickCutter_Avalonia.ViewModels
         public ObservableCollection<OutputFile> SelectedOutputFiles { get; set; }
         [Reactive]
         public OutputFile SelectedSingleOutputFile { get; set; }
+        #endregion
+
+        #region Output Setting
+        public OutputSettingViewModel OutputSettingVM { get; set; }
+        #endregion
+
+        #region Buttom Tool Bar
         public IReactiveCommand AddOutputFilesCommand { get; }
 
         [Reactive]
@@ -55,26 +65,11 @@ namespace QuickCutter_Avalonia.ViewModels
             _config = Utils.GetConfig();
 
             #region Init Project List
-            Projects = new ObservableCollection<Project>();
-            SelectedProjects = new ObservableCollection<Project>();
-            ImportProjectFileCommand = ReactiveCommand.Create(
-                async () =>
+            Projects = new ObservableCollection<InputMieda>();
+            SelectedProjects = new ObservableCollection<InputMieda>();
+            ImportProjectFileCommand = ReactiveCommand.Create(() =>
                 {
-                    var filesFullName = await FileHandler.SelectFiles(FileHandler.SelectAllVideo);
-                    int startIndex = Projects.Count;
-                    for (int i = 0; i < filesFullName.Count; i++)
-                    {
-                        Projects.Add(new Project());
-                    }
-                    for (int i = 0; i < filesFullName.Count; i++)
-                    {
-                        VideoInfo videoInfo = new VideoInfo()
-                        {
-                            VideoFullName = filesFullName[i],
-                            AnalysisResult = await FFmpegHandler.AnaliysisMedia(filesFullName[i])
-                        };
-                        Projects[startIndex + i].SetVideoInfo(videoInfo);
-                    }
+                    ImportViedoAsync().Await();
                 });
             #endregion
 
@@ -112,20 +107,36 @@ namespace QuickCutter_Avalonia.ViewModels
                 () =>
                     {
                         SelectedProjects.First().AddChild();
+                        //Auto select the newest one
                         SelectedSingleOutputFile = SelectedProjects.First().GetLastChild();
                     },
                 selectedProjectChanged.Select(_ => SelectedProjects.Count == 1));
 
             ExportCommand = ReactiveCommand.Create(() =>
                 {
-                    ExportOutputFiles().Await(() => IsExporting = false, 
-                        e => { 
-                        IsExporting = false; 
-                        MessageBus.Current.SendMessage(e.Message, Global.LogTarget); 
+                    ExportOutputFilesAsync().Await(() => IsExporting = false,
+                        e =>
+                        {
+                            IsExporting = false;
+                            MessageBus.Current.SendMessage(e.Message, Global.LogTarget);
                         });
                 }, selectedOutputFilesChanged.Select(_ => SelectedOutputFiles.Count > 0));
 
             CencelCommand = ReactiveCommand.Create(ExportHandler.CencelExport);
+            #endregion
+
+            #region Output Setting
+            OutputSettingVM = new OutputSettingViewModel();
+            SelectedOutputFiles.CollectionChanged += (sender, args) =>
+            {
+                if (SelectedOutputFiles.Count == 1)
+                {
+                    Debug.WriteLine($"Load OutputSetting @ {SelectedOutputFiles.First().OutputSetting.GetHashCode()}");
+                    OutputSettingVM.LoadDisplayOutputSetting(SelectedOutputFiles.First().OutputSetting);
+                }
+                else
+                    OutputSettingVM.UnLoadDisplayOutputSetting();
+            };
             #endregion
         }
 
@@ -149,13 +160,33 @@ namespace QuickCutter_Avalonia.ViewModels
             }
         }
 
-        async Task ExportOutputFiles()
+        async Task ImportViedoAsync()
         {
+            var filesFullNames = await FileHandler.SelectFiles(FileHandler.SelectAllVideo);
+            var tasks = new List<Task>();
+            foreach (var fileFullName in filesFullNames) 
+            {
+                tasks.Add(AnaliysisMediaAndImportAsync(fileFullName));
+            }
+            await Task.WhenAll(tasks);
+        }
+
+        async Task AnaliysisMediaAndImportAsync(string fileFullName)
+        {
+            var project = new InputMieda();
+            Projects.Add(project);
+            var result = await FFmpegHandler.AnaliysisMedia(fileFullName);
+            project.SetVideoInfo(new VideoInfo() { VideoFullName = fileFullName, AnalysisResult = result });
+        }
+
+        async Task ExportOutputFilesAsync()
+        {
+            Debug.WriteLine($"Thread ID: {Environment.CurrentManagedThreadId}");
             string folderFullName = await FileHandler.SelectExportFolder();
             if (string.IsNullOrEmpty(folderFullName))
                 return;
             IsExporting = true;
-            await ExportHandler.ExecuteFFmpeg(folderFullName, SelectedOutputFiles.ToList(), 
+            await ExportHandler.ExecuteFFmpeg(folderFullName, SelectedOutputFiles.ToList(),
                 fileName => FileNameProcessing = fileName,
                 percent => ProcessingPercent = percent);
         }

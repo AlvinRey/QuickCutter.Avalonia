@@ -302,351 +302,245 @@
                 </Grid>
             </Border>
             <controls:GridSplitterWithoutKeyDown Grid.Row="2" />
-            <Border Grid.Row="3"
-                    Padding="2"
-                    Classes="Shadow"
-                    Theme="{DynamicResource CardBorder}">
-                <Border.Resources>
-                    <ContextMenu x:Key="DataGridContextMenu">
-                        <MenuItem Click="DataGridMenu_SelectAll" Header="Select All" />
-                        <MenuItem Click="DataGridMenu_Delete" Header="Delete" />
-                    </ContextMenu>
-                </Border.Resources>
-                <DataGrid Name="OutputFilesDataGrid"
-                          Grid.Row="0"
-                          CanUserResizeColumns="True"
-                          CanUserSortColumns="False"
-                          ContextMenu="{StaticResource DataGridContextMenu}"
-                          GridLinesVisibility="All"
-                          HeadersVisibility="Column"
-                          RowHeaderWidth="30"
-                          SelectedItem="{Binding SelectedSingleOutputFile, Mode=OneWay}"
-                          SelectionMode="Extended">
-                    <DataGrid.Resources>
-                        <converters:StringToTimeSpanConverter x:Key="StringToTimeSpanConverter" />
-                    </DataGrid.Resources>
-                    <DataGrid.Styles>
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="500" MinWidth="500" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" MinWidth="500" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Row="3"
+                        Padding="2"
+                        Classes="Shadow"
+                        Theme="{DynamicResource CardBorder}">
+                    <Border.Resources>
+                        <ContextMenu x:Key="DataGridContextMenu">
+                            <MenuItem Click="DataGridMenu_SelectAll" Header="Select All" />
+                            <MenuItem Click="DataGridMenu_Delete" Header="Delete" />
+                        </ContextMenu>
+                    </Border.Resources>
+                    <DataGrid Name="OutputFilesDataGrid"
+                              Grid.Row="0"
+                              CanUserResizeColumns="True"
+                              CanUserSortColumns="False"
+                              ContextMenu="{StaticResource DataGridContextMenu}"
+                              GridLinesVisibility="All"
+                              HeadersVisibility="Column"
+                              RowHeaderWidth="30"
+                              SelectedItem="{Binding SelectedSingleOutputFile, Mode=OneWay}"
+                              SelectionMode="Extended">
+                        <DataGrid.Resources>
+                            <converters:StringToTimeSpanConverter x:Key="StringToTimeSpanConverter" />
+                        </DataGrid.Resources>
+                        <DataGrid.Styles>
 
-                        <Style Selector="DataGridRow:pointerover Button.Replay">
-                            <Setter Property="IsVisible" Value="True" />
-                        </Style>
-                        <Style Selector="DataGridRow:not(:pointerover) Button.Replay">
-                            <Setter Property="IsVisible" Value="False" />
-                        </Style>
-                    </DataGrid.Styles>
-                    <DataGrid.Columns>
-                        <DataGridTemplateColumn Width="35"
+                            <Style Selector="DataGridRow:pointerover Button.Replay">
+                                <Setter Property="IsVisible" Value="True" />
+                            </Style>
+                            <Style Selector="DataGridRow:not(:pointerover) Button.Replay">
+                                <Setter Property="IsVisible" Value="False" />
+                            </Style>
+                        </DataGrid.Styles>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Width="35"
+                                                    x:DataType="ms:OutputFile"
+                                                    CanUserResize="False"
+                                                    Header="">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="ms:OutputFile">
+                                        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <TextBlock HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       Text="{Binding RowIndex}" />
+                                            <Button Margin="3,2,2,2"
+                                                    Classes="Success Replay"
+                                                    Command="{Binding ReplayCommand}"
+                                                    Theme="{DynamicResource SolidButton}">
+                                                <PathIcon Width="15"
+                                                          Height="15"
+                                                          Data="M340.001-236.156v-487.688L723.074-480 340.001-236.156ZM400-480Zm0 134 210.769-134L400-614v268Z" />
+                                            </Button>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <!--  =================================================  -->
+                            <DataGridTextColumn Width="*"
                                                 x:DataType="ms:OutputFile"
+                                                Binding="{Binding OutputFileName}"
                                                 CanUserResize="False"
-                                                Header="">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate x:DataType="ms:OutputFile">
-                                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <TextBlock HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   Text="{Binding RowIndex}" />
-                                        <Button Margin="3,2,2,2"
-                                                Classes="Success Replay"
-                                                Command="{Binding ReplayCommand}"
-                                                Theme="{DynamicResource SolidButton}">
-                                            <PathIcon Width="15"
-                                                      Height="15"
-                                                      Data="M340.001-236.156v-487.688L723.074-480 340.001-236.156ZM400-480Zm0 134 210.769-134L400-614v268Z" />
-                                        </Button>
-                                    </Grid>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <!--  =================================================  -->
-                        <DataGridTextColumn Width="300"
-                                            MinWidth="100"
-                                            x:DataType="ms:OutputFile"
-                                            Binding="{Binding OutputFileName}"
-                                            IsReadOnly="True">
-                            <DataGridTextColumn.Header>
-                                <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.FileName}" />
-                            </DataGridTextColumn.Header>
-                        </DataGridTextColumn>
-                        <!--  =================================================  -->
-                        <DataGridTemplateColumn Width="Auto" CanUserResize="False">
-                            <DataGridTemplateColumn.Header>
-                                <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.FileFormat}" />
-                            </DataGridTemplateColumn.Header>
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate x:DataType="ms:OutputFile">
-                                    <ComboBox Margin="2"
-                                              HorizontalAlignment="Center"
-                                              ItemsSource="{Binding OutputFileExtOptions}"
-                                              SelectedItem="{Binding OutputFileExt}" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <!--  =================================================  -->
-                        <DataGridTemplateColumn Width="Auto" CanUserResize="False">
-                            <DataGridTemplateColumn.Header>
-                                <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.InTime}" />
-                            </DataGridTemplateColumn.Header>
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate x:DataType="ms:OutputFile">
-                                    <MaskedTextBox Margin="2" Mask="00:00:00.00">
-                                        <Interaction.Behaviors>
-                                            <behaviors:LostFocusUpdateBindingBehavior Text="{Binding Edit_InTime, Converter={StaticResource StringToTimeSpanConverter}}" />
-                                        </Interaction.Behaviors>
-                                    </MaskedTextBox>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <!--  =================================================  -->
-                        <DataGridTemplateColumn Width="Auto" CanUserResize="False">
-                            <DataGridTemplateColumn.Header>
-                                <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.OutTime}" />
-                            </DataGridTemplateColumn.Header>
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate x:DataType="ms:OutputFile">
-                                    <MaskedTextBox Margin="2" Mask="00:00:00.00">
-                                        <Interaction.Behaviors>
-                                            <behaviors:LostFocusUpdateBindingBehavior Text="{Binding Edit_OutTime, Converter={StaticResource StringToTimeSpanConverter}}" />
-                                        </Interaction.Behaviors>
-                                    </MaskedTextBox>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <!--  =================================================  -->
-                        <DataGridTemplateColumn Width="Auto" CanUserResize="False">
-                            <DataGridTemplateColumn.Header>
-                                <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.OutputAudioStream}" />
-                            </DataGridTemplateColumn.Header>
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate x:DataType="ms:OutputFile">
-                                    <Button Margin="2" Content="{DynamicResource Localization.ButtonText.Select}">
-                                        <Button.Flyout>
-                                            <Flyout Placement="Top">
-                                                <Grid>
-                                                    <Grid.RowDefinitions>
-                                                        <RowDefinition Height="Auto" />
-                                                        <RowDefinition Height="*" />
-                                                    </Grid.RowDefinitions>
-                                                    <StackPanel Grid.Row="0"
-                                                                VerticalAlignment="Center"
-                                                                Orientation="Horizontal"
-                                                                Spacing="10">
-                                                        <Button Command="{Binding SelectAllAudioCommand}" Content="{DynamicResource Localization.ButtonText.SelectAll}" />
-                                                        <Button Command="{Binding CencelSelectAllAudioCommand}" Content="{DynamicResource Localization.ButtonText.UnselectAll}" />
-                                                    </StackPanel>
-                                                    <ScrollViewer Grid.Row="1" MaxHeight="250">
-                                                        <ItemsControl ItemsSource="{Binding AudioStreams}">
-                                                            <ItemsControl.ItemTemplate>
-                                                                <DataTemplate>
-                                                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding Mapped}" />
-                                                                </DataTemplate>
-                                                            </ItemsControl.ItemTemplate>
-                                                        </ItemsControl>
-                                                    </ScrollViewer>
-                                                </Grid>
-                                            </Flyout>
-                                        </Button.Flyout>
-                                    </Button>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <!--  =================================================  -->
-                        <DataGridTemplateColumn Width="Auto" CanUserResize="False">
-                            <DataGridTemplateColumn.Header>
-                                <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.OutputSubtitleStream}" />
-                            </DataGridTemplateColumn.Header>
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate x:DataType="ms:OutputFile">
-                                    <Button Margin="2" Content="{DynamicResource Localization.ButtonText.Select}">
-                                        <Button.Flyout>
-                                            <Flyout Placement="Top">
-                                                <Grid>
-                                                    <Grid.RowDefinitions>
-                                                        <RowDefinition Height="Auto" />
-                                                        <RowDefinition Height="*" />
-                                                    </Grid.RowDefinitions>
-                                                    <StackPanel Grid.Row="0"
-                                                                VerticalAlignment="Center"
-                                                                Orientation="Horizontal"
-                                                                Spacing="10">
-                                                        <Button Command="{Binding SelectAllSubtitleCommand}" Content="{DynamicResource Localization.ButtonText.SelectAll}" />
-                                                        <Button Command="{Binding CencelSelectAllSubtitleCommand}" Content="{DynamicResource Localization.ButtonText.UnselectAll}" />
-                                                    </StackPanel>
-                                                    <ItemsControl Grid.Row="1" ItemsSource="{Binding SubtitleStreams}">
-                                                        <ItemsControl.ItemTemplate>
-                                                            <DataTemplate>
-                                                                <CheckBox Content="{Binding Name}" IsChecked="{Binding Mapped}" />
-                                                            </DataTemplate>
-                                                        </ItemsControl.ItemTemplate>
-                                                    </ItemsControl>
-                                                </Grid>
-
-                                            </Flyout>
-                                        </Button.Flyout>
-                                    </Button>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <!--  =================================================  -->
-                        <DataGridTemplateColumn Width="Auto" CanUserResize="False">
-                            <DataGridTemplateColumn.Header>
-                                <Grid HorizontalAlignment="Center" ColumnDefinitions="*,Auto,*">
-                                    <Border Grid.Column="0"
-                                            Padding="5,0,5,0"
-                                            Background="#995DC264"
-                                            CornerRadius="5">
-                                        <TextBlock Text="{DynamicResource Localization.DataGrid.CodecMode_Copy}" />
-                                    </Border>
-                                    <u:Divider Grid.Column="1"
-                                               Margin="3,0,3,0"
-                                               Orientation="Vertical" />
-                                    <Border Grid.Column="2"
-                                            Padding="5,0,5,0"
-                                            Background="#99FC725A"
-                                            CornerRadius="5">
-                                        <TextBlock Text="{DynamicResource Localization.DataGrid.CodecMode_Transcoding}" />
-                                    </Border>
-                                </Grid>
-                            </DataGridTemplateColumn.Header>
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate x:DataType="ms:OutputFile">
-                                    <ToggleSwitch Padding="0"
-                                                  HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"
-                                                  IsChecked="{Binding IsTransCode}"
-                                                  Theme="{DynamicResource ButtonToggleSwitch}">
-                                        <ToggleSwitch.OnContent>
-                                            <Border Height="20"
-                                                    Padding="5,0,5,0"
-                                                    Background="#99FC725A"
-                                                    CornerRadius="5">
-                                                <TextBlock HorizontalAlignment="Center"
-                                                           FontSize="14"
-                                                           Text="{DynamicResource Localization.DataGrid.CodecMode_Transcoding}" />
-                                            </Border>
-                                        </ToggleSwitch.OnContent>
-                                        <ToggleSwitch.OffContent>
-                                            <Border Height="20"
-                                                    Padding="5,0,5,0"
-                                                    Background="#995DC264"
-                                                    CornerRadius="5">
-                                                <TextBlock HorizontalAlignment="Center"
-                                                           FontSize="14"
-                                                           Text="{DynamicResource Localization.DataGrid.CodecMode_Copy}" />
-                                            </Border>
-                                        </ToggleSwitch.OffContent>
-                                    </ToggleSwitch>
-
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <!--  =================================================  -->
-                        <DataGridTemplateColumn Width="Auto" CanUserResize="False">
-                            <DataGridTemplateColumn.Header>
-                                <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.Resolution}" />
-                            </DataGridTemplateColumn.Header>
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate DataType="ms:OutputFile">
-                                    <StackPanel Margin="2"
-                                                IsEnabled="{Binding IsTransCode}"
-                                                Orientation="Horizontal"
-                                                Spacing="5">
-                                        <AutoCompleteBox Width="75"
-                                                         HorizontalAlignment="Center"
-                                                         ItemsSource="{Binding ResolutionPreset}"
-                                                         ValueMemberBinding="{ReflectionBinding Width}"
-                                                         Watermark="Width">
+                                                IsReadOnly="True">
+                                <DataGridTextColumn.Header>
+                                    <TextBlock HorizontalAlignment="Center"
+                                               Text="{DynamicResource Localization.DataGrid.FileName}"
+                                               ToolTip.Tip="{DynamicResource Localization.DataGrid.FileName}" />
+                                </DataGridTextColumn.Header>
+                            </DataGridTextColumn>
+                            <!--  =================================================  -->
+                            <DataGridTemplateColumn Width="Auto" CanUserResize="False">
+                                <DataGridTemplateColumn.Header>
+                                    <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.InTime}" />
+                                </DataGridTemplateColumn.Header>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="ms:OutputFile">
+                                        <MaskedTextBox Margin="2" Mask="00:00:00.00">
                                             <Interaction.Behaviors>
-                                                <behaviors:LostFocusUpdateBindingBehavior_AutoCompleteBox Text="{Binding CustomWidth}" />
+                                                <behaviors:LostFocusUpdateBindingBehavior Text="{Binding Edit_InTime, Converter={StaticResource StringToTimeSpanConverter}}" />
                                             </Interaction.Behaviors>
-                                            <AutoCompleteBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock HorizontalAlignment="Center" Text="{ReflectionBinding Width}" />
-                                                </DataTemplate>
-                                            </AutoCompleteBox.ItemTemplate>
-                                        </AutoCompleteBox>
-                                        <ToggleButton Width="30"
-                                                      Height="30"
-                                                      Classes="Success"
-                                                      IsChecked="{Binding IsLinkResolution}">
+                                        </MaskedTextBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <!--  =================================================  -->
+                            <DataGridTemplateColumn Width="Auto" CanUserResize="False">
+                                <DataGridTemplateColumn.Header>
+                                    <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.OutTime}" />
+                                </DataGridTemplateColumn.Header>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="ms:OutputFile">
+                                        <MaskedTextBox Margin="2" Mask="00:00:00.00">
+                                            <Interaction.Behaviors>
+                                                <behaviors:LostFocusUpdateBindingBehavior Text="{Binding Edit_OutTime, Converter={StaticResource StringToTimeSpanConverter}}" />
+                                            </Interaction.Behaviors>
+                                        </MaskedTextBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+                <controls:GridSplitterWithoutKeyDown Grid.Column="1" />
+                <Border Name="OutputSettingView"
+                        Grid.Column="2"
+                        Padding="2"
+                        Classes="Shadow"
+                        Theme="{DynamicResource CardBorder}">
+                    <ScrollViewer Margin="10">
+                        <Grid RowDefinitions="Auto,Auto,30,Auto,Auto,30,Auto,Auto">
+                            <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                                <TextBlock Classes="H5"
+                                           Text="Video Setting"
+                                           Theme="{StaticResource TitleTextBlock}" />
+                                <Separator />
+                            </StackPanel>
+                            <StackPanel Name="VideoSettingGrid"
+                                        Grid.Row="1"
+                                        Spacing="10">
+                                <StackPanel Orientation="Horizontal" Spacing="20">
+                                    <TextBlock VerticalAlignment="Center" Text="视频编码器:" />
+                                    <ComboBox Width="150"
+                                              ItemsSource="{Binding OutputSettingVM.VideoCodecOptions}"
+                                              SelectedItem="{Binding OutputSettingVM.SelectedVideoCodec}" />
+                                </StackPanel>
+
+                                <Grid Name="H264AVOptions"
+                                      ColumnDefinitions="Auto,50,*"
+                                      IsVisible="{Binding OutputSettingVM.UseH264}"
+                                      RowDefinitions="Auto,10,Auto,Auto">
+                                    <TextBlock Grid.Row="0"
+                                               Grid.Column="0"
+                                               VerticalAlignment="Center"
+                                               Text="Preset:" />
+                                    <ComboBox Grid.Row="0"
+                                              Grid.Column="2"
+                                              Width="150"
+                                              ItemsSource="{Binding OutputSettingVM.SpeedPresetOptions}"
+                                              SelectedItem="{Binding OutputSettingVM.SelectedSpeedPreset}" />
+                                    <TextBlock Grid.Row="2"
+                                               Grid.Column="0"
+                                               VerticalAlignment="Center"
+                                               Text="CRF:" />
+                                    <Slider Grid.Row="2"
+                                            Grid.Column="2"
+                                            Width="200"
+                                            HorizontalAlignment="Left"
+                                            Classes="ToolTip"
+                                            IsSnapToTickEnabled="True"
+                                            Maximum="51"
+                                            Minimum="0"
+                                            TickFrequency="1"
+                                            Value="{Binding OutputSettingVM.ConstantRateFactor}" />
+                                </Grid>
+                            </StackPanel>
+                            <StackPanel Grid.Row="3" Margin="0,0,0,10">
+                                <DockPanel>
+                                    <Button Command="{Binding OutputSettingVM.ClearAudioOutputCommand}"
+                                            Content="Clear All"
+                                            DockPanel.Dock="Right" />
+                                    <TextBlock VerticalAlignment="Bottom"
+                                               Classes="H5"
+                                               Text="Audio Output"
+                                               Theme="{StaticResource TitleTextBlock}" />
+                                </DockPanel>
+                                <Separator />
+                            </StackPanel>
+                            <Grid Name="AudioOutputGrid" Grid.Row="4">
+                                <TextBlock IsVisible="{Binding !OutputSettingVM.HasAudio}" Text="Input Media has not Audio Track" />
+                                <ListBox Name="AudioTrackOptionsList"
+                                         DisplayMemberBinding="{Binding Name}"
+                                         ItemsSource="{Binding OutputSettingVM.AudioOutputOptions}"
+                                         SelectedItems="{Binding OutputSettingVM.SelectedAudioOutputs}"
+                                         Theme="{DynamicResource PureCardRadioGroupListBox}" />
+                            </Grid>
+                            <StackPanel Grid.Row="6" Margin="0,0,0,10">
+                                <DockPanel>
+                                    <Button Command="{Binding OutputSettingVM.ClearSubtitleOutputCommand}"
+                                            Content="Clear All"
+                                            DockPanel.Dock="Right" />
+                                    <CheckBox Padding="5,0,20,0"
+                                              VerticalAlignment="Bottom"
+                                              DockPanel.Dock="Right"
+                                              IsChecked="{Binding OutputSettingVM.BurnSubtitle}">
+                                        <StackPanel Orientation="Horizontal" Spacing="5">
+                                            <TextBlock Text="Burn" />
                                             <PathIcon Width="16"
                                                       Height="16"
-                                                      Data="M440-280H280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h160v80H280q-50 0-85 35t-35 85q0 50 35 85t85 35h160v80ZM320-440v-80h320v80H320Zm200 160v-80h160q50 0 85-35t35-85q0-50-35-85t-85-35H520v-80h160q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H520Z" />
-                                        </ToggleButton>
-                                        <AutoCompleteBox Width="75"
-                                                         HorizontalAlignment="Center"
-                                                         ItemsSource="{Binding ResolutionPreset}"
-                                                         ValueMemberBinding="{ReflectionBinding Height}"
-                                                         Watermark="Height">
-                                            <Interaction.Behaviors>
-                                                <behaviors:LostFocusUpdateBindingBehavior_AutoCompleteBox Text="{Binding CustomHeight}" />
-                                            </Interaction.Behaviors>
-                                            <AutoCompleteBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock HorizontalAlignment="Center" Text="{ReflectionBinding Height}" />
-                                                </DataTemplate>
-                                            </AutoCompleteBox.ItemTemplate>
-                                        </AutoCompleteBox>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <!--  =================================================  -->
-                        <DataGridTemplateColumn Width="Auto" CanUserResize="False">
-                            <DataGridTemplateColumn.Header>
-                                <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.Codec}" />
-                            </DataGridTemplateColumn.Header>
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate x:DataType="ms:OutputFile">
-                                    <ComboBox Margin="2"
-                                              DisplayMemberBinding="{Binding Name}"
-                                              IsEnabled="{Binding IsTransCode}"
-                                              ItemsSource="{Binding CodecOptions}"
-                                              SelectedItem="{Binding SelectedCodec}" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <!--  =================================================  -->
-                        <DataGridTemplateColumn Width="Auto" CanUserResize="False">
-                            <DataGridTemplateColumn.Header>
-                                <TextBlock HorizontalAlignment="Center" Text="{DynamicResource Localization.DataGrid.Preset}" />
-                            </DataGridTemplateColumn.Header>
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate x:DataType="ms:OutputFile">
-                                    <ComboBox Margin="2"
-                                              IsEnabled="{Binding IsTransCode}"
-                                              ItemsSource="{Binding SpeedPresetOptions}"
-                                              SelectedItem="{Binding SelectedSpeedPreset}" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <!--  =================================================  -->
-                        <DataGridTemplateColumn Width="Auto" CanUserResize="False">
-                            <DataGridTemplateColumn.Header>
-                                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                                    <TextBlock Text="{DynamicResource Localization.DataGrid.CRF}" />
-                                    <PathIcon Width="15"
-                                              Height="15"
-                                              Margin="5,0,0,0"
-                                              Data="M478-240q21 0 35.5-14.5T528-290q0-21-14.5-35.5T478-340q-21 0-35.5 14.5T428-290q0 21 14.5 35.5T478-240Zm-36-154h74q0-33 7.5-52t42.5-52q26-26 41-49.5t15-56.5q0-56-41-86t-97-30q-57 0-92.5 30T342-618l66 26q5-18 22.5-39t53.5-21q32 0 48 17.5t16 38.5q0 20-12 37.5T506-526q-44 39-54 59t-10 73Zm38 314q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"
-                                              ToolTip.Tip="{DynamicResource Localization.ToolTip.CRF}" />
-                                </StackPanel>
-                            </DataGridTemplateColumn.Header>
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate x:DataType="ms:OutputFile">
-                                    <NumericUpDown Margin="2"
-                                                   HorizontalAlignment="Stretch"
-                                                   VerticalAlignment="Stretch"
-                                                   Increment="1"
-                                                   IsEnabled="{Binding IsTransCode}"
-                                                   Maximum="51"
-                                                   Minimum="0"
-                                                   Value="{Binding ConstantRateFactor}" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Border>
+                                                      VerticalAlignment="Center"
+                                                      Data="M478-240q21 0 35.5-14.5T528-290q0-21-14.5-35.5T478-340q-21 0-35.5 14.5T428-290q0 21 14.5 35.5T478-240Zm-36-154h74q0-33 7.5-52t42.5-52q26-26 41-49.5t15-56.5q0-56-41-86t-97-30q-57 0-92.5 30T342-618l66 26q5-18 22.5-39t53.5-21q32 0 48 17.5t16 38.5q0 20-12 37.5T506-526q-44 39-54 59t-10 73Zm38 314q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"
+                                                      ToolTip.Tip="只针对Text字幕有效，Image字幕必须烧录" />
+                                        </StackPanel>
+                                    </CheckBox>
+                                    <TextBlock VerticalAlignment="Bottom"
+                                               Classes="H5"
+                                               Text="Subtitle Output"
+                                               Theme="{StaticResource TitleTextBlock}" />
+                                </DockPanel>
+                                <Separator />
+                            </StackPanel>
+                            <Grid Name="SubtitleOutputGrid" Grid.Row="7">
+                                <TextBlock IsVisible="{Binding !OutputSettingVM.HasSubtitle}" Text="Input Media has not Subtitle Track" />
+                                <ListBox Name="SubtitleTrackOptionsList"
+                                         ItemsSource="{Binding OutputSettingVM.SubtitleOutputOptions}"
+                                         SelectedItems="{Binding OutputSettingVM.SelectedSubtitleOutputs}"
+                                         Theme="{DynamicResource PureCardRadioGroupListBox}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                                <TextBlock VerticalAlignment="Center" Text="{Binding Name}" />
+                                                <Label Classes="Ghost LightGreen"
+                                                       IsVisible="{Binding !IsTextType}"
+                                                       Theme="{StaticResource TagLabel}">
+                                                    Image
+                                                </Label>
+                                                <Label Classes="Ghost LightBlue"
+                                                       IsVisible="{Binding IsTextType}"
+                                                       Theme="{StaticResource TagLabel}">
+                                                    Text
+                                                </Label>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                </ListBox>
+                            </Grid>
+                        </Grid>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+
             <Border Grid.Row="4"
                     Margin="4,0,4,4"
                     Padding="2"

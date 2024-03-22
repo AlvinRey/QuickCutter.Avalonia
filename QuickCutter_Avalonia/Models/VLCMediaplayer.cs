@@ -7,7 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Threading;
+using System.Xml.Linq;
 
 namespace QuickCutter_Avalonia.Models
 {
@@ -89,7 +91,10 @@ namespace QuickCutter_Avalonia.Models
         public VLCMediaplayer()
         {
             //ThreadPool.QueueUserWorkItem(_ => MediaPlayerHandler.InitMediaPlayer(this));
+            //var t = new TimeCounter("InitMediaPlayer");
+            DebugHandler.StopwatchStart();
             MediaPlayerHandler.InitMediaPlayer(this);
+            DebugHandler.StopwatchStopAndPrintTime();
         }
 
         ~VLCMediaplayer()

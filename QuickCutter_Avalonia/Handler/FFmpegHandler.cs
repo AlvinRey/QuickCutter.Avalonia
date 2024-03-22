@@ -61,16 +61,17 @@ namespace QuickCutter_Avalonia.Handler
             }
             else
             {
-                title = $"Track {index}";
+                title = $"Track {index + 1}";
             }
 
-            if (stream.Language != null)
+
+            if (!string.IsNullOrEmpty(stream.Language))
             {
                 language = Utils.ISO639_2_Converter.ContainsKey(stream.Language) ? Utils.ISO639_2_Converter[stream.Language] : stream.Language;
-                language = $" - [{language}]";
-            }
 
-            return title + language;
+                title += $" - [{language}]";
+            }
+            return title;
         }
     }
 }

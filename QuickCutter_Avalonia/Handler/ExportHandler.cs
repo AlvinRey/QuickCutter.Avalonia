@@ -39,7 +39,7 @@ namespace QuickCutter_Avalonia.Handler
                         options.EndSeek(file.Edit_OutTime);
                 });
 
-                ffmprocessor = ffmpegArgs.OutputToFile(@$"{exportDirectory}\{file.OutputFileName}{file.OutputFileExt}",
+                ffmprocessor = ffmpegArgs.OutputToFile(@$"{exportDirectory}\{file.OutputFileName}.mp4",
                                     true,
                                     options =>
                                     {
@@ -53,7 +53,7 @@ namespace QuickCutter_Avalonia.Handler
                 {
                     options.WithArgument(new HideBannerArgument());
                 });
-                ffmprocessor = ffmpegArgs.OutputToFile(@$"{exportDirectory}\{file.OutputFileName}{file.OutputFileExt}",
+                ffmprocessor = ffmpegArgs.OutputToFile(@$"{exportDirectory}\{file.OutputFileName}.mp4",
                     true,
                     options =>
                     {
@@ -75,14 +75,14 @@ namespace QuickCutter_Avalonia.Handler
                 options.Seek(file.Edit_InTime);
                 options.EndSeek(file.Edit_OutTime);
             });
-            ffmprocessor = ffmpegArgs.OutputToFile(@$"{exportDirectory}\{file.OutputFileName}{file.OutputFileExt}",
+            ffmprocessor = ffmpegArgs.OutputToFile(@$"{exportDirectory}\{file.OutputFileName}.mp4",
                     true,
                     options =>
                     {
-                        options.WithVideoCodec(file.SelectedCodec);
-                        options.WithSpeedPreset(file.SelectedSpeedPreset);
-                        options.WithConstantRateFactor(file.ConstantRateFactor != null ? (int)file.ConstantRateFactor : 23);
-                        options.WithVideoFilters(videoFilterOptions => videoFilterOptions.Scale(file.CustomWidth, file.CustomHeight));
+                        options.WithVideoCodec(file.OutputSetting.videoSetting.selectedVideoCodec);
+                        options.WithSpeedPreset(file.OutputSetting.videoSetting.selectedSpeedPreset);
+                        options.WithConstantRateFactor(file.OutputSetting.videoSetting.constantRateFactor);
+                        //options.WithVideoFilters(videoFilterOptions => videoFilterOptions.Scale(file.CustomWidth, file.CustomHeight));
                         options.WithAudioCodec("copy");
                     });
 
@@ -95,19 +95,20 @@ namespace QuickCutter_Avalonia.Handler
 
             foreach (var file in outputFiles)
             {
-                if (file.IsTransCode)
+                if (true)
                 {
                     processor = GenerateTransCodeArgsProcessor(exportDirectory, file);
                 }
-                else
-                {
-                    processor = GenerateCopyArgsProcessor(exportDirectory, file);
-                }
+                //else
+                //{
+                //    processor = GenerateCopyArgsProcessor(exportDirectory, file);
+                //}
 
                 processor.NotifyOnProgress(notifyProgressPercentage, file.Duration)
                          .CancellableThrough(out mCencelAction, 0);
 
-                notifyProcessingFileName($"{file.OutputFileName}{file.OutputFileExt}");
+                notifyProcessingFileName($"{file.OutputFileName}.mp4");
+                notifyProgressPercentage(0.0);
                 await processor.ProcessAsynchronously();
             }
         }

@@ -27,7 +27,7 @@ namespace QuickCutter_Avalonia.Views
         private MainWindowViewModel? viewModel;
         private double mediaPlayerAspectRatio = 16.0 / 9.0;
         private Action? mVideoViewSizeInit;
-        private Project? mSelectedEditingProject;
+        private InputMieda? mSelectedEditingProject;
         private SettingWindow? mSettingWindow;
         #endregion
 
@@ -101,31 +101,16 @@ namespace QuickCutter_Avalonia.Views
             if (viewModel is null)
                 return;
 
-            if (viewModel.SelectedProjects.Count == 1)
+            if (viewModel.SelectedProjects.Count == 1 && !viewModel.SelectedProjects.First().Loading)
             {
-                if(mSelectedEditingProject == null)
-                {
-                    mSelectedEditingProject = viewModel.SelectedProjects[0];
-                    InitEditingArea();
-                }
-                else if(mSelectedEditingProject == viewModel.SelectedProjects[0])
-                {
-                    InitEditingArea();
-                }
-                else
-                {
-                    ResetEditingArea();
-                    mSelectedEditingProject = viewModel.SelectedProjects[0];
-                    InitEditingArea();
-                }
-                
+                InitEditingArea(viewModel.SelectedProjects.First());
             }
-            else // Select more than one Project or do not select anyone
+
+            if(viewModel.SelectedProjects.Count == 0)
             {
                 ResetEditingArea();
-                mSelectedEditingProject = null;
             }
-        } 
+        }
 
         private void OutputFilesDataGrid_SelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
@@ -151,7 +136,7 @@ namespace QuickCutter_Avalonia.Views
 
         private void MediaPlayerGrid_SizeChanged(object? sender, SizeChangedEventArgs e)
         {
-            if(!VideoView.IsLoaded)
+            if (!VideoView.IsLoaded)
             {
                 // Because the VideoView has not been loaded at this time, adjusting its Size is meaningless.
                 // Pack the current Grid's Size into mVideoViewSizeInit and wait until VideoView completes loading before executing it.
@@ -212,9 +197,11 @@ namespace QuickCutter_Avalonia.Views
             if (viewModel is null)
                 return;
 
-            List<Project> selectedItems = ProjectsList.SelectedItems.OfType<Project>().ToList();
-            viewModel.Projects.Remove(selectedItems);
-            ProjectsList.SelectedItems.Clear();
+            //List<Project> selectedItems = ProjectsList.SelectedItems.OfType<Project>().ToList();
+            //viewModel.Projects.Remove(selectedItems);
+            viewModel.Projects.Remove(viewModel.SelectedProjects.OfType<InputMieda>().ToList());
+            viewModel.SelectedProjects.Clear();
+            //ProjectsList.SelectedItems.Clear();
         }
 
         private void InButton_Click(object? sender, RoutedEventArgs e)
@@ -243,7 +230,7 @@ namespace QuickCutter_Avalonia.Views
 
         private void SettingButton_Click(object? sender, RoutedEventArgs e)
         {
-            if(mSettingWindow is null)
+            if (mSettingWindow is null)
             {
                 mSettingWindow = new SettingWindow()
                 {
@@ -266,14 +253,14 @@ namespace QuickCutter_Avalonia.Views
         }
         #endregion
 
-        private void InitEditingArea()
+        private void InitEditingArea(InputMieda selectedProject)
         {
-            if (viewModel is null || mSelectedEditingProject is null)
+            if (viewModel is null || mSelectedEditingProject == selectedProject)
                 return;
 
             // Resize Video View
-            double videoHeight = mSelectedEditingProject.ImportVideoInfo.AnalysisResult.VideoStreams[0].Height;
-            double videoWidth = mSelectedEditingProject.ImportVideoInfo.AnalysisResult.VideoStreams[0].Width;
+            double videoHeight = selectedProject.InputMediaAnalysisResult.VideoStreams[0].Height;
+            double videoWidth = selectedProject.InputMediaAnalysisResult.VideoStreams[0].Width;
             mediaPlayerAspectRatio = double.IsNaN(videoWidth / videoHeight) ? mediaPlayerAspectRatio : videoWidth / videoHeight;
             if (MediaPlayerGrid.Bounds.Width >= MediaPlayerGrid.Bounds.Height * mediaPlayerAspectRatio)
             {
@@ -285,21 +272,23 @@ namespace QuickCutter_Avalonia.Views
             }
 
             // Load stuff about Selection
-            HeaderTitle.Text = mSelectedEditingProject.ImportVideoInfo.VideoFullName;
-            OutputFilesDataGrid.ItemsSource = mSelectedEditingProject.OutputFiles;
+            HeaderTitle.Text = selectedProject.MediaFullName;
+            OutputFilesDataGrid.ItemsSource = selectedProject.OutputFiles;
             MediaPlayerHandler.LoadMedia(new Uri(viewModel.SelectedProjects[0].MediaFullName));
+
+            mSelectedEditingProject = selectedProject;
         }
 
         private void ResetEditingArea()
         {
-            if (viewModel is null)
+            if (viewModel is null || mSelectedEditingProject is null)
                 return;
             MediaPlayerHandler.ResetMediaPlayer();
             HeaderTitle.Text = null;
             //AudioTrackComboBox.ItemsSource = null;
             //SubtitleTrackComboBox.ItemsSource = null;
             OutputFilesDataGrid.ItemsSource = null;
-
+            mSelectedEditingProject = null;
         }
 
         private void VideoView_ChangeHeight(double height)

@@ -3,6 +3,7 @@ using LibVLCSharp.Shared;
 using QuickCutter_Avalonia.Mode;
 using QuickCutter_Avalonia.Models;
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -33,7 +34,7 @@ namespace QuickCutter_Avalonia.Handler
             }
             HostedVLCMediaplayer = obj as VLCMediaplayer;
             m_Config = Utils.GetConfig();
-            m_libVLC = new LibVLC("--vout=glwin32");
+            m_libVLC = new LibVLC("--freetype-rel-fontsize=25");
             HostedVLCMediaplayer.Player = new MediaPlayer(m_libVLC);
             //HostedVLCMediaplayer = hostedVLCMediaplayer;
 
@@ -71,7 +72,6 @@ namespace QuickCutter_Avalonia.Handler
                         m_StateChangedRefresh.OnNext(Unit.Default);
                 })
             };
-
         }
 
         // Some libvlc methods will not have any effect when the video is paused, such as SeekTo()
@@ -81,14 +81,18 @@ namespace QuickCutter_Avalonia.Handler
         {
             m_CanUpdateUI = false;
             HostedVLCMediaplayer.Player.Play();
-            while (!HostedVLCMediaplayer.Player.IsPlaying)
+            while (!HostedVLCMediaplayer.Player.IsPlaying && HostedVLCMediaplayer.Player.Media != null)
             {
                 Debug.WriteLine("Wait for begin play...");
                 await Task.Delay(25);
             }
-            action();
-            if (pauseAfterAction)
-                HostedVLCMediaplayer.Player.Pause();
+
+            if(HostedVLCMediaplayer.Player.Media != null)
+            {
+                action();
+                if (pauseAfterAction)
+                    HostedVLCMediaplayer.Player.Pause();
+            }
             m_CanUpdateUI = true;
         }
 

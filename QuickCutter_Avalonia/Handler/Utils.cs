@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
@@ -48,6 +49,34 @@ namespace QuickCutter_Avalonia.Handler
                 {"ita", "Italian"}
             };
 
+        /// <summary>
+        /// true if subtitle type is text, false if subtitle type is bit map
+        /// </summary>
+        static public Dictionary<string, bool> SubtitleTypeConverter { get; }
+            = new Dictionary<string, bool>()
+            {
+                {"dvb_subtitle", false},
+                {"dvd_subtitle", false},
+                {"hdmv_pgs_subtitle", false},
+                {"xsub", false},
+                {"ass", true},
+                {"ssa", true},
+                {"webvtt", true},
+                {"jacosub", true},
+                {"microdvd", true},
+                {"mov_text", true},
+                {"mpl2", true},
+                {"pjs", true},
+                {"realtext", true},
+                {"sami", true},
+                {"stl", true},
+                {"subrip", true},
+                {"subviewer", true},
+                {"subviewer1", true},
+                {"text", true},
+                {"vplayer", true}
+            };
+
         static public IList<Codec>? Codec { get; set; }
 
         //static public string GetGraphicsCardManufacturer()
@@ -74,7 +103,7 @@ namespace QuickCutter_Avalonia.Handler
         //    return "Unknown"; // 如果无法识别或未找到显卡信息，则返回 Unknown
         //}
 
-        static public IEnumerable<Codec> GetCodec()
+        static private IEnumerable<Codec> GetVideoCodec()
         {
             if (Codec != null) { return Codec; }
 
