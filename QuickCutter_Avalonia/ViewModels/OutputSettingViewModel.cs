@@ -3,14 +3,10 @@ using QuickCutter_Avalonia.Handler;
 using QuickCutter_Avalonia.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 
 namespace QuickCutter_Avalonia.ViewModels
 {
@@ -36,7 +32,7 @@ namespace QuickCutter_Avalonia.ViewModels
             {
                 if (mOutputSetting is null) return;
                 this.RaiseAndSetIfChanged(ref mOutputSetting.videoSetting.selectedVideoCodec, value, nameof(SelectedVideoCodec));
-                RefreshUseCodec(value);
+                OnCodecChanged(value);
             }
         }
 
@@ -83,43 +79,32 @@ namespace QuickCutter_Avalonia.ViewModels
         #region Audio Output
 
         public IReactiveCommand ClearAudioOutputCommand { get; set; }
+
         public bool HasAudio
         {
-            get
-            {
-                if (mOutputSetting is null)
-                    return false;
-                return OutputSettingHandler.AudioStreamDictonary[mOutputSetting.key].Count > 0;
-            }
+            get => AudioStreamOptions.Count > 0;
         }
 
-        public List<AudioStreamOriginalInfo> AudioOutputOptions 
-        {
-            get
-            {
-                if (mOutputSetting is null)
-                    return null;
-                return OutputSettingHandler.AudioStreamDictonary[mOutputSetting.key];
-            } 
-        }
-
-        public ObservableCollection<AudioStreamOriginalInfo> SelectedAudioOutputs { get; set; }
+        public ObservableCollection<SelecteAudioStreamViewModel> AudioStreamOptions { get; set; }
         #endregion
 
         #region Subtitle Output
+        [Reactive]
+        public bool CanBurn { get; set; }
 
         public bool BurnSubtitle
         {
             get
             {
                 if (mOutputSetting is null) return false;
-                return mOutputSetting.burnSubtitle;
+                return mOutputSetting.isBurnSubtitle;
             }
 
             set
             {
                 if (mOutputSetting is null) return;
-                this.RaiseAndSetIfChanged(ref mOutputSetting.burnSubtitle, value, nameof(BurnSubtitle));
+                this.RaiseAndSetIfChanged(ref mOutputSetting.isBurnSubtitle, value, nameof(BurnSubtitle));
+                NotifyViewModelsUpdate();
             }
         }
 
@@ -127,50 +112,54 @@ namespace QuickCutter_Avalonia.ViewModels
 
         public bool HasSubtitle
         {
-            get
-            {
-                if (mOutputSetting is null)
-                    return false;
-                return OutputSettingHandler.SubtitleStreamDictonary[mOutputSetting.key].Count > 0;
-            }
+            get => SubtitleStreamOptions.Count > 0;
         }
 
-        public List<SubtitleStreamOriginalInfo> SubtitleOutputOptions
-        {
-            get
-            {
-                if (mOutputSetting is null)
-                    return null;
-                return OutputSettingHandler.SubtitleStreamDictonary[mOutputSetting.key];
-            }
-        }
-        public ObservableCollection<SubtitleStreamOriginalInfo> SelectedSubtitleOutputs 
-        { get; set; }
+        public ObservableCollection<SelecteSubtitleStreamViewModel> SubtitleStreamOptions { get; set; }
+
         #endregion
 
         public OutputSettingViewModel()
         {
-            SelectedAudioOutputs = new ObservableCollection<AudioStreamOriginalInfo>();
-            SelectedSubtitleOutputs = new ObservableCollection<SubtitleStreamOriginalInfo>();
-            ClearAudioOutputCommand = ReactiveCommand.Create(() => SelectedAudioOutputs.Clear());
-            ClearSubtitleOutputCommand = ReactiveCommand.Create(() => SelectedSubtitleOutputs.Clear());
+            AudioStreamOptions = new ObservableCollection<SelecteAudioStreamViewModel>();
+            SubtitleStreamOptions = new ObservableCollection<SelecteSubtitleStreamViewModel>();
+
+            ClearAudioOutputCommand = ReactiveCommand.Create(() =>
+            {
+                foreach (var audioSteam in AudioStreamOptions)
+                {
+                    if (audioSteam.IsSelected)
+                    {
+                        audioSteam.IsSelected = false;
+                    }
+                }
+            });
+
+            ClearSubtitleOutputCommand = ReactiveCommand.Create(() =>
+            {
+                foreach (var subtitleStream in SubtitleStreamOptions)
+                {
+                    if (subtitleStream.IsSelected)
+                    {
+                        subtitleStream.IsSelected = false;
+                    }
+                }
+            });
         }
-
-
 
         public void LoadDisplayOutputSetting(OutputSetting outputSetting)
         {
             mOutputSetting = outputSetting;
+            BuildAudioStreamOptions();
+            BuildSubtitleStreamOptions();
             RefreshDisplay();
-            LoadSelectedAudioOutputs();
-            LoadSelectedSubtitleOutputs();
         }
 
         public void UnLoadDisplayOutputSetting()
         {
-            SaveSelectedAudioOutputs();
-            SaveSelectedSubtitleOutputs();
             mOutputSetting = null;
+            AudioStreamOptions.Clear();
+            SubtitleStreamOptions.Clear();
             RefreshDisplay();
         }
 
@@ -180,59 +169,64 @@ namespace QuickCutter_Avalonia.ViewModels
             this.RaisePropertyChanged(nameof(SelectedSpeedPreset));
             this.RaisePropertyChanged(nameof(ConstantRateFactor));
             this.RaisePropertyChanged(nameof(HasAudio));
-            this.RaisePropertyChanged(nameof(AudioOutputOptions));
             this.RaisePropertyChanged(nameof(HasSubtitle));
             this.RaisePropertyChanged(nameof(BurnSubtitle));
-            this.RaisePropertyChanged(nameof(SubtitleOutputOptions));
-            RefreshUseCodec(SelectedVideoCodec);
+            OnCodecChanged(SelectedVideoCodec);
         }
 
-        private void LoadSelectedSubtitleOutputs()
-        {
-            if(mOutputSetting == null) return;
-            SelectedSubtitleOutputs.Clear();
-            foreach(var output in mOutputSetting.selectedSubtitleOutputs)
-            {
-                SelectedSubtitleOutputs.Add(output);
-            }
-        }
-
-        private void SaveSelectedSubtitleOutputs()
+        private void BuildSubtitleStreamOptions()
         {
             if (mOutputSetting == null) return;
-            mOutputSetting.selectedSubtitleOutputs.Clear();
-            foreach (var output in SelectedSubtitleOutputs)
+
+            foreach (var subtitleStream in OutputSettingHandler.SubtitleStreamDictonary[mOutputSetting.key])
             {
-                mOutputSetting.selectedSubtitleOutputs.Add(output);
+                SubtitleStreamOptions.Add(new SelecteSubtitleStreamViewModel(subtitleStream, mOutputSetting.selectedSubtitleOutputs, NotifyViewModelsUpdate));
             }
+            NotifyViewModelsUpdate();
         }
 
-        private void LoadSelectedAudioOutputs()
+        private void BuildAudioStreamOptions()
         {
             if (mOutputSetting == null) return;
-            SelectedAudioOutputs.Clear();
-            foreach (var output in mOutputSetting.selectedAudioOutputs)
+
+            foreach (var audioStream in OutputSettingHandler.AudioStreamDictonary[mOutputSetting.key])
             {
-                SelectedAudioOutputs.Add(output);
+                AudioStreamOptions.Add(new SelecteAudioStreamViewModel(audioStream, mOutputSetting.selectedAudioOutputs));
             }
         }
 
-        private void SaveSelectedAudioOutputs()
+        private void OnCodecChanged(string codec)
         {
-            if (mOutputSetting == null) return;
-            mOutputSetting.selectedAudioOutputs.Clear();
-            foreach (var output in SelectedAudioOutputs)
+            if (codec == "Copy")
             {
-                mOutputSetting.selectedAudioOutputs.Add(output);
-            }
-        }
-
-        private void RefreshUseCodec(string codec)
-        {
-            if (codec == "libx264(H.264)")
-                UseH264 = true;
-            else
+                if (BurnSubtitle)
+                {
+                    BurnSubtitle = false;
+                }
+                CanBurn = false;
                 UseH264 = false;
+            }
+            else if (codec == "Libx264")
+            {
+                CanBurn = true;
+                UseH264 = true;
+            }
+            else if (codec == "Libx265")
+            {
+                CanBurn = true;
+                UseH264 = false;
+            }
+        }
+
+        private void NotifyViewModelsUpdate()
+        {
+            var firstSelectedVM = SubtitleStreamOptions.FirstOrDefault(vm => vm.IsSelected == true);
+            bool? isSelectTextType = firstSelectedVM is null ? null : firstSelectedVM.IsTextType;
+
+            foreach (var vm in SubtitleStreamOptions)
+            {
+                vm.UpdateCanSelectState(BurnSubtitle, isSelectTextType, firstSelectedVM);
+            }
         }
     }
 }

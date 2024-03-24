@@ -19,8 +19,8 @@ namespace QuickCutter_Avalonia.Handler
             = new List<string>()
             {
                 "Copy",
-                "libx264",
-                "libx265",
+                "Libx264",
+                "Libx265",
             };
         static public List<Speed> SpeedPresets = Enum.GetValues(typeof(Speed)).Cast<Speed>().ToList();
         public static Dictionary<string, List<AudioStreamOriginalInfo>> AudioStreamDictonary = new Dictionary<string, List<AudioStreamOriginalInfo>>();
@@ -51,8 +51,8 @@ namespace QuickCutter_Avalonia.Handler
                     selectedSpeedPreset = SpeedPresets.First(),
                     constantRateFactor = 23
                 },
-                selectedAudioOutputs = new ObservableCollection<AudioStreamOriginalInfo>(),
-                selectedSubtitleOutputs = new ObservableCollection<SubtitleStreamOriginalInfo>()
+                selectedAudioOutputs = new List<AudioStreamOriginalInfo>(),
+                selectedSubtitleOutputs = new List<SubtitleStreamOriginalInfo>()
             };
             return outputSetting;
         }

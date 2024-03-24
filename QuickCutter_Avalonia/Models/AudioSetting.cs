@@ -12,7 +12,7 @@ namespace QuickCutter_Avalonia.Models
 {
     public struct AudioStreamOriginalInfo
     {
-        public string Name { get; set; }
+        public string name;
 
         public int absoluteStreamIndex;
 

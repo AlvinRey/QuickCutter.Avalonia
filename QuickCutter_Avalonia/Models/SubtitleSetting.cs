@@ -10,12 +10,12 @@ namespace QuickCutter_Avalonia.Models
 {
     public struct SubtitleStreamOriginalInfo
     {
-        public string Name { get; set; }
+        public string name;
 
         public int absoluteStreamIndex;
 
         public int relativeStreamIndex;
 
-        public bool IsTextType { get; set; }
+        public bool isTextType;
     }
 }

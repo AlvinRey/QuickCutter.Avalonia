@@ -68,7 +68,7 @@ namespace QuickCutter_Avalonia.Mode
                     {
                         audioStreams.Add(new AudioStreamOriginalInfo()
                         {
-                            Name = FFmpegHandler.GetStreamName(audio, index),
+                            name = FFmpegHandler.GetStreamName(audio, index),
                             absoluteStreamIndex = audio.Index,
                             relativeStreamIndex = index
                         });
@@ -91,10 +91,10 @@ namespace QuickCutter_Avalonia.Mode
                         {
                             subtitleStreams.Add(new SubtitleStreamOriginalInfo()
                             {
-                                Name = FFmpegHandler.GetStreamName(subtitle, index),
+                                name = FFmpegHandler.GetStreamName(subtitle, index),
                                 absoluteStreamIndex = subtitle.Index,
                                 relativeStreamIndex = index,
-                                IsTextType = Utils.SubtitleTypeConverter[subtitle.CodecName],
+                                isTextType = Utils.SubtitleTypeConverter[subtitle.CodecName],
                             });
                         }
                         index++;

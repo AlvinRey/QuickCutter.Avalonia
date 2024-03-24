@@ -9,10 +9,10 @@ namespace QuickCutter_Avalonia.Models
 {
     public class OutputSetting
     {
-        public bool burnSubtitle;
+        public bool isBurnSubtitle;
         public string key;
         public VideoSetting videoSetting;
-        public ObservableCollection<AudioStreamOriginalInfo> selectedAudioOutputs;
-        public ObservableCollection<SubtitleStreamOriginalInfo> selectedSubtitleOutputs;
+        public List<AudioStreamOriginalInfo> selectedAudioOutputs;
+        public List<SubtitleStreamOriginalInfo> selectedSubtitleOutputs;
     }
 }
