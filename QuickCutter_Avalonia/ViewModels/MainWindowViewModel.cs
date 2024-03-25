@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -114,12 +115,7 @@ namespace QuickCutter_Avalonia.ViewModels
 
             ExportCommand = ReactiveCommand.Create(() =>
                 {
-                    ExportOutputFilesAsync().Await(() => IsExporting = false,
-                        e =>
-                        {
-                            IsExporting = false;
-                            MessageBus.Current.SendMessage(e.Message, Global.LogTarget);
-                        });
+                    ExportOutputFilesAsync().Await();
                 }, selectedOutputFilesChanged.Select(_ => SelectedOutputFiles.Count > 0));
 
             CencelCommand = ReactiveCommand.Create(ExportHandler.CencelExport);
@@ -186,9 +182,20 @@ namespace QuickCutter_Avalonia.ViewModels
             if (string.IsNullOrEmpty(folderFullName))
                 return;
             IsExporting = true;
-            await ExportHandler.ExecuteFFmpeg(folderFullName, SelectedOutputFiles.ToList(),
+            var outputList = SelectedOutputFiles.ToList();
+            ExportHandler.ExecuteFFmpeg(folderFullName, outputList,
                 fileName => FileNameProcessing = fileName,
-                percent => ProcessingPercent = percent);
+                percent => ProcessingPercent = percent)
+                .Await(() => IsExporting = false, e => 
+                { 
+                    IsExporting = false; 
+                    Debug.WriteLine(e.Message); 
+                    Utils.SaveLog(e.Message); 
+                    foreach (var output in outputList)
+                    {
+                        Utils.DeleteFile(Path.Combine(folderFullName, output.OutputFileName));
+                    }
+                });
         }
     }
 }

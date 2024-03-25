@@ -304,7 +304,7 @@
             <controls:GridSplitterWithoutKeyDown Grid.Row="2" />
             <Grid Grid.Row="3">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="500" MinWidth="500" />
+                    <ColumnDefinition Width="*" MinWidth="500" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" MinWidth="500" />
                 </Grid.ColumnDefinitions>
@@ -332,7 +332,6 @@
                             <converters:StringToTimeSpanConverter x:Key="StringToTimeSpanConverter" />
                         </DataGrid.Resources>
                         <DataGrid.Styles>
-
                             <Style Selector="DataGridRow:pointerover Button.Replay">
                                 <Setter Property="IsVisible" Value="True" />
                             </Style>
@@ -415,140 +414,144 @@
                         Classes="Shadow"
                         Theme="{DynamicResource CardBorder}">
                     <ScrollViewer Margin="10">
-                        <Grid RowDefinitions="Auto,Auto,30,Auto,Auto,30,Auto,Auto">
-                            <StackPanel Grid.Row="0" Margin="0,0,0,10">
-                                <TextBlock Classes="H5"
-                                           Text="Video Setting"
-                                           Theme="{StaticResource TitleTextBlock}" />
-                                <Separator />
-                            </StackPanel>
-                            <StackPanel Name="VideoSettingGrid"
-                                        Grid.Row="1"
-                                        Spacing="10">
-                                <StackPanel Orientation="Horizontal" Spacing="20">
-                                    <TextBlock VerticalAlignment="Center" Text="视频编码器:" />
-                                    <ComboBox Width="150"
-                                              ItemsSource="{Binding OutputSettingVM.VideoCodecOptions}"
-                                              SelectedItem="{Binding OutputSettingVM.SelectedVideoCodec}" />
+                        <StackPanel Spacing="30">
+                            <Grid Name="VideoSettingGrid" RowDefinitions="Auto,Auto">
+                                <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                                    <TextBlock Classes="H5"
+                                               Text="{DynamicResource Localization.OutputSettingGrid.VideoSetting}"
+                                               Theme="{StaticResource TitleTextBlock}" />
+                                    <Separator />
                                 </StackPanel>
+                                <StackPanel Grid.Row="1" Spacing="10">
+                                    <StackPanel Orientation="Horizontal" Spacing="20">
+                                        <TextBlock VerticalAlignment="Center" Text="{DynamicResource Localization.OutputSettingGrid.Codec}" />
+                                        <ComboBox Width="150"
+                                                  ItemsSource="{Binding OutputSettingVM.VideoCodecOptions}"
+                                                  SelectedItem="{Binding OutputSettingVM.SelectedVideoCodec}" />
+                                    </StackPanel>
 
-                                <Grid Name="H264AVOptions"
-                                      ColumnDefinitions="Auto,50,*"
-                                      IsVisible="{Binding OutputSettingVM.UseH264}"
-                                      RowDefinitions="Auto,10,Auto,Auto">
-                                    <TextBlock Grid.Row="0"
-                                               Grid.Column="0"
-                                               VerticalAlignment="Center"
-                                               Text="Preset:" />
-                                    <ComboBox Grid.Row="0"
-                                              Grid.Column="2"
-                                              Width="150"
-                                              ItemsSource="{Binding OutputSettingVM.SpeedPresetOptions}"
-                                              SelectedItem="{Binding OutputSettingVM.SelectedSpeedPreset}" />
-                                    <TextBlock Grid.Row="2"
-                                               Grid.Column="0"
-                                               VerticalAlignment="Center"
-                                               Text="CRF:" />
-                                    <Slider Grid.Row="2"
-                                            Grid.Column="2"
-                                            Width="200"
-                                            HorizontalAlignment="Left"
-                                            Classes="ToolTip"
-                                            IsSnapToTickEnabled="True"
-                                            Maximum="51"
-                                            Minimum="0"
-                                            TickFrequency="1"
-                                            Value="{Binding OutputSettingVM.ConstantRateFactor}" />
+                                    <Grid Name="H264AVOptions"
+                                          ColumnDefinitions="Auto,50,*"
+                                          IsVisible="{Binding OutputSettingVM.UseH264}"
+                                          RowDefinitions="Auto,10,Auto,Auto">
+                                        <TextBlock Grid.Row="0"
+                                                   Grid.Column="0"
+                                                   VerticalAlignment="Center"
+                                                   Text="{DynamicResource Localization.OutputSettingGrid.Preset}" />
+                                        <ComboBox Grid.Row="0"
+                                                  Grid.Column="2"
+                                                  Width="150"
+                                                  ItemsSource="{Binding OutputSettingVM.SpeedPresetOptions}"
+                                                  SelectedItem="{Binding OutputSettingVM.SelectedSpeedPreset}" />
+                                        <TextBlock Grid.Row="2"
+                                                   Grid.Column="0"
+                                                   VerticalAlignment="Center"
+                                                   Text="{DynamicResource Localization.OutputSettingGrid.CRF}" />
+                                        <Slider Grid.Row="2"
+                                                Grid.Column="2"
+                                                Width="200"
+                                                HorizontalAlignment="Left"
+                                                Classes="ToolTip"
+                                                IsSnapToTickEnabled="True"
+                                                Maximum="51"
+                                                Minimum="0"
+                                                TickFrequency="1"
+                                                Value="{Binding OutputSettingVM.ConstantRateFactor}" />
+                                    </Grid>
+                                </StackPanel>
+                            </Grid>
+                            <Grid Name="AudioOutputGrid" RowDefinitions="Auto,Auto">
+                                <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                                    <DockPanel>
+                                        <Button Command="{Binding OutputSettingVM.ClearAudioOutputCommand}"
+                                                Content="{DynamicResource Localization.ButtonText.UnselectAll}"
+                                                DockPanel.Dock="Right" />
+                                        <TextBlock VerticalAlignment="Bottom"
+                                                   Classes="H5"
+                                                   Text="{DynamicResource Localization.OutputSettingGrid.AudioOutput}"
+                                                   Theme="{StaticResource TitleTextBlock}" />
+                                    </DockPanel>
+                                    <Separator />
+                                </StackPanel>
+                                <Grid Grid.Row="1">
+                                    <TextBlock IsVisible="{Binding !OutputSettingVM.HasAudio}" Text="{DynamicResource Localization.ToolTip.NoAudioTrack}" />
+                                    <ItemsControl Name="AudioTrackOptionsList" ItemsSource="{Binding OutputSettingVM.AudioStreamOptions}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Margin="2"
+                                                          Content="{Binding StreamName}"
+                                                          IsChecked="{Binding IsSelected}"
+                                                          Theme="{DynamicResource PureCardCheckBox}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
                                 </Grid>
-                            </StackPanel>
-                            <StackPanel Grid.Row="3" Margin="0,0,0,10">
-                                <DockPanel>
-                                    <Button Command="{Binding OutputSettingVM.ClearAudioOutputCommand}"
-                                            Content="Clear All"
-                                            DockPanel.Dock="Right" />
-                                    <TextBlock VerticalAlignment="Bottom"
-                                               Classes="H5"
-                                               Text="Audio Output"
-                                               Theme="{StaticResource TitleTextBlock}" />
-                                </DockPanel>
-                                <Separator />
-                            </StackPanel>
-                            <Grid Name="AudioOutputGrid" Grid.Row="4">
-                                <TextBlock IsVisible="{Binding !OutputSettingVM.HasAudio}" Text="Input Media has not Audio Track" />
-                                <ItemsControl Name="AudioTrackOptionsList" ItemsSource="{Binding OutputSettingVM.AudioStreamOptions}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <CheckBox Margin="2"
-                                                      Content="{Binding StreamName}"
-                                                      IsChecked="{Binding IsSelected}"
-                                                      Theme="{DynamicResource PureCardCheckBox}" />
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                </ItemsControl>
                             </Grid>
-                            <StackPanel Grid.Row="6" Margin="0,0,0,10">
-                                <DockPanel>
-                                    <Button Margin="20,0,0,0"
-                                            Command="{Binding OutputSettingVM.ClearSubtitleOutputCommand}"
-                                            Content="Clear All"
-                                            DockPanel.Dock="Right" />
-                                    <PathIcon Width="16"
-                                              Height="16"
-                                              Margin="5,0,0,0"
-                                              VerticalAlignment="Center"
-                                              Data="M478-240q21 0 35.5-14.5T528-290q0-21-14.5-35.5T478-340q-21 0-35.5 14.5T428-290q0 21 14.5 35.5T478-240Zm-36-154h74q0-33 7.5-52t42.5-52q26-26 41-49.5t15-56.5q0-56-41-86t-97-30q-57 0-92.5 30T342-618l66 26q5-18 22.5-39t53.5-21q32 0 48 17.5t16 38.5q0 20-12 37.5T506-526q-44 39-54 59t-10 73Zm38 314q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"
-                                              DockPanel.Dock="Right"
-                                              ToolTip.Tip="只针对Text字幕有效，Image字幕必须烧录" />
-                                    <CheckBox VerticalAlignment="Bottom"
-                                              Content="Burn"
-                                              DockPanel.Dock="Right"
-                                              IsChecked="{Binding OutputSettingVM.BurnSubtitle}"
-                                              IsEnabled="{Binding OutputSettingVM.CanBurn}" />
-                                    <TextBlock VerticalAlignment="Bottom"
-                                               Classes="H5"
-                                               Text="Subtitle Output"
-                                               Theme="{StaticResource TitleTextBlock}" />
-                                </DockPanel>
-                                <Separator />
-                            </StackPanel>
-                            <Grid Name="SubtitleOutputGrid" Grid.Row="7">
-                                <TextBlock IsVisible="{Binding !OutputSettingVM.HasSubtitle}" Text="Input Media has not Subtitle Track" />
-                                <ItemsControl Name="SubtitleTrackOptionsList" ItemsSource="{Binding OutputSettingVM.SubtitleStreamOptions}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <CheckBox Margin="2"
-                                                      IsChecked="{Binding IsSelected}"
-                                                      IsEnabled="{Binding CanSelect}"
-                                                      Theme="{DynamicResource PureCardCheckBox}">
-                                                <StackPanel Orientation="Horizontal" Spacing="5">
-                                                    <TextBlock VerticalAlignment="Center" Text="{Binding StreamName}" />
-                                                    <Label Classes="Ghost LightGreen"
-                                                           IsVisible="{Binding !IsTextType}"
-                                                           Theme="{StaticResource TagLabel}">
-                                                        Image
-                                                    </Label>
-                                                    <Label Classes="Ghost LightBlue"
-                                                           IsVisible="{Binding IsTextType}"
-                                                           Theme="{StaticResource TagLabel}">
-                                                        Text
-                                                    </Label>
-                                                </StackPanel>
-                                            </CheckBox>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                </ItemsControl>
+                            <Grid Name="SubtitleOutputGrid" RowDefinitions="Auto,Auto">
+                                <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                                    <DockPanel>
+                                        <Button Margin="20,0,0,0"
+                                                Command="{Binding OutputSettingVM.ClearSubtitleOutputCommand}"
+                                                Content="{DynamicResource Localization.ButtonText.UnselectAll}"
+                                                DockPanel.Dock="Right" />
+                                        <PathIcon Width="16"
+                                                  Height="16"
+                                                  Margin="5,0,0,0"
+                                                  VerticalAlignment="Center"
+                                                  Data="M478-240q21 0 35.5-14.5T528-290q0-21-14.5-35.5T478-340q-21 0-35.5 14.5T428-290q0 21 14.5 35.5T478-240Zm-36-154h74q0-33 7.5-52t42.5-52q26-26 41-49.5t15-56.5q0-56-41-86t-97-30q-57 0-92.5 30T342-618l66 26q5-18 22.5-39t53.5-21q32 0 48 17.5t16 38.5q0 20-12 37.5T506-526q-44 39-54 59t-10 73Zm38 314q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"
+                                                  DockPanel.Dock="Right"
+                                                  ToolTip.Tip="{DynamicResource Localization.ToolTip.Burn}" />
+                                        <CheckBox VerticalAlignment="Bottom"
+                                                  Content="{DynamicResource Localization.OutputSettingGrid.Burn}"
+                                                  DockPanel.Dock="Right"
+                                                  IsChecked="{Binding OutputSettingVM.BurnSubtitle}"
+                                                  IsEnabled="{Binding OutputSettingVM.CanBurn}" />
+                                        <TextBlock VerticalAlignment="Bottom"
+                                                   Classes="H5"
+                                                   Text="{DynamicResource Localization.OutputSettingGrid.SubtitleOutput}"
+                                                   Theme="{StaticResource TitleTextBlock}" />
+                                    </DockPanel>
+                                    <Separator />
+                                </StackPanel>
+                                <Grid Grid.Row="1">
+                                    <TextBlock IsVisible="{Binding !OutputSettingVM.HasSubtitle}" Text="{DynamicResource Localization.ToolTip.NoSubtitleTrack}" />
+                                    <ItemsControl Name="SubtitleTrackOptionsList" ItemsSource="{Binding OutputSettingVM.SubtitleStreamOptions}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Margin="2"
+                                                          IsChecked="{Binding IsSelected}"
+                                                          IsEnabled="{Binding CanSelect}"
+                                                          Theme="{DynamicResource PureCardCheckBox}">
+                                                    <StackPanel Orientation="Horizontal" Spacing="5">
+                                                        <TextBlock VerticalAlignment="Center" Text="{Binding StreamName}" />
+                                                        <Label Classes="Ghost LightGreen"
+                                                               IsVisible="{Binding !IsTextType}"
+                                                               Theme="{StaticResource TagLabel}">
+                                                            Image
+                                                        </Label>
+                                                        <Label Classes="Ghost LightBlue"
+                                                               IsVisible="{Binding IsTextType}"
+                                                               Theme="{StaticResource TagLabel}">
+                                                            Text
+                                                        </Label>
+                                                    </StackPanel>
+                                                </CheckBox>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
+                                </Grid>
                             </Grid>
-                        </Grid>
+                        </StackPanel>
                     </ScrollViewer>
                 </Border>
             </Grid>

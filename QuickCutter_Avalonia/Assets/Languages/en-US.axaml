@@ -21,21 +21,23 @@
     <system:String x:Key="Localization.DataGrid.FileFormat">File Format</system:String>
     <system:String x:Key="Localization.DataGrid.InTime">In Time</system:String>
     <system:String x:Key="Localization.DataGrid.OutTime">Out Time</system:String>
-    <system:String x:Key="Localization.DataGrid.OutputAudioStream">Output Audio Stream</system:String>
-    <system:String x:Key="Localization.DataGrid.OutputSubtitleStream">Output Subtitle Stream</system:String>
-    <system:String x:Key="Localization.DataGrid.CodecMode_Copy">Copy</system:String>
-    <system:String x:Key="Localization.DataGrid.CodecMode_Transcoding">Transcoding</system:String>
-    <system:String x:Key="Localization.DataGrid.Codec">Codec</system:String>
-    <system:String x:Key="Localization.DataGrid.Preset">Preset</system:String>
-    <system:String x:Key="Localization.DataGrid.CRF">CRF</system:String>
-    <system:String x:Key="Localization.DataGrid.Resolution">Resolution</system:String>
-    <system:String x:Key="Localization.DataGrid.ProgressBar">Progress Bar</system:String>
+    <!--  Output Setting Grid  -->
+    <system:String x:Key="Localization.OutputSettingGrid.VideoSetting">Video Setting</system:String>
+    <system:String x:Key="Localization.OutputSettingGrid.Codec">Codec</system:String>
+    <system:String x:Key="Localization.OutputSettingGrid.Preset">Preset</system:String>
+    <system:String x:Key="Localization.OutputSettingGrid.CRF">CRF</system:String>
+    <system:String x:Key="Localization.OutputSettingGrid.AudioOutput">Audio Output</system:String>
+    <system:String x:Key="Localization.OutputSettingGrid.SubtitleOutput">Subtitle Output</system:String>
+    <system:String x:Key="Localization.OutputSettingGrid.Burn">Burn subtitle</system:String>
     <!--  ToolTip  -->
     <system:String x:Key="Localization.ToolTip.InBtn">Select In Time(HotKey: I)</system:String>
     <system:String x:Key="Localization.ToolTip.OutBtn">Select Out Time(HotKey: O)</system:String>
     <system:String x:Key="Localization.ToolTip.BackwardBtn">Move Backward(HotKey: ←)</system:String>
     <system:String x:Key="Localization.ToolTip.ForwardBtn">Move Forwarward(HotKey: →)</system:String>
     <system:String x:Key="Localization.ToolTip.CRF">The Constant Rate Factor (CRF) is the default quality (and rate control) setting for the x264 and x265 encoders. You can set the values between 0 and 51, where lower values would result in better quality, at the expense of higher file sizes. Higher values mean more compression, but at some point you will notice the quality degradation. Sane values are between 18 and 28, default is 23.</system:String>
+    <system:String x:Key="Localization.ToolTip.Burn">Image subtitles are only available when burn subtitle; Text subtitles can be burned, but only one Text subtitle can be burned at the same time.</system:String>
+    <system:String x:Key="Localization.ToolTip.NoAudioTrack">Input Midea has not any Audio Tracks</system:String>
+    <system:String x:Key="Localization.ToolTip.NoSubtitleTrack">Input Midea has not any Subtitle Tracks</system:String>
     <!--  Setting Window  -->
     <system:String x:Key="Localization.Setting.WindowTitle">Setting</system:String>
 

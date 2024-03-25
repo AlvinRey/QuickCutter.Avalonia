@@ -74,7 +74,7 @@ namespace QuickCutter_Avalonia.Mode
 
             // File Name Setting
             string fileName = System.IO.Path.GetFileNameWithoutExtension(ParentFullName);
-            OutputFileName = $"{fileName}_Output_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
+            OutputFileName = $"{fileName}_Output_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}.mp4";
 
             // Time Setting
             Edit_InTime = TimeSpan.Zero;
