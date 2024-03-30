@@ -158,7 +158,7 @@
                                    Grid.Row="0"
                                    HorizontalAlignment="Stretch"
                                    VerticalAlignment="Stretch"
-                                   MediaPlayer="{Binding VLCMediaplayer.Player}" />
+                                   MediaPlayer="{Binding VlcMediaplayerViewModel.Player}" />
                     <Separator Grid.Row="1" />
                     <Grid Grid.Row="2" RowDefinitions="36,34">
                         <Grid Grid.Row="0"
@@ -171,7 +171,7 @@
                                     Maximum="1"
                                     Minimum="0"
                                     TickFrequency="0.01"
-                                    Value="{Binding VLCMediaplayer.Position}" />
+                                    Value="{Binding VlcMediaplayerViewModel.Position}" />
                             <StackPanel Grid.Column="2"
                                         Orientation="Horizontal"
                                         Spacing="10">
@@ -185,7 +185,7 @@
                                         Maximum="100"
                                         Minimum="0"
                                         TickFrequency="1"
-                                        Value="{Binding VLCMediaplayer.Volume}" />
+                                        Value="{Binding VlcMediaplayerViewModel.Volume}" />
                             </StackPanel>
 
                         </Grid>
@@ -211,14 +211,14 @@
                                     <PathIcon Name="PlayIcon"
                                               Width="15"
                                               Height="15"
-                                              Classes.playing="{Binding !VLCMediaplayer.IsPlaying}"
+                                              Classes.playing="{Binding !VlcMediaplayerViewModel.IsPlaying}"
                                               Data="M340.001-236.156v-487.688L723.074-480 340.001-236.156ZM400-480Zm0 134 210.769-134L400-614v268Z"
                                               Foreground="#FF5AC262" />
 
                                     <PathIcon Name="PauseIcon"
                                               Width="15"
                                               Height="15"
-                                              Classes.playing="{Binding VLCMediaplayer.IsPlaying}"
+                                              Classes.playing="{Binding VlcMediaplayerViewModel.IsPlaying}"
                                               Data="M530.001-220.001v-519.998h209.998v519.998H530.001Zm-310 0v-519.998h209.998v519.998H220.001ZM589.999-280H680v-400h-90.001v400ZM280-280h90.001v-400H280v400Zm0-400v400-400Zm309.999 0v400-400Z"
                                               Foreground="#FFFB9078" />
                                 </Grid>
@@ -227,7 +227,7 @@
                                     Width="30"
                                     Height="30"
                                     Classes="Tertiary"
-                                    Command="{Binding BackwardCommand}"
+                                    Command="{Binding VlcMediaplayerViewModel.BackwardCommand}"
                                     HotKey="Left"
                                     Theme="{DynamicResource BorderlessButton}"
                                     ToolTip.Tip="{DynamicResource Localization.ToolTip.BackwardBtn}">
@@ -239,7 +239,7 @@
                                     Width="30"
                                     Height="30"
                                     Classes="Tertiary"
-                                    Command="{Binding ForwardCommand}"
+                                    Command="{Binding VlcMediaplayerViewModel.ForwardCommand}"
                                     HotKey="Right"
                                     Theme="{DynamicResource BorderlessButton}"
                                     ToolTip.Tip="{DynamicResource Localization.ToolTip.ForwardBtn}">
@@ -275,27 +275,27 @@
                                 <TextBlock Width="80"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
-                                           Text="{Binding VLCMediaplayer.CurrentTime, StringFormat=hh\\:mm\\:ss\\.ff}" />
+                                           Text="{Binding VlcMediaplayerViewModel.CurrentTime, StringFormat=hh\\:mm\\:ss\\.ff}" />
                                 <TextBlock HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
                                            Text=" / " />
                                 <TextBlock Width="80"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
-                                           Text="{Binding VLCMediaplayer.Duration, StringFormat=hh\\:mm\\:ss\\.ff}" />
+                                           Text="{Binding VlcMediaplayerViewModel.Duration, StringFormat=hh\\:mm\\:ss\\.ff}" />
                             </StackPanel>
                             <TextBlock VerticalAlignment="Center" Text="{DynamicResource Localization.AudioTrackText}" />
                             <ComboBox Name="AudioTrackComboBox"
                                       Width="200"
                                       DisplayMemberBinding="{Binding Name}"
-                                      ItemsSource="{Binding VLCMediaplayer.AudioTrack}"
-                                      SelectedItem="{Binding VLCMediaplayer.SelectedAudioTrack}" />
+                                      ItemsSource="{Binding VlcMediaplayerViewModel.AudioTrack}"
+                                      SelectedItem="{Binding VlcMediaplayerViewModel.SelectedAudioTrack}" />
                             <TextBlock VerticalAlignment="Center" Text="{DynamicResource Localization.SubtitleTrackText}" />
                             <ComboBox Name="SubtitleTrackComboBox"
                                       Width="200"
                                       DisplayMemberBinding="{Binding Name}"
-                                      ItemsSource="{Binding VLCMediaplayer.SubtitleTrack}"
-                                      SelectedItem="{Binding VLCMediaplayer.SelectedSubtitleTrack}" />
+                                      ItemsSource="{Binding VlcMediaplayerViewModel.SubtitleTrack}"
+                                      SelectedItem="{Binding VlcMediaplayerViewModel.SelectedSubtitleTrack}" />
                             <Button Name="TestButton" IsVisible="False" />
                         </StackPanel>
                     </Grid>
@@ -426,13 +426,12 @@
                                     <StackPanel Orientation="Horizontal" Spacing="20">
                                         <TextBlock VerticalAlignment="Center" Text="{DynamicResource Localization.OutputSettingGrid.Codec}" />
                                         <ComboBox Width="150"
-                                                  ItemsSource="{Binding OutputSettingVM.VideoCodecOptions}"
-                                                  SelectedItem="{Binding OutputSettingVM.SelectedVideoCodec}" />
+                                                  ItemsSource="{Binding OutputSettingVm.VideoCodecOptions}"
+                                                  SelectedItem="{Binding OutputSettingVm.SelectedVideoCodec}" />
                                     </StackPanel>
-
                                     <Grid Name="H264AVOptions"
                                           ColumnDefinitions="Auto,50,*"
-                                          IsVisible="{Binding OutputSettingVM.UseH264}"
+                                          IsVisible="{Binding OutputSettingVm.UseH264}"
                                           RowDefinitions="Auto,10,Auto,Auto">
                                         <TextBlock Grid.Row="0"
                                                    Grid.Column="0"
@@ -441,12 +440,20 @@
                                         <ComboBox Grid.Row="0"
                                                   Grid.Column="2"
                                                   Width="150"
-                                                  ItemsSource="{Binding OutputSettingVM.SpeedPresetOptions}"
-                                                  SelectedItem="{Binding OutputSettingVM.SelectedSpeedPreset}" />
-                                        <TextBlock Grid.Row="2"
-                                                   Grid.Column="0"
-                                                   VerticalAlignment="Center"
-                                                   Text="{DynamicResource Localization.OutputSettingGrid.CRF}" />
+                                                  ItemsSource="{Binding OutputSettingVm.SpeedPresetOptions}"
+                                                  SelectedItem="{Binding OutputSettingVm.SelectedSpeedPreset}" />
+                                        <StackPanel Grid.Row="2"
+                                                    Grid.Column="0"
+                                                    Orientation="Horizontal">
+                                            <TextBlock VerticalAlignment="Center" Text="{DynamicResource Localization.OutputSettingGrid.CRF}" />
+                                            <PathIcon Width="16"
+                                                      Height="16"
+                                                      Margin="5,0,0,0"
+                                                      VerticalAlignment="Center"
+                                                      Data="M478-240q21 0 35.5-14.5T528-290q0-21-14.5-35.5T478-340q-21 0-35.5 14.5T428-290q0 21 14.5 35.5T478-240Zm-36-154h74q0-33 7.5-52t42.5-52q26-26 41-49.5t15-56.5q0-56-41-86t-97-30q-57 0-92.5 30T342-618l66 26q5-18 22.5-39t53.5-21q32 0 48 17.5t16 38.5q0 20-12 37.5T506-526q-44 39-54 59t-10 73Zm38 314q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"
+                                                      DockPanel.Dock="Right"
+                                                      ToolTip.Tip="{DynamicResource Localization.ToolTip.CRF}" />
+                                        </StackPanel>
                                         <Slider Grid.Row="2"
                                                 Grid.Column="2"
                                                 Width="200"
@@ -456,14 +463,14 @@
                                                 Maximum="51"
                                                 Minimum="0"
                                                 TickFrequency="1"
-                                                Value="{Binding OutputSettingVM.ConstantRateFactor}" />
+                                                Value="{Binding OutputSettingVm.ConstantRateFactor}" />
                                     </Grid>
                                 </StackPanel>
                             </Grid>
                             <Grid Name="AudioOutputGrid" RowDefinitions="Auto,Auto">
                                 <StackPanel Grid.Row="0" Margin="0,0,0,10">
                                     <DockPanel>
-                                        <Button Command="{Binding OutputSettingVM.ClearAudioOutputCommand}"
+                                        <Button Command="{Binding OutputSettingVm.ClearAudioOutputCommand}"
                                                 Content="{DynamicResource Localization.ButtonText.UnselectAll}"
                                                 DockPanel.Dock="Right" />
                                         <TextBlock VerticalAlignment="Bottom"
@@ -474,8 +481,8 @@
                                     <Separator />
                                 </StackPanel>
                                 <Grid Grid.Row="1">
-                                    <TextBlock IsVisible="{Binding !OutputSettingVM.HasAudio}" Text="{DynamicResource Localization.ToolTip.NoAudioTrack}" />
-                                    <ItemsControl Name="AudioTrackOptionsList" ItemsSource="{Binding OutputSettingVM.AudioStreamOptions}">
+                                    <TextBlock IsVisible="{Binding !OutputSettingVm.HasAudio}" Text="{DynamicResource Localization.ToolTip.NoAudioTrack}" />
+                                    <ItemsControl Name="AudioTrackOptionsList" ItemsSource="{Binding OutputSettingVm.AudioStreamOptions}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <CheckBox Margin="2"
@@ -496,7 +503,7 @@
                                 <StackPanel Grid.Row="0" Margin="0,0,0,10">
                                     <DockPanel>
                                         <Button Margin="20,0,0,0"
-                                                Command="{Binding OutputSettingVM.ClearSubtitleOutputCommand}"
+                                                Command="{Binding OutputSettingVm.ClearSubtitleOutputCommand}"
                                                 Content="{DynamicResource Localization.ButtonText.UnselectAll}"
                                                 DockPanel.Dock="Right" />
                                         <PathIcon Width="16"
@@ -509,8 +516,8 @@
                                         <CheckBox VerticalAlignment="Bottom"
                                                   Content="{DynamicResource Localization.OutputSettingGrid.Burn}"
                                                   DockPanel.Dock="Right"
-                                                  IsChecked="{Binding OutputSettingVM.BurnSubtitle}"
-                                                  IsEnabled="{Binding OutputSettingVM.CanBurn}" />
+                                                  IsChecked="{Binding OutputSettingVm.BurnSubtitle}"
+                                                  IsEnabled="{Binding OutputSettingVm.CanBurn}" />
                                         <TextBlock VerticalAlignment="Bottom"
                                                    Classes="H5"
                                                    Text="{DynamicResource Localization.OutputSettingGrid.SubtitleOutput}"
@@ -519,8 +526,8 @@
                                     <Separator />
                                 </StackPanel>
                                 <Grid Grid.Row="1">
-                                    <TextBlock IsVisible="{Binding !OutputSettingVM.HasSubtitle}" Text="{DynamicResource Localization.ToolTip.NoSubtitleTrack}" />
-                                    <ItemsControl Name="SubtitleTrackOptionsList" ItemsSource="{Binding OutputSettingVM.SubtitleStreamOptions}">
+                                    <TextBlock IsVisible="{Binding !OutputSettingVm.HasSubtitle}" Text="{DynamicResource Localization.ToolTip.NoSubtitleTrack}" />
+                                    <ItemsControl Name="SubtitleTrackOptionsList" ItemsSource="{Binding OutputSettingVm.SubtitleStreamOptions}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <CheckBox Margin="2"

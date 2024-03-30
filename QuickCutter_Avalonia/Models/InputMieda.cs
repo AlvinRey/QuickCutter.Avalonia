@@ -1,5 +1,4 @@
 ﻿using FFMpegCore;
-using Microsoft.CodeAnalysis.Diagnostics;
 using QuickCutter_Avalonia.Handler;
 using QuickCutter_Avalonia.Models;
 using ReactiveUI;
@@ -7,7 +6,6 @@ using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 

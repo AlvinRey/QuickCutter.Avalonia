@@ -1,15 +1,9 @@
 ﻿using DynamicData;
 using FFMpegCore.Enums;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using QuickCutter_Avalonia.Models;
-using QuickCutter_Avalonia.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace QuickCutter_Avalonia.Handler
 {
@@ -48,7 +42,7 @@ namespace QuickCutter_Avalonia.Handler
                 videoSetting = new VideoSetting()
                 {
                     selectedVideoCodec = VideoCodecs.First(),
-                    selectedSpeedPreset = SpeedPresets.First(),
+                    selectedSpeedPreset = SpeedPresets[3],
                     constantRateFactor = 23
                 },
                 selectedAudioOutputs = new List<AudioStreamOriginalInfo>(),

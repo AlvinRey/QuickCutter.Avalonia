@@ -11,14 +11,15 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
+using QuickCutter_Avalonia.ViewModels;
 
 namespace QuickCutter_Avalonia.Handler
 {
-    internal class MediaPlayerHandler
+    internal static class MediaPlayerHandler
     {
         static private Config m_Config;
         static private LibVLC m_libVLC;
-        static public VLCMediaplayer HostedVLCMediaplayer { get; private set; }
+        static public VlcMediaplayerViewModel HostedVlcMediaplayerViewModel { get; private set; }
 
         static private Subject<Unit> m_StateChangedRefresh;
         static private CompositeDisposable m_Subscriptions;
@@ -26,50 +27,66 @@ namespace QuickCutter_Avalonia.Handler
         static private Action? m_RelpayStopAction;
         static private bool m_CanUpdateUI = true;
 
+        static private IObservable<Unit> Wrap(IObservable<Unit> source)
+        {
+            return source.Merge(m_StateChangedRefresh) // something need to refresh when state changed.
+                .ObserveOn(AvaloniaScheduler.Instance); // make sure call on UI Thread
+        }
+
+        static private IObservable<Unit> VLCEvent(string name)
+        {
+            return Observable.FromEventPattern(HostedVlcMediaplayerViewModel.Player, name).Select(_ => Unit.Default);
+        }
+
         static public void InitMediaPlayer(object? obj)
         {
             if (obj == null)
             {
                 return;
             }
-            HostedVLCMediaplayer = obj as VLCMediaplayer;
+
+            HostedVlcMediaplayerViewModel = obj as VlcMediaplayerViewModel;
             m_Config = Utils.GetConfig();
             m_libVLC = new LibVLC("--freetype-rel-fontsize=25");
-            HostedVLCMediaplayer.Player = new MediaPlayer(m_libVLC);
+            HostedVlcMediaplayerViewModel.Player = new MediaPlayer(m_libVLC);
             //HostedVLCMediaplayer = hostedVLCMediaplayer;
 
             m_StateChangedRefresh = new Subject<Unit>();
-            IObservable<Unit> Wrap(IObservable<Unit> source) // something need to refresh when state changed.
-                => source.Merge(m_StateChangedRefresh).ObserveOn(AvaloniaScheduler.Instance);
 
-            IObservable<Unit> VLCEvent(string name)
-                => Observable.FromEventPattern(HostedVLCMediaplayer.Player, name).Select(_ => Unit.Default);
+            var positioChanged = Wrap(VLCEvent(nameof(HostedVlcMediaplayerViewModel.Player.PositionChanged)));
+            var volumeChanged = Wrap(VLCEvent(nameof(HostedVlcMediaplayerViewModel.Player.VolumeChanged)));
+            var timeChanged = Wrap(VLCEvent(nameof(HostedVlcMediaplayerViewModel.Player.TimeChanged)));
+            var durationChanged = Wrap(VLCEvent(nameof(HostedVlcMediaplayerViewModel.Player.LengthChanged)));
 
-            var positioChanged = Wrap(VLCEvent(nameof(HostedVLCMediaplayer.Player.PositionChanged)));
-            var volumeChanged = Wrap(VLCEvent(nameof(HostedVLCMediaplayer.Player.VolumeChanged)));
-            var timeChanged = Wrap(VLCEvent(nameof(HostedVLCMediaplayer.Player.TimeChanged)));
-            var durationChanged = Wrap(VLCEvent(nameof(HostedVLCMediaplayer.Player.LengthChanged)));
-
-            var startedPlayback = VLCEvent(nameof(HostedVLCMediaplayer.Player.Playing));
-            var pausedPlayback = VLCEvent(nameof(HostedVLCMediaplayer.Player.Paused));
-            var stoppedPlayback = VLCEvent(nameof(HostedVLCMediaplayer.Player.Stopped));
-            var endReached = VLCEvent(nameof(HostedVLCMediaplayer.Player.EndReached));
-            var stateChanged = Observable.Merge(startedPlayback, pausedPlayback, endReached, stoppedPlayback).Where(_ => m_CanUpdateUI);
+            var startedPlayback = VLCEvent(nameof(HostedVlcMediaplayerViewModel.Player.Playing));
+            var pausedPlayback = VLCEvent(nameof(HostedVlcMediaplayerViewModel.Player.Paused));
+            var stoppedPlayback = VLCEvent(nameof(HostedVlcMediaplayerViewModel.Player.Stopped));
+            var endReached = VLCEvent(nameof(HostedVlcMediaplayerViewModel.Player.EndReached));
+            var stateChanged = Observable.Merge(startedPlayback, pausedPlayback, endReached, stoppedPlayback)
+                .Where(_ => m_CanUpdateUI);
 
             m_Subscriptions = new CompositeDisposable
             {
-                positioChanged.Subscribe(_=> HostedVLCMediaplayer.UpdateUIPosition()),
-                volumeChanged.Subscribe(_=> HostedVLCMediaplayer.UpdateUIVolume()),
-                timeChanged.Subscribe(_=> {HostedVLCMediaplayer.UpdateCurrentTime(); m_RelpayStopAction?.Invoke(); }),
-                durationChanged.Subscribe(_=> HostedVLCMediaplayer.UpdateUIDuration()),
-                endReached.Subscribe(_=> ThreadPool.QueueUserWorkItem(_=>ReloadMedia())),
-                stateChanged.Subscribe(_=>
+                positioChanged.Subscribe(_ =>
+                {
+                    HostedVlcMediaplayerViewModel.UpdateUiPosition();
+                    Debug.WriteLine($"Run on tread {Environment.CurrentManagedThreadId}");
+                }),
+                volumeChanged.Subscribe(_ => HostedVlcMediaplayerViewModel.UpdateUiVolume()),
+                timeChanged.Subscribe(_ =>
+                {
+                    HostedVlcMediaplayerViewModel.UpdateCurrentTime();
+                    m_RelpayStopAction?.Invoke();
+                }),
+                durationChanged.Subscribe(_ => HostedVlcMediaplayerViewModel.UpdateUiDuration()),
+                endReached.Subscribe(_ => ThreadPool.QueueUserWorkItem(_ => ReloadMedia())),
+                stateChanged.Subscribe(_ =>
                 {
                     Debug.WriteLine("========Update UI========");
-                    Debug.WriteLine($"Current State: {HostedVLCMediaplayer.Player.State.ToString()}");
-
-                        HostedVLCMediaplayer.UpdateUIPlayingState();
-                        m_StateChangedRefresh.OnNext(Unit.Default);
+                    Debug.WriteLine($"Current State: {HostedVlcMediaplayerViewModel.Player.State}");
+                    Debug.WriteLine($"Run on tread {Environment.CurrentManagedThreadId}");
+                    HostedVlcMediaplayerViewModel.UpdateUiPlayingState();
+                    m_StateChangedRefresh.OnNext(Unit.Default);
                 })
             };
         }
@@ -77,127 +94,143 @@ namespace QuickCutter_Avalonia.Handler
         // Some libvlc methods will not have any effect when the video is paused, such as SeekTo()
         // Update event(such as PositionChanged, TimeChanged .etc) will not be call when change Time in MediaPlayer when the video is paused.
         // This methods let you to do this operation when the video is playing.
-        static private async void ReadyForPlay(Action action, bool pauseAfterAction = true)
+        private static async void ReadyForPlay(Action action, bool pauseAfterAction = true)
         {
             m_CanUpdateUI = false;
-            HostedVLCMediaplayer.Player.Play();
-            while (!HostedVLCMediaplayer.Player.IsPlaying && HostedVLCMediaplayer.Player.Media != null)
+            HostedVlcMediaplayerViewModel.Player.Play();
+            while (!HostedVlcMediaplayerViewModel.Player.IsPlaying && HostedVlcMediaplayerViewModel.Player.Media != null)
             {
                 Debug.WriteLine("Wait for begin play...");
                 await Task.Delay(25);
             }
 
-            if(HostedVLCMediaplayer.Player.Media != null)
+            if (HostedVlcMediaplayerViewModel.Player.Media != null)
             {
                 action();
                 if (pauseAfterAction)
-                    HostedVLCMediaplayer.Player.Pause();
+                    HostedVlcMediaplayerViewModel.Player.Pause();
             }
+
             m_CanUpdateUI = true;
         }
 
-        static public void DisposeMediaPlayerHandler()
+        public static void DisposeMediaPlayerHandler()
         {
             m_Subscriptions.Dispose();
             m_libVLC?.Dispose();
         }
 
-        static public void LoadMedia(Uri filePath)
+        public static void LoadMedia(Uri filePath)
         {
-            HostedVLCMediaplayer.Player.Media = new Media(m_libVLC, filePath);
+            HostedVlcMediaplayerViewModel.Player.Media = new Media(m_libVLC, filePath);
             ReadyForPlay(() =>
             {
-                HostedVLCMediaplayer.UpdateUIAudioTrackOptions();
-                HostedVLCMediaplayer.UpdateUISubtitleTrackOptions();
-                HostedVLCMediaplayer.Player.SeekTo(TimeSpan.Zero);
+                HostedVlcMediaplayerViewModel.UpdateUiAudioTrackOptions();
+                HostedVlcMediaplayerViewModel.UpdateUiSubtitleTrackOptions();
+                HostedVlcMediaplayerViewModel.Player.SeekTo(TimeSpan.Zero);
             }, !m_Config.autoPlay);
         }
 
         static public void ReloadMedia()
         {
-            Debug.WriteLine("Execute ReloadMedia()");
-            HostedVLCMediaplayer.Player.Stop();
+            Debug.WriteLine($"ReloadMedia() runs on Thread {Environment.CurrentManagedThreadId}");
+
+            HostedVlcMediaplayerViewModel.Player.Stop();
+
+            Debug.WriteLine($"Media stop and return on Thread {Environment.CurrentManagedThreadId}");
             ReadyForPlay(() =>
             {
-                HostedVLCMediaplayer.UpdateUIAudioTrackOptions();
-                HostedVLCMediaplayer.UpdateUISubtitleTrackOptions();
-                HostedVLCMediaplayer.Player.SeekTo(TimeSpan.Zero);
+                HostedVlcMediaplayerViewModel.UpdateUiAudioTrackOptions();
+                HostedVlcMediaplayerViewModel.UpdateUiSubtitleTrackOptions();
+                HostedVlcMediaplayerViewModel.Player.SeekTo(TimeSpan.Zero);
             }, !m_Config.loopPlayback);
         }
 
         static public void ResetMediaPlayer()
         {
-            HostedVLCMediaplayer.Player.Stop();
-            HostedVLCMediaplayer.UpdateUIAudioTrackOptions();
-            HostedVLCMediaplayer.UpdateUISubtitleTrackOptions();
-            HostedVLCMediaplayer.Player.Media = null;
+            HostedVlcMediaplayerViewModel.Player.Stop();
+            HostedVlcMediaplayerViewModel.UpdateUiAudioTrackOptions();
+            HostedVlcMediaplayerViewModel.UpdateUiSubtitleTrackOptions();
+            HostedVlcMediaplayerViewModel.Player.Media = null;
         }
 
         static public void TogglePlay()
         {
-            switch (HostedVLCMediaplayer.Player.State)
+            switch (HostedVlcMediaplayerViewModel.Player.State)
             {
                 case VLCState.Playing:
                 case VLCState.Paused:
-                    HostedVLCMediaplayer.Player.Pause();
+                    HostedVlcMediaplayerViewModel.Player.Pause();
                     break;
                 case VLCState.NothingSpecial:
                 case VLCState.Stopped:
                 case VLCState.Ended:
-                    HostedVLCMediaplayer.Player.Play();
+                    HostedVlcMediaplayerViewModel.Player.Play();
                     break;
             }
         }
 
         static public void MoveForward(int deltaTime)
         {
-            var t = HostedVLCMediaplayer.Player.Length - HostedVLCMediaplayer.Player.Time;
-            if (HostedVLCMediaplayer.Player.State == VLCState.Playing)
+            var t = HostedVlcMediaplayerViewModel.Player.Length - HostedVlcMediaplayerViewModel.Player.Time;
+            if (HostedVlcMediaplayerViewModel.Player.State == VLCState.Playing)
             {
-
-                HostedVLCMediaplayer.Player.Time = t <= deltaTime ? HostedVLCMediaplayer.Player.Length : HostedVLCMediaplayer.Player.Time + deltaTime;
+                HostedVlcMediaplayerViewModel.Player.Time = t <= deltaTime
+                    ? HostedVlcMediaplayerViewModel.Player.Length
+                    : HostedVlcMediaplayerViewModel.Player.Time + deltaTime;
             }
-            else if (HostedVLCMediaplayer.Player.State == VLCState.Paused) // UI will not update when paused, so we need to play first and then change time.
+            else if
+                (HostedVlcMediaplayerViewModel.Player.State ==
+                 VLCState.Paused) // UI will not update when paused, so we need to play first and then change time.
             {
-                ReadyForPlay(() => HostedVLCMediaplayer.Player.Time = t <= deltaTime ? HostedVLCMediaplayer.Player.Length : HostedVLCMediaplayer.Player.Time + deltaTime);
+                ReadyForPlay(() => HostedVlcMediaplayerViewModel.Player.Time = t <= deltaTime
+                    ? HostedVlcMediaplayerViewModel.Player.Length
+                    : HostedVlcMediaplayerViewModel.Player.Time + deltaTime);
             }
         }
 
         static public void MoveBackward(int deltaTime)
         {
-            if (HostedVLCMediaplayer.Player.State == VLCState.Playing)
+            if (HostedVlcMediaplayerViewModel.Player.State == VLCState.Playing)
             {
-                HostedVLCMediaplayer.Player.Time = HostedVLCMediaplayer.Player.Time <= deltaTime ? 0 : HostedVLCMediaplayer.Player.Time - deltaTime;
+                HostedVlcMediaplayerViewModel.Player.Time = HostedVlcMediaplayerViewModel.Player.Time <= deltaTime
+                    ? 0
+                    : HostedVlcMediaplayerViewModel.Player.Time - deltaTime;
             }
-            else if (HostedVLCMediaplayer.Player.State == VLCState.Paused) // UI will not update when paused, so we need to play first and then change time.
+            else if
+                (HostedVlcMediaplayerViewModel.Player.State ==
+                 VLCState.Paused) // UI will not update when paused, so we need to play first and then change time.
             {
-                ReadyForPlay(() => HostedVLCMediaplayer.Player.Time = HostedVLCMediaplayer.Player.Time <= deltaTime ? 0 : HostedVLCMediaplayer.Player.Time - deltaTime);
+                ReadyForPlay(() => HostedVlcMediaplayerViewModel.Player.Time = HostedVlcMediaplayerViewModel.Player.Time <= deltaTime
+                    ? 0
+                    : HostedVlcMediaplayerViewModel.Player.Time - deltaTime);
             }
         }
 
         static public void Replay(long startTime, long endTime)
         {
-            if (HostedVLCMediaplayer.Player.State == VLCState.Playing)
+            if (HostedVlcMediaplayerViewModel.Player.State == VLCState.Playing)
             {
-                HostedVLCMediaplayer.Player.SeekTo(TimeSpan.FromMilliseconds(startTime));
+                HostedVlcMediaplayerViewModel.Player.SeekTo(TimeSpan.FromMilliseconds(startTime));
             }
-            else if (HostedVLCMediaplayer.Player.State == VLCState.Paused)
+            else if (HostedVlcMediaplayerViewModel.Player.State == VLCState.Paused)
             {
-                HostedVLCMediaplayer.Player.Pause();
-                HostedVLCMediaplayer.Player.SeekTo(TimeSpan.FromMilliseconds(startTime));
+                HostedVlcMediaplayerViewModel.Player.Pause();
+                HostedVlcMediaplayerViewModel.Player.SeekTo(TimeSpan.FromMilliseconds(startTime));
             }
 
             m_RelpayStopAction = () =>
             {
-                if (HostedVLCMediaplayer.Player.Time < startTime - 500 || HostedVLCMediaplayer.Player.Time > endTime + 500)
+                if (HostedVlcMediaplayerViewModel.Player.Time < startTime - 500 ||
+                    HostedVlcMediaplayerViewModel.Player.Time > endTime + 500)
                 {
                     m_RelpayStopAction = null;
                     return;
                 }
 
-                if (HostedVLCMediaplayer.Player.Time >= endTime)
+                if (HostedVlcMediaplayerViewModel.Player.Time >= endTime)
                 {
-                    HostedVLCMediaplayer.Player.Pause();
+                    HostedVlcMediaplayerViewModel.Player.Pause();
                     m_RelpayStopAction = null;
                 }
             };

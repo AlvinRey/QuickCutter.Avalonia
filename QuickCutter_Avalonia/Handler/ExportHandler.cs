@@ -1,39 +1,35 @@
 ﻿using FFMpegCore;
 using FFMpegCore.Arguments;
-using FFMpegCore.Exceptions;
-
 using QuickCutter_Avalonia.Mode;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace QuickCutter_Avalonia.Handler
 {
-    class HideBannerArgument : IArgument
+    public class HideBannerArgument : IArgument
     {
         public string Text => "-hide_banner";
     }
 
-    class CopyTimeSpanArgument : IArgument
+    public class CopyTimeSpanArgument : IArgument
     {
         public string Text => "-copyts";
     }
 
-    class Mov_text_CodecArgument : IArgument
+    public class Mov_text_CodecArgument : IArgument
     {
         public string Text => "-c:s mov_text";
     }
 
-    class MapAllVideoTrackArgument : IArgument
+    public class MapAllVideoTrackArgument : IArgument
     {
         public string Text => "-map 0:v";
     }
 
-    class MapAudioTrackArgument : IArgument
+    public class MapAudioTrackArgument : IArgument
     {
         public readonly int RelativeIndex;
         public string Text => $"-map 0:a:{RelativeIndex}";
@@ -43,7 +39,7 @@ namespace QuickCutter_Avalonia.Handler
         }
     }
 
-    class MapSubtitleTrackArgument : IArgument
+    public class MapSubtitleTrackArgument : IArgument
     {
         public readonly int RelativeIndex;
         public string Text => $"-map 0:s:{RelativeIndex}";
@@ -230,7 +226,7 @@ namespace QuickCutter_Avalonia.Handler
             return ffmprocessor;
         }
 
-        async static public Task ExecuteFFmpeg(string exportDirectory, IList<OutputFile> outputFiles, Action<string> notifyProcessingFileName, Action<double> notifyProgressPercentage)
+        async static public Task ExecuteFFmpeg(string exportDirectory, List<OutputFile> outputFiles, Action<string> notifyProcessingFileName, Action<double> notifyProgressPercentage)
         {
             FFMpegArgumentProcessor processor;
 

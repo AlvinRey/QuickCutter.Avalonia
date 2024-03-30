@@ -1,19 +1,11 @@
-﻿using Avalonia;
-using FFMpegCore.Enums;
-using LibVLCSharp.Shared;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using QuickCutter_Avalonia.Handler;
+﻿using QuickCutter_Avalonia.Handler;
 using QuickCutter_Avalonia.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
-using System.Threading.Tasks;
-using Ursa.Controls;
 namespace QuickCutter_Avalonia.Mode
 {
     public partial class OutputFile : ReactiveObject, IDisposable
@@ -22,7 +14,7 @@ namespace QuickCutter_Avalonia.Mode
         private CompositeDisposable _subscriptions;
         #endregion
 
-        public IReactiveCommand ReplayCommand { get; }
+        public ReactiveCommand<Unit, Unit> ReplayCommand { get; }
 
         [Reactive]
         public int RowIndex { get; set; }

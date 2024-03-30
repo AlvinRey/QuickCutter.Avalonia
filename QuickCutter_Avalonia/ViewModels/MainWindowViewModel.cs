@@ -1,6 +1,4 @@
 ﻿using Avalonia.Controls;
-using DynamicData;
-using FFMpegCore.Enums;
 using QuickCutter_Avalonia.Handler;
 using QuickCutter_Avalonia.Mode;
 using QuickCutter_Avalonia.Models;
@@ -12,7 +10,9 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Ursa.Controls;
 
@@ -20,19 +20,16 @@ namespace QuickCutter_Avalonia.ViewModels
 {
     public partial class MainWindowViewModel : ReactiveObject
     {
-        private Config _config;
         #region Project List
         public ObservableCollection<InputMieda> SelectedProjects { get; set; }
         public ObservableCollection<InputMieda> Projects { get; }
-        public IReactiveCommand ImportProjectFileCommand { get; }
+        public ReactiveCommand<Unit, Unit> ImportProjectFileCommand { get; }
         #endregion
 
         #region Media Player
-        public VLCMediaplayer VLCMediaplayer { get; }
-        public IReactiveCommand PlayOrPauseVideoCommand { get; }
-        public IReactiveCommand ForwardCommand { get; }
-        public IReactiveCommand BackwardCommand { get; }
-        public IReactiveCommand NextFrameCommand { get; }
+        public VlcMediaplayerViewModel VlcMediaplayerViewModel { get; }
+        public ReactiveCommand<Unit, Unit> PlayOrPauseVideoCommand { get; }
+
         #endregion
 
         #region Output Data Grid
@@ -42,28 +39,26 @@ namespace QuickCutter_Avalonia.ViewModels
         #endregion
 
         #region Output Setting
-        public OutputSettingViewModel OutputSettingVM { get; set; }
+        public OutputSettingViewModel OutputSettingVm { get; set; }
         #endregion
 
         #region Buttom Tool Bar
-        public IReactiveCommand AddOutputFilesCommand { get; }
+        public ReactiveCommand<Unit, Unit> AddOutputFilesCommand { get; }
 
-        [Reactive]
-        public bool IsExporting { get; set; }
-        [Reactive]
-        public string FileNameProcessing { get; set; }
-        [Reactive]
-        public double ProcessingPercent { get; set; }
+        [Reactive] public bool IsExporting { get; set; }
 
-        public IReactiveCommand ExportCommand { get; }
-        public IReactiveCommand CencelCommand { get; }
+        [Reactive] public string FileNameProcessing { get; set; } = string.Empty;
+        [Reactive] public double ProcessingPercent { get; set; }
+
+        public ReactiveCommand<Unit, Unit> ExportCommand { get; }
+        public ReactiveCommand<Unit, Unit> CencelCommand { get; }
 
 
         #endregion
 
         public MainWindowViewModel()
         {
-            _config = Utils.GetConfig();
+            var config = Utils.GetConfig();
 
             #region Init Project List
             Projects = new ObservableCollection<InputMieda>();
@@ -75,7 +70,7 @@ namespace QuickCutter_Avalonia.ViewModels
             #endregion
 
             #region Init Media Player
-            VLCMediaplayer = new VLCMediaplayer();
+            VlcMediaplayerViewModel = new VlcMediaplayerViewModel();
             PlayOrPauseVideoCommand = ReactiveCommand.Create(() =>
             {
                 if (SelectedProjects.Count != 1)
@@ -87,15 +82,6 @@ namespace QuickCutter_Avalonia.ViewModels
                 }
                 MediaPlayerHandler.TogglePlay();
             });
-            ForwardCommand = ReactiveCommand.Create(
-                () => MediaPlayerHandler.MoveForward(_config.moveStep * 1000));
-
-            BackwardCommand = ReactiveCommand.Create(
-                () => MediaPlayerHandler.MoveBackward(_config.moveStep * 1000));
-
-            //NextFrameCommand = ReactiveCommand.Create(
-            //    () => MediaPlayer.NextFrame());
-
 
             #endregion
 
@@ -113,25 +99,24 @@ namespace QuickCutter_Avalonia.ViewModels
                     },
                 selectedProjectChanged.Select(_ => SelectedProjects.Count == 1));
 
-            ExportCommand = ReactiveCommand.Create(() =>
-                {
-                    ExportOutputFilesAsync().Await();
-                }, selectedOutputFilesChanged.Select(_ => SelectedOutputFiles.Count > 0));
+            ExportCommand = ReactiveCommand.Create(
+                ()=> ExportOutputFilesAsync().Await(), 
+            selectedOutputFilesChanged.Select(_ => SelectedOutputFiles.Count > 0));
 
             CencelCommand = ReactiveCommand.Create(ExportHandler.CencelExport);
             #endregion
 
             #region Output Setting
-            OutputSettingVM = new OutputSettingViewModel();
+            OutputSettingVm = new OutputSettingViewModel();
             SelectedOutputFiles.CollectionChanged += (sender, args) =>
             {
                 if (SelectedOutputFiles.Count == 1)
                 {
                     Debug.WriteLine($"Load OutputSetting @ {SelectedOutputFiles.First().OutputSetting.GetHashCode()}");
-                    OutputSettingVM.LoadDisplayOutputSetting(SelectedOutputFiles.First().OutputSetting);
+                    OutputSettingVm.LoadDisplayOutputSetting(SelectedOutputFiles.First().OutputSetting);
                 }
                 else
-                    OutputSettingVM.UnLoadDisplayOutputSetting();
+                    OutputSettingVm.UnLoadDisplayOutputSetting();
             };
             #endregion
         }
@@ -142,7 +127,7 @@ namespace QuickCutter_Avalonia.ViewModels
                 return;
             foreach (var file in SelectedOutputFiles)
             {
-                file.Edit_InTime = VLCMediaplayer.CurrentTime;
+                file.Edit_InTime = VlcMediaplayerViewModel.CurrentTime;
             }
         }
 
@@ -152,7 +137,7 @@ namespace QuickCutter_Avalonia.ViewModels
                 return;
             foreach (var file in SelectedOutputFiles)
             {
-                file.Edit_OutTime = VLCMediaplayer.CurrentTime;
+                file.Edit_OutTime = VlcMediaplayerViewModel.CurrentTime;
             }
         }
 
@@ -177,7 +162,7 @@ namespace QuickCutter_Avalonia.ViewModels
 
         async Task ExportOutputFilesAsync()
         {
-            Debug.WriteLine($"Thread ID: {Environment.CurrentManagedThreadId}");
+            Debug.WriteLine($"ExportOutputFilesAsync() runs on Thread {Environment.CurrentManagedThreadId}");
             string folderFullName = await FileHandler.SelectExportFolder();
             if (string.IsNullOrEmpty(folderFullName))
                 return;

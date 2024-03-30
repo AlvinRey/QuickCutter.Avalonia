@@ -69,8 +69,6 @@ namespace QuickCutter_Avalonia.Handler
                 Utils.SaveLog("SelectExportFolder: mStorageProvider is Null.");
                 return string.Empty;
             }
-
-
             var folders = await mStorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions()
             {
                 Title = "Select a Export Folder",

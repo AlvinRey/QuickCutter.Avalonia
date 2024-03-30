@@ -6,13 +6,14 @@ using ReactiveUI.Fody.Helpers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 
 namespace QuickCutter_Avalonia.ViewModels
 {
     public class OutputSettingViewModel : ViewModelBase
     {
-        private OutputSetting? mOutputSetting;
+        private OutputSetting? _outputSetting;
 
         #region Video Setting
         public IEnumerable<string> VideoCodecOptions
@@ -24,14 +25,14 @@ namespace QuickCutter_Avalonia.ViewModels
         {
             get
             {
-                if (mOutputSetting is null) return null;
-                return mOutputSetting.videoSetting.selectedVideoCodec;
+                if (_outputSetting is null) return null;
+                return _outputSetting.videoSetting.selectedVideoCodec;
             }
 
             set
             {
-                if (mOutputSetting is null) return;
-                this.RaiseAndSetIfChanged(ref mOutputSetting.videoSetting.selectedVideoCodec, value, nameof(SelectedVideoCodec));
+                if (_outputSetting is null) return;
+                this.RaiseAndSetIfChanged(ref _outputSetting.videoSetting.selectedVideoCodec, value, nameof(SelectedVideoCodec));
                 OnCodecChanged(value);
             }
         }
@@ -49,14 +50,14 @@ namespace QuickCutter_Avalonia.ViewModels
         {
             get
             {
-                if (mOutputSetting is null) return Speed.Fast;
-                return mOutputSetting.videoSetting.selectedSpeedPreset;
+                if (_outputSetting is null) return Speed.Fast;
+                return _outputSetting.videoSetting.selectedSpeedPreset;
             }
 
             set
             {
-                if (mOutputSetting is null) return;
-                this.RaiseAndSetIfChanged(ref mOutputSetting.videoSetting.selectedSpeedPreset, value, nameof(SelectedSpeedPreset));
+                if (_outputSetting is null) return;
+                this.RaiseAndSetIfChanged(ref _outputSetting.videoSetting.selectedSpeedPreset, value, nameof(SelectedSpeedPreset));
             }
         }
 
@@ -64,21 +65,21 @@ namespace QuickCutter_Avalonia.ViewModels
         {
             get
             {
-                if (mOutputSetting is null) return 23;
-                return mOutputSetting.videoSetting.constantRateFactor;
+                if (_outputSetting is null) return 23;
+                return _outputSetting.videoSetting.constantRateFactor;
             }
 
             set
             {
-                if (mOutputSetting is null) return;
-                this.RaiseAndSetIfChanged(ref mOutputSetting.videoSetting.constantRateFactor, value, nameof(ConstantRateFactor));
+                if (_outputSetting is null) return;
+                this.RaiseAndSetIfChanged(ref _outputSetting.videoSetting.constantRateFactor, value, nameof(ConstantRateFactor));
             }
         }
         #endregion
 
         #region Audio Output
 
-        public IReactiveCommand ClearAudioOutputCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> ClearAudioOutputCommand { get; set; }
 
         public bool HasAudio
         {
@@ -96,19 +97,19 @@ namespace QuickCutter_Avalonia.ViewModels
         {
             get
             {
-                if (mOutputSetting is null) return false;
-                return mOutputSetting.isBurnSubtitle;
+                if (_outputSetting is null) return false;
+                return _outputSetting.isBurnSubtitle;
             }
 
             set
             {
-                if (mOutputSetting is null) return;
-                this.RaiseAndSetIfChanged(ref mOutputSetting.isBurnSubtitle, value, nameof(BurnSubtitle));
+                if (_outputSetting is null) return;
+                this.RaiseAndSetIfChanged(ref _outputSetting.isBurnSubtitle, value, nameof(BurnSubtitle));
                 NotifyViewModelsUpdate();
             }
         }
 
-        public IReactiveCommand ClearSubtitleOutputCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> ClearSubtitleOutputCommand { get; set; }
 
         public bool HasSubtitle
         {
@@ -149,7 +150,7 @@ namespace QuickCutter_Avalonia.ViewModels
 
         public void LoadDisplayOutputSetting(OutputSetting outputSetting)
         {
-            mOutputSetting = outputSetting;
+            _outputSetting = outputSetting;
             BuildAudioStreamOptions();
             BuildSubtitleStreamOptions();
             RefreshDisplay();
@@ -157,7 +158,7 @@ namespace QuickCutter_Avalonia.ViewModels
 
         public void UnLoadDisplayOutputSetting()
         {
-            mOutputSetting = null;
+            _outputSetting = null;
             AudioStreamOptions.Clear();
             SubtitleStreamOptions.Clear();
             RefreshDisplay();
@@ -176,22 +177,22 @@ namespace QuickCutter_Avalonia.ViewModels
 
         private void BuildSubtitleStreamOptions()
         {
-            if (mOutputSetting == null) return;
+            if (_outputSetting == null) return;
 
-            foreach (var subtitleStream in OutputSettingHandler.SubtitleStreamDictonary[mOutputSetting.key])
+            foreach (var subtitleStream in OutputSettingHandler.SubtitleStreamDictonary[_outputSetting.key])
             {
-                SubtitleStreamOptions.Add(new SelecteSubtitleStreamViewModel(subtitleStream, mOutputSetting.selectedSubtitleOutputs, NotifyViewModelsUpdate));
+                SubtitleStreamOptions.Add(new SelecteSubtitleStreamViewModel(subtitleStream, _outputSetting.selectedSubtitleOutputs, NotifyViewModelsUpdate));
             }
             NotifyViewModelsUpdate();
         }
 
         private void BuildAudioStreamOptions()
         {
-            if (mOutputSetting == null) return;
+            if (_outputSetting == null) return;
 
-            foreach (var audioStream in OutputSettingHandler.AudioStreamDictonary[mOutputSetting.key])
+            foreach (var audioStream in OutputSettingHandler.AudioStreamDictonary[_outputSetting.key])
             {
-                AudioStreamOptions.Add(new SelecteAudioStreamViewModel(audioStream, mOutputSetting.selectedAudioOutputs));
+                AudioStreamOptions.Add(new SelecteAudioStreamViewModel(audioStream, _outputSetting.selectedAudioOutputs));
             }
         }
 
@@ -220,12 +221,12 @@ namespace QuickCutter_Avalonia.ViewModels
 
         private void NotifyViewModelsUpdate()
         {
-            var firstSelectedVM = SubtitleStreamOptions.FirstOrDefault(vm => vm.IsSelected == true);
-            bool? isSelectTextType = firstSelectedVM is null ? null : firstSelectedVM.IsTextType;
+            var firstSelectedVm = SubtitleStreamOptions.FirstOrDefault(vm => vm.IsSelected == true);
+            bool? isSelectTextType = firstSelectedVm is null ? null : firstSelectedVm.IsTextType;
 
             foreach (var vm in SubtitleStreamOptions)
             {
-                vm.UpdateCanSelectState(BurnSubtitle, isSelectTextType, firstSelectedVM);
+                vm.UpdateCanSelectState(BurnSubtitle, isSelectTextType, firstSelectedVm);
             }
         }
     }

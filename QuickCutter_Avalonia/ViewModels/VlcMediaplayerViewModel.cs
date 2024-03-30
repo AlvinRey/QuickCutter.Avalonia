@@ -1,81 +1,73 @@
-﻿using LibVLCSharp.Shared;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Reactive;
+using LibVLCSharp.Shared;
 using LibVLCSharp.Shared.Structures;
 using QuickCutter_Avalonia.Handler;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reactive.Concurrency;
-using System.Threading;
-using System.Xml.Linq;
 
-namespace QuickCutter_Avalonia.Models
+namespace QuickCutter_Avalonia.ViewModels
 {
-    public class VLCMediaplayer : ReactiveObject
+    public class VlcMediaplayerViewModel : ReactiveObject
     {
         public MediaPlayer Player { get; set; }
-        private float m_Position;
+        private float _position;
         public float Position 
         { 
-            get => m_Position;
+            get => _position;
             set 
             { 
-                this.RaiseAndSetIfChanged(ref m_Position, value, nameof(Position));
-                if(m_Position != Player.Position)
+                this.RaiseAndSetIfChanged(ref _position, value, nameof(Position));
+                if(_position != Player.Position)
                     Player.Position = value;
             }
         }
-        private int m_Volume;
+        private int _volume;
         public int Volume
         {
-            get => m_Volume;
+            get => _volume;
             set
             {
-                this.RaiseAndSetIfChanged(ref m_Volume, value, nameof(Volume));
-                if (m_Volume != Player.Volume)
+                this.RaiseAndSetIfChanged(ref _volume, value, nameof(Volume));
+                if (_volume != Player.Volume)
                     Player.Volume = value;
             }
         }
         public IEnumerable<TrackDescription> AudioTrack
         {
-            get
-            {
-                return Player.AudioTrackDescription.AsEnumerable();
-            }
+            get => Player.AudioTrackDescription.AsEnumerable();
         }
-        private TrackDescription? m_SelectedAudioTrack;
+        private TrackDescription? _selectedAudioTrack;
         public TrackDescription? SelectedAudioTrack 
         {
-            get => m_SelectedAudioTrack;
+            get => _selectedAudioTrack;
             set
             {
-                this.RaiseAndSetIfChanged(ref m_SelectedAudioTrack, value, nameof(SelectedAudioTrack));
-                if (m_SelectedAudioTrack.HasValue && m_SelectedAudioTrack.Value.Id != Player.AudioTrack)
+                this.RaiseAndSetIfChanged(ref _selectedAudioTrack, value, nameof(SelectedAudioTrack));
+                if (_selectedAudioTrack.HasValue && _selectedAudioTrack.Value.Id != Player.AudioTrack)
                 {
-                    Player.SetAudioTrack(m_SelectedAudioTrack.Value.Id);
+                    Player.SetAudioTrack(_selectedAudioTrack.Value.Id);
                 }
             }
         }
 
         public IEnumerable<TrackDescription> SubtitleTrack
         {
-            get
-            {
-                return Player.SpuDescription.AsEnumerable();
-            }
+            get => Player.SpuDescription.AsEnumerable();
         }
-        public TrackDescription? m_SelectedSubtitleTrack;
+        private TrackDescription? _selectedSubtitleTrack;
         public TrackDescription? SelectedSubtitleTrack
         {
-            get => m_SelectedSubtitleTrack;
+            get => _selectedSubtitleTrack;
             set
             {
-                this.RaiseAndSetIfChanged(ref m_SelectedSubtitleTrack, value, nameof(SelectedSubtitleTrack));
-                if (m_SelectedSubtitleTrack.HasValue && m_SelectedSubtitleTrack.Value.Id != Player.Spu)
+                this.RaiseAndSetIfChanged(ref _selectedSubtitleTrack, value, nameof(SelectedSubtitleTrack));
+                if (_selectedSubtitleTrack.HasValue && _selectedSubtitleTrack.Value.Id != Player.Spu)
                 {
-                    Player.SetSpu(m_SelectedSubtitleTrack.Value.Id);
+                    Player.SetSpu(_selectedSubtitleTrack.Value.Id);
                 }
             }
         }
@@ -87,27 +79,33 @@ namespace QuickCutter_Avalonia.Models
         [Reactive]
         public bool IsPlaying { get; set; }
 
-
-        public VLCMediaplayer()
+        public ReactiveCommand<Unit, Unit> ForwardCommand { get; }
+        public ReactiveCommand<Unit, Unit> BackwardCommand { get; }
+        
+        public VlcMediaplayerViewModel()
         {
-            //ThreadPool.QueueUserWorkItem(_ => MediaPlayerHandler.InitMediaPlayer(this));
-            //var t = new TimeCounter("InitMediaPlayer");
+            var config = Utils.GetConfig();
             DebugHandler.StopwatchStart();
             MediaPlayerHandler.InitMediaPlayer(this);
             DebugHandler.StopwatchStopAndPrintTime();
+            ForwardCommand = ReactiveCommand.Create(
+                () => MediaPlayerHandler.MoveForward(config.moveStep * 1000));
+
+            BackwardCommand = ReactiveCommand.Create(
+                () => MediaPlayerHandler.MoveBackward(config.moveStep * 1000));
         }
 
-        ~VLCMediaplayer()
+        ~VlcMediaplayerViewModel()
         {
             MediaPlayerHandler.DisposeMediaPlayerHandler();
         }
 
-        public void UpdateUIPosition()
+        public void UpdateUiPosition()
         {
             Position = Player.Position;
         }
 
-        public void UpdateUIVolume()
+        public void UpdateUiVolume()
         {
             if (Player.Volume >= 0) Volume = Player.Volume;
         }
@@ -117,18 +115,18 @@ namespace QuickCutter_Avalonia.Models
             CurrentTime = TimeSpan.FromMilliseconds(Player.Time > -1 ? Player.Time : 0);
         }
 
-        public void UpdateUIDuration()
+        public void UpdateUiDuration()
         {
             Duration = TimeSpan.FromMilliseconds(Player.Length > -1 ? Player.Length : 0);
         }
 
-        public void UpdateUIPlayingState()
+        public void UpdateUiPlayingState()
         {
             Debug.WriteLine("[Update UI] Play State");
             IsPlaying = Player.IsPlaying;
         }
 
-        public void UpdateUIAudioTrackOptions()
+        public void UpdateUiAudioTrackOptions()
         {
             Debug.WriteLine("[Update UI] Audio Track Options");
             this.RaisePropertyChanged(nameof(AudioTrack));
@@ -142,7 +140,7 @@ namespace QuickCutter_Avalonia.Models
             }
         }
 
-        public void UpdateUISubtitleTrackOptions()
+        public void UpdateUiSubtitleTrackOptions()
         {
             Debug.WriteLine("[Update UI] Subtitle Track Options");
             this.RaisePropertyChanged(nameof(SubtitleTrack));

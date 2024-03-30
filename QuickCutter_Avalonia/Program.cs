@@ -35,9 +35,9 @@ namespace QuickCutter_Avalonia
 
         private static void Lifetime_Startup(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
         {
-            Config _config = Utils.GetConfig();
+            Config config = Utils.GetConfig();
             // Set Application Language
-            switch (_config.Languages)
+            switch (config.Languages)
             {
                 case TextLanguages.ENGLISH:
                     App.SetLanguages("en-US");
