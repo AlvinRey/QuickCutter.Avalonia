@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 
-namespace QuickCutter_Avalonia.Mode
+namespace QuickCutter_Avalonia.Models
 {
     public partial class InputMieda : ReactiveObject
     {

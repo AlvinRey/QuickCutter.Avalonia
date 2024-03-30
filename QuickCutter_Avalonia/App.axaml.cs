@@ -5,7 +5,7 @@ using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.Styling;
 using QuickCutter_Avalonia.Handler;
-using QuickCutter_Avalonia.Mode;
+using QuickCutter_Avalonia.Models;
 using QuickCutter_Avalonia.ViewModels;
 using QuickCutter_Avalonia.Views;
 using System;

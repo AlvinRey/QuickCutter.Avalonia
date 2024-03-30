@@ -5,7 +5,7 @@ using Avalonia.Platform.Storage;
 using Avalonia.ReactiveUI;
 using LibVLCSharp.Shared;
 using QuickCutter_Avalonia.Handler;
-using QuickCutter_Avalonia.Mode;
+using QuickCutter_Avalonia.Models;
 using System;
 
 namespace QuickCutter_Avalonia

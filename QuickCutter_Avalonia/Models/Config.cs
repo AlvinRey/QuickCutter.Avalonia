@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 
-namespace QuickCutter_Avalonia.Mode
+namespace QuickCutter_Avalonia.Models
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum WindowStartUpStyles

@@ -1,6 +1,6 @@
 ﻿using Avalonia.Markup.Xaml.Styling;
 using QuickCutter_Avalonia.Handler;
-using QuickCutter_Avalonia.Mode;
+using QuickCutter_Avalonia.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;

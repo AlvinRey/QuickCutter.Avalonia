@@ -85,9 +85,7 @@ namespace QuickCutter_Avalonia.ViewModels
         public VlcMediaplayerViewModel()
         {
             var config = Utils.GetConfig();
-            DebugHandler.StopwatchStart();
             MediaPlayerHandler.InitMediaPlayer(this);
-            DebugHandler.StopwatchStopAndPrintTime();
             ForwardCommand = ReactiveCommand.Create(
                 () => MediaPlayerHandler.MoveForward(config.moveStep * 1000));
 
@@ -97,6 +95,7 @@ namespace QuickCutter_Avalonia.ViewModels
 
         ~VlcMediaplayerViewModel()
         {
+            MediaPlayerHandler.ResetMediaPlayer();
             MediaPlayerHandler.DisposeMediaPlayerHandler();
         }
 
@@ -122,13 +121,13 @@ namespace QuickCutter_Avalonia.ViewModels
 
         public void UpdateUiPlayingState()
         {
-            Debug.WriteLine("[Update UI] Play State");
+            Console.WriteLine($"[Update UI] Play State <{Player.IsPlaying}> on tread {Environment.CurrentManagedThreadId}");
             IsPlaying = Player.IsPlaying;
         }
 
         public void UpdateUiAudioTrackOptions()
         {
-            Debug.WriteLine("[Update UI] Audio Track Options");
+            Console.WriteLine($"[Update UI] Audio Track Options on tread {Environment.CurrentManagedThreadId}");
             this.RaisePropertyChanged(nameof(AudioTrack));
             foreach (var track in Player.AudioTrackDescription)
             {
@@ -142,7 +141,7 @@ namespace QuickCutter_Avalonia.ViewModels
 
         public void UpdateUiSubtitleTrackOptions()
         {
-            Debug.WriteLine("[Update UI] Subtitle Track Options");
+            Console.WriteLine($"[Update UI] Subtitle Track Options on tread {Environment.CurrentManagedThreadId}");
             this.RaisePropertyChanged(nameof(SubtitleTrack));
             foreach (var track in Player.SpuDescription)
             {

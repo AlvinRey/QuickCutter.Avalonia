@@ -1,6 +1,6 @@
 ﻿using FFMpegCore;
 
-namespace QuickCutter_Avalonia.Mode
+namespace QuickCutter_Avalonia.Models
 {
     public class VideoInfo
     {

@@ -1,4 +1,4 @@
-﻿using QuickCutter_Avalonia.Mode;
+﻿using QuickCutter_Avalonia.Models;
 using System.IO;
 
 namespace QuickCutter_Avalonia.Handler

@@ -6,7 +6,7 @@
         xmlns:converters="using:QuickCutter_Avalonia.Converters"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:ms="using:QuickCutter_Avalonia.Mode"
+        xmlns:ms="using:QuickCutter_Avalonia.Models"
         xmlns:u="https://irihi.tech/ursa"
         xmlns:vlc="clr-namespace:LibVLCSharp.Avalonia;assembly=LibVLCSharp.Avalonia"
         xmlns:vm="using:QuickCutter_Avalonia.ViewModels"
@@ -383,7 +383,7 @@
                                     <DataTemplate x:DataType="ms:OutputFile">
                                         <MaskedTextBox Margin="2" Mask="00:00:00.00">
                                             <Interaction.Behaviors>
-                                                <behaviors:LostFocusUpdateBindingBehavior Text="{Binding Edit_InTime, Converter={StaticResource StringToTimeSpanConverter}}" />
+                                                <behaviors:LostFocusUpdateBindingBehavior Text="{Binding EditInTime, Converter={StaticResource StringToTimeSpanConverter}}" />
                                             </Interaction.Behaviors>
                                         </MaskedTextBox>
                                     </DataTemplate>
@@ -398,7 +398,7 @@
                                     <DataTemplate x:DataType="ms:OutputFile">
                                         <MaskedTextBox Margin="2" Mask="00:00:00.00">
                                             <Interaction.Behaviors>
-                                                <behaviors:LostFocusUpdateBindingBehavior Text="{Binding Edit_OutTime, Converter={StaticResource StringToTimeSpanConverter}}" />
+                                                <behaviors:LostFocusUpdateBindingBehavior Text="{Binding EditOutTime, Converter={StaticResource StringToTimeSpanConverter}}" />
                                             </Interaction.Behaviors>
                                         </MaskedTextBox>
                                     </DataTemplate>

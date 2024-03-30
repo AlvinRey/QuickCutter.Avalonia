@@ -8,7 +8,6 @@ using Avalonia.Styling;
 using DynamicData;
 using LibVLCSharp.Shared;
 using QuickCutter_Avalonia.Handler;
-using QuickCutter_Avalonia.Mode;
 using QuickCutter_Avalonia.Models;
 using QuickCutter_Avalonia.ViewModels;
 using System;

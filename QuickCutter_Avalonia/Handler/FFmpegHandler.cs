@@ -1,5 +1,5 @@
 ﻿using FFMpegCore;
-using QuickCutter_Avalonia.Mode;
+using QuickCutter_Avalonia.Models;
 using System.Linq;
 using System;
 using System.Threading.Tasks;

@@ -1,7 +1,7 @@
 ﻿using FFMpegCore;
 using FFMpegCore.Enums;
 using FFMpegCore.Exceptions;
-using QuickCutter_Avalonia.Mode;
+using QuickCutter_Avalonia.Models;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -306,7 +306,6 @@ namespace QuickCutter_Avalonia.Handler
         }
         static public Config GetConfig()
         {
-            Console.WriteLine("GetConfig");
             //if (_config is null) throw new InvalidOperationException("Config is Invalid.");
             if (_config is null)
             {

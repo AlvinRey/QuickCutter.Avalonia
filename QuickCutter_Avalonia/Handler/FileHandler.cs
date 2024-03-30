@@ -1,6 +1,7 @@
-﻿using Avalonia.Platform.Storage;
+﻿using System;
+using Avalonia.Platform.Storage;
 using FFMpegCore;
-using QuickCutter_Avalonia.Mode;
+using QuickCutter_Avalonia.Models;
 using ReactiveUI;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -43,8 +44,8 @@ namespace QuickCutter_Avalonia.Handler
                 Utils.SaveLog("ImportVideoFile: mStorageProvider is Null.");
                 return filesFullName.AsReadOnly();
             }
-
-            var files = await mStorageProvider.OpenFilePickerAsync(openOptions);
+            Console.WriteLine($"File picker called on tread {Environment.CurrentManagedThreadId}");
+            var files = await mStorageProvider.OpenFilePickerAsync(openOptions).ConfigureAwait(false);
 
             if (files.Count <= 0)
             {

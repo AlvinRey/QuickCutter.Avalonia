@@ -1,6 +1,6 @@
 ﻿using FFMpegCore;
 using FFMpegCore.Arguments;
-using QuickCutter_Avalonia.Mode;
+using QuickCutter_Avalonia.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -141,8 +141,8 @@ namespace QuickCutter_Avalonia.Handler
             bool hasSubtitleOutput = file.OutputSetting.selectedSubtitleOutputs.Count > 0;
             bool isBurnSubtitle = file.OutputSetting.isBurnSubtitle;
             bool? isTextTypeSubtitle = hasSubtitleOutput ? file.OutputSetting.selectedSubtitleOutputs.First().isTextType : null;
-            bool isSeek = file.Edit_InTime != TimeSpan.Zero;
-            bool isSeekend = file.Edit_OutTime != file.Default_OutTime;
+            bool isSeek = file.EditInTime != TimeSpan.Zero;
+            bool isSeekend = file.EditOutTime != file.DefaultOutTime;
             FFMpegArgumentProcessor ffmprocessor;
 
             FFMpegArguments ffmpegArgs = FFMpegArguments.FromFileInput(file.ParentFullName, true, options =>
@@ -150,7 +150,7 @@ namespace QuickCutter_Avalonia.Handler
                 options.WithArgument(new HideBannerArgument());
                 if (isSeek)
                 {
-                    options.WithArgument(new SeekSecondArgument(file.Edit_InTime.TotalSeconds));
+                    options.WithArgument(new SeekSecondArgument(file.EditInTime.TotalSeconds));
                     if (hasSubtitleOutput && isBurnSubtitle && isTextTypeSubtitle.HasValue && isTextTypeSubtitle.Value)
                     {
                         options.WithArgument(new CopyTimeSpanArgument());
@@ -165,7 +165,7 @@ namespace QuickCutter_Avalonia.Handler
                 {
                     if (isSeek)
                     {
-                        options.WithArgument(new SeekSecondArgument(file.Edit_InTime.TotalSeconds));
+                        options.WithArgument(new SeekSecondArgument(file.EditInTime.TotalSeconds));
                     }
                     SubtitleHardBurnOptions subtitleHardBurnOptions = SubtitleHardBurnOptions.Create(file.ParentFullName);
                     subtitleHardBurnOptions.SetSubtitleIndex(file.OutputSetting.selectedSubtitleOutputs.First().relativeStreamIndex);
@@ -218,7 +218,7 @@ namespace QuickCutter_Avalonia.Handler
                 // Seek end
                 if (isSeekend)
                 {
-                    TimeSpan duration = file.Edit_OutTime - file.Edit_InTime;
+                    TimeSpan duration = file.EditOutTime - file.EditInTime;
                     options.WithArgument(new EndSeekSecondArgument(duration.TotalSeconds));
                 }
             });

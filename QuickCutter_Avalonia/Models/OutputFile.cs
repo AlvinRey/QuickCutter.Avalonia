@@ -1,12 +1,12 @@
 ﻿using QuickCutter_Avalonia.Handler;
-using QuickCutter_Avalonia.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Disposables;
-namespace QuickCutter_Avalonia.Mode
+
+namespace QuickCutter_Avalonia.Models
 {
     public partial class OutputFile : ReactiveObject, IDisposable
     {
@@ -25,53 +25,53 @@ namespace QuickCutter_Avalonia.Mode
 
         public TimeSpan Duration { get; set; }
 
-        public TimeSpan Default_OutTime { get; }
+        public TimeSpan DefaultOutTime { get; }
 
         [Reactive]
-        public TimeSpan Edit_InTime { get; set; }
+        public TimeSpan EditInTime { get; set; }
 
         [Reactive]
-        public TimeSpan Edit_OutTime { get; set; }
+        public TimeSpan EditOutTime { get; set; }
 
         public OutputSetting OutputSetting { get; set; }
 
-        public OutputFile(InputMieda Parent)
+        public OutputFile(InputMieda parent)
         {
-            var edit_InTimeChanged = this.WhenAnyValue(v => v.Edit_InTime);
-            var edit_OutTimeChanged = this.WhenAnyValue(v => v.Edit_OutTime);
+            var editInTimeChanged = this.WhenAnyValue(v => v.EditInTime);
+            var editOutTimeChanged = this.WhenAnyValue(v => v.EditOutTime);
             _subscriptions = new CompositeDisposable
             {
-                edit_InTimeChanged.Subscribe(v =>
+                editInTimeChanged.Subscribe(v =>
                     {
                         if (v <= TimeSpan.Zero)
-                            Edit_InTime = TimeSpan.Zero;
-                        if (v >= Edit_OutTime)
-                            Edit_InTime = Edit_OutTime - TimeSpan.FromSeconds(1);
+                            EditInTime = TimeSpan.Zero;
+                        if (v >= EditOutTime)
+                            EditInTime = EditOutTime - TimeSpan.FromSeconds(1);
 
-                        Duration = (TimeSpan)(Edit_OutTime - Edit_InTime);
+                        Duration = (TimeSpan)(EditOutTime - EditInTime);
                     }),
-                edit_OutTimeChanged.Subscribe(v =>
+                editOutTimeChanged.Subscribe(v =>
                     {
-                        if (v <= Edit_InTime)
-                            Edit_OutTime = Edit_InTime + TimeSpan.FromSeconds(1);
-                        if (v >= Default_OutTime)
-                            Edit_OutTime = Default_OutTime;
-                        Duration = (TimeSpan)(Edit_OutTime - Edit_InTime);
+                        if (v <= EditInTime)
+                            EditOutTime = EditInTime + TimeSpan.FromSeconds(1);
+                        if (v >= DefaultOutTime)
+                            EditOutTime = DefaultOutTime;
+                        Duration = (TimeSpan)(EditOutTime - EditInTime);
                     })
             };
 
-            ReplayCommand = ReactiveCommand.Create(() => MediaPlayerHandler.Replay((long)Edit_InTime.TotalMilliseconds, (long)Edit_OutTime.TotalMilliseconds));
+            ReplayCommand = ReactiveCommand.Create(() => MediaPlayerHandler.Replay((long)EditInTime.TotalMilliseconds, (long)EditOutTime.TotalMilliseconds));
 
-            ParentFullName = Parent.MediaFullName;
+            ParentFullName = parent.MediaFullName;
 
             // File Name Setting
             string fileName = System.IO.Path.GetFileNameWithoutExtension(ParentFullName);
             OutputFileName = $"{fileName}_Output_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}.mp4";
 
             // Time Setting
-            Edit_InTime = TimeSpan.Zero;
-            Default_OutTime = Parent.Duration;
-            Edit_OutTime = Default_OutTime;
+            EditInTime = TimeSpan.Zero;
+            DefaultOutTime = parent.Duration;
+            EditOutTime = DefaultOutTime;
 
             OutputSetting = OutputSettingHandler.GenerateOutputSetting(ParentFullName);
             Debug.WriteLine($"{OutputFileName} has OutputSetting @ {OutputSetting.GetHashCode()}");

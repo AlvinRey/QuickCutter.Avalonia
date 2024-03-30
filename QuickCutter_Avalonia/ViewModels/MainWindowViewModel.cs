@@ -1,6 +1,5 @@
 ﻿using Avalonia.Controls;
 using QuickCutter_Avalonia.Handler;
-using QuickCutter_Avalonia.Mode;
 using QuickCutter_Avalonia.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -127,7 +126,7 @@ namespace QuickCutter_Avalonia.ViewModels
                 return;
             foreach (var file in SelectedOutputFiles)
             {
-                file.Edit_InTime = VlcMediaplayerViewModel.CurrentTime;
+                file.EditInTime = VlcMediaplayerViewModel.CurrentTime;
             }
         }
 
@@ -137,7 +136,7 @@ namespace QuickCutter_Avalonia.ViewModels
                 return;
             foreach (var file in SelectedOutputFiles)
             {
-                file.Edit_OutTime = VlcMediaplayerViewModel.CurrentTime;
+                file.EditOutTime = VlcMediaplayerViewModel.CurrentTime;
             }
         }
 
