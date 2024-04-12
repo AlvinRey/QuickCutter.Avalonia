@@ -9,9 +9,9 @@ using ReactiveUI;
 
 namespace QuickCutter_Avalonia.Handler
 {
-    internal class FFmpegHandler
+    internal static class FFmpegHandler
     {
-        static public void CheckFFmpegIsExist()
+        public static void CheckFFmpegIsExist()
         {
             // Try to find FFmpeg in Utils.GetFFmpegPath()
             if (File.Exists(Utils.GetFFmpegPath("ffmpeg.exe")) && File.Exists(Utils.GetFFmpegPath("ffprobe.exe")))
@@ -37,39 +37,36 @@ namespace QuickCutter_Avalonia.Handler
             throw new Exception($"Can not find ffmpeg.exe or ffprobe.exe in Environment PATH or in \"{Utils.GetFFmpegPath()}\"");
         }
 
-        static public async Task<IMediaAnalysis> AnaliysisMedia(string mediaFullName)
+        public static async Task<IMediaAnalysis> AnaliysisMedia(string mediaFullName)
         {
             return await FFProbe.AnalyseAsync(mediaFullName);
         }
 
-        static public string GetStreamName(MediaStream stream, int index)
+        public static string GetStreamName(MediaStream stream, int index)
         {
-            string title = string.Empty;
-            string language = string.Empty;
+            string? title = null;
+            string[] keyList = new[] { "title", "Title", "TITLE" };
 
-            if (stream.Tags.ContainsKey("title"))
+            if (stream.Tags is not null)
             {
-                title = stream.Tags["title"];
-            }
-            else if (stream.Tags.ContainsKey("Title"))
-            {
-                title = stream.Tags["Title"];
-            }
-            else if (stream.Tags.ContainsKey("TITLE"))
-            {
-                title = stream.Tags["TITLE"];
-            }
-            else
-            {
-                title = $"Track {index + 1}";
+                for (int i = 0; i < 3; i++)
+                {
+                    if(stream.Tags.TryGetValue(keyList[i], out title))
+                    {
+                        break;
+                    }
+                }
             }
 
-
+            if (string.IsNullOrEmpty(title))
+            {
+                title = $"Track " + (index + 1);
+            }
+            
             if (!string.IsNullOrEmpty(stream.Language))
             {
-                language = Utils.ISO639_2_Converter.ContainsKey(stream.Language) ? Utils.ISO639_2_Converter[stream.Language] : stream.Language;
-
-                title += $" - [{language}]";
+                Utils.ISO639_2_Converter.TryGetValue(stream.Language, out var language);
+                title += string.IsNullOrEmpty(language) ? string.Empty : " - [" + language + ']';
             }
             return title;
         }

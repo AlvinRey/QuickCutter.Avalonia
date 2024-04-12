@@ -308,7 +308,7 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" MinWidth="500" />
                 </Grid.ColumnDefinitions>
-                <Border Grid.Row="3"
+                <Border Grid.Column="0"
                         Padding="2"
                         Classes="Shadow"
                         Theme="{DynamicResource CardBorder}">

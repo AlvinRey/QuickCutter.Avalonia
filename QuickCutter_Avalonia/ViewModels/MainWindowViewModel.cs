@@ -14,7 +14,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Ursa.Controls;
-
+using Instances;
 namespace QuickCutter_Avalonia.ViewModels
 {
     public partial class MainWindowViewModel : ReactiveObject
@@ -33,8 +33,8 @@ namespace QuickCutter_Avalonia.ViewModels
 
         #region Output Data Grid
         public ObservableCollection<OutputFile> SelectedOutputFiles { get; set; }
-        [Reactive]
-        public OutputFile SelectedSingleOutputFile { get; set; }
+        [Reactive] public OutputFile? SelectedSingleOutputFile { get; set; }
+
         #endregion
 
         #region Output Setting
@@ -143,7 +143,7 @@ namespace QuickCutter_Avalonia.ViewModels
         async Task ImportViedoAsync()
         {
             var filesFullNames = await FileHandler.SelectFiles(FileHandler.SelectAllVideo);
-            var tasks = new List<Task>();
+            var tasks = new List<Task>(filesFullNames.Count);
             foreach (var fileFullName in filesFullNames) 
             {
                 tasks.Add(AnaliysisMediaAndImportAsync(fileFullName));

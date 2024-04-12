@@ -97,7 +97,7 @@ namespace QuickCutter_Avalonia.Handler
             while (!_hostedVlcMediaplayerViewModel.Player.IsPlaying && _hostedVlcMediaplayerViewModel.Player.Media != null)
             {
                 Console.WriteLine($"Wait for begin play on thread {Environment.CurrentManagedThreadId}");
-                await Task.Delay(25);
+                await Task.Delay(100);
             }
 
             if (_hostedVlcMediaplayerViewModel.Player.Media != null)

@@ -226,7 +226,7 @@ namespace QuickCutter_Avalonia.Handler
             return ffmprocessor;
         }
 
-        async static public Task ExecuteFFmpeg(string exportDirectory, List<OutputFile> outputFiles, Action<string> notifyProcessingFileName, Action<double> notifyProgressPercentage)
+        public static async Task ExecuteFFmpeg(string exportDirectory, List<OutputFile> outputFiles, Action<string> notifyProcessingFileName, Action<double> notifyProgressPercentage)
         {
             FFMpegArgumentProcessor processor;
 

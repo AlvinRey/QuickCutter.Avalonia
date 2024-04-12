@@ -14,7 +14,8 @@ namespace QuickCutter_Avalonia.Models
 {
     public partial class InputMieda : ReactiveObject
     {
-        public IMediaAnalysis InputMediaAnalysisResult { get; private set; }
+        public IMediaAnalysis? InputMediaAnalysisResult { get; private set; }
+        
         [Reactive]
         public string MediaFullName { get; private set; }
 
@@ -85,14 +86,14 @@ namespace QuickCutter_Avalonia.Models
                     int index = 0;
                     foreach (var subtitle in InputMediaAnalysisResult.SubtitleStreams)
                     {
-                        if (Utils.SubtitleTypeConverter.ContainsKey(subtitle.CodecName))
+                        if (Utils.SubtitleTypeConverter.TryGetValue(subtitle.CodecName, out var supportedTextType))
                         {
                             subtitleStreams.Add(new SubtitleStreamOriginalInfo()
                             {
                                 name = FFmpegHandler.GetStreamName(subtitle, index),
                                 absoluteStreamIndex = subtitle.Index,
                                 relativeStreamIndex = index,
-                                isTextType = Utils.SubtitleTypeConverter[subtitle.CodecName],
+                                isTextType = supportedTextType
                             });
                         }
                         index++;

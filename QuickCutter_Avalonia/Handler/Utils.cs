@@ -13,10 +13,10 @@ using System.Text.Json;
 
 namespace QuickCutter_Avalonia.Handler
 {
-    internal class Utils
+    internal static class Utils
     {
-        static public Dictionary<string, string> ISO639_2_Converter { get; }
-            = new Dictionary<string, string>()
+        public static Dictionary<string, string> ISO639_2_Converter { get; }
+            = new Dictionary<string, string>(29)
             {
                 {"jpn", "Japanese"},
                 {"eng", "English"},
@@ -52,8 +52,8 @@ namespace QuickCutter_Avalonia.Handler
         /// <summary>
         /// true if subtitle type is text, false if subtitle type is bit map
         /// </summary>
-        static public Dictionary<string, bool> SubtitleTypeConverter { get; }
-            = new Dictionary<string, bool>()
+        public static Dictionary<string, bool> SubtitleTypeConverter { get; }
+            = new Dictionary<string, bool>(20)
             {
                 {"dvb_subtitle", false},
                 {"dvd_subtitle", false},

@@ -13,6 +13,7 @@ namespace QuickCutter_Avalonia.ViewModels
 {
     public class VlcMediaplayerViewModel : ReactiveObject
     {
+        private const double Tolerance = 0.0001;
         public MediaPlayer Player { get; set; }
         private float _position;
         public float Position 
@@ -21,7 +22,7 @@ namespace QuickCutter_Avalonia.ViewModels
             set 
             { 
                 this.RaiseAndSetIfChanged(ref _position, value, nameof(Position));
-                if(_position != Player.Position)
+                if(Math.Abs(_position - Player.Position) > Tolerance)
                     Player.Position = value;
             }
         }
@@ -88,7 +89,7 @@ namespace QuickCutter_Avalonia.ViewModels
             MediaPlayerHandler.InitMediaPlayer(this);
             ForwardCommand = ReactiveCommand.Create(
                 () => MediaPlayerHandler.MoveForward(config.moveStep * 1000));
-
+            
             BackwardCommand = ReactiveCommand.Create(
                 () => MediaPlayerHandler.MoveBackward(config.moveStep * 1000));
         }
