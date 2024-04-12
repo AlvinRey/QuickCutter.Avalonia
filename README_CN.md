@@ -1,4 +1,4 @@
-[中文](https://github.com/AlvinRey/QuickCutter.Avalonia/blob/main/README_CN.md) | [English](https://github.com/AlvinRey/QuickCutter.Avalonia/blob/main/README.md)
+[English](https://github.com/AlvinRey/QuickCutter.Avalonia/blob/main/README.md) | 中文
 # QuickCutter
 QuickCutter 是一款基于FFmpeg的GUI工具箱，旨在为非专业剪辑用户提供一个简单易用的剪切视频工具。
 在很多情况下，用户并不需要专业剪辑软件中的大部分功能，只想要快速地将视频中的一些部分剪切出来，不想要大量的时间对视频进行重新编码。比如，直播切片，游戏素材的筛选等。
