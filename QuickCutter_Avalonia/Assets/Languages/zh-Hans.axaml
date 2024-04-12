@@ -12,6 +12,7 @@
     <system:String x:Key="Localization.ButtonText.Select">选择</system:String>
     <system:String x:Key="Localization.ButtonText.SelectAll">全选</system:String>
     <system:String x:Key="Localization.ButtonText.UnselectAll">全不选</system:String>
+    <system:String x:Key="Localization.ButtonText.UseNetworkOptimization">使用网络优化</system:String>
     <!--  Text  -->
     <system:String x:Key="Localization.AudioTrackText">音轨:</system:String>
     <system:String x:Key="Localization.SubtitleTrackText">字幕:</system:String>

@@ -7,32 +7,13 @@ using System.Linq;
 
 namespace QuickCutter_Avalonia.Handler
 {
-    internal class OutputSettingHandler
+    internal static class OutputSettingHandler
     {
-        static public List<string> VideoCodecs
-            = new List<string>()
-            {
-                "Copy",
-                "Libx264",
-                "Libx265",
-            };
-        static public List<Speed> SpeedPresets = Enum.GetValues(typeof(Speed)).Cast<Speed>().ToList();
-        public static Dictionary<string, List<AudioStreamOriginalInfo>> AudioStreamDictonary = new Dictionary<string, List<AudioStreamOriginalInfo>>();
-        static public List<string> AudioCodecs
-            = new List<string>()
-            {
-                "Copy",
-                "aac",
-                "ac3",
-                "eac3",
-                "mp3",
-                "flac",
-                "opus",
-                "vorbis",
-            };
-
-        public static Dictionary<string, List<SubtitleStreamOriginalInfo>> SubtitleStreamDictonary = new Dictionary<string, List<SubtitleStreamOriginalInfo>>();
-
+        public static List<string> VideoCodecs => ["Copy", "Libx264", "Libx265"];
+        //public static List<string> AudioCodecs => ["Copy", "aac", "ac3", "eac3", "mp3", "flac", "opus", "vorbis"];
+        public static List<Speed> SpeedPresets = Enum.GetValues(typeof(Speed)).Cast<Speed>().ToList();
+        public static Dictionary<string, List<AudioStreamOriginalInfo>> AudioStreamDictonary = new ();
+        public static Dictionary<string, List<SubtitleStreamOriginalInfo>> SubtitleStreamDictonary = new ();
 
         public static OutputSetting GenerateOutputSetting(string parentFullName)
         {
@@ -41,12 +22,13 @@ namespace QuickCutter_Avalonia.Handler
                 key = parentFullName,
                 videoSetting = new VideoSetting()
                 {
+                    useNetworkOptimization = false,
                     selectedVideoCodec = VideoCodecs.First(),
                     selectedSpeedPreset = SpeedPresets[3],
                     constantRateFactor = 23
                 },
-                selectedAudioOutputs = new List<AudioStreamOriginalInfo>(),
-                selectedSubtitleOutputs = new List<SubtitleStreamOriginalInfo>()
+                selectedAudioOutputs = new (),
+                selectedSubtitleOutputs = new ()
             };
             return outputSetting;
         }

@@ -10,7 +10,7 @@ namespace QuickCutter_Avalonia.Models
     public struct VideoSetting
     {
         public string selectedVideoCodec;
-
+        public bool useNetworkOptimization;
         //H.264 AVOptions
         public Speed selectedSpeedPreset;
         public int constantRateFactor;

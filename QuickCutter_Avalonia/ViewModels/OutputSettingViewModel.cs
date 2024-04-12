@@ -32,11 +32,26 @@ namespace QuickCutter_Avalonia.ViewModels
             set
             {
                 if (_outputSetting is null) return;
-                this.RaiseAndSetIfChanged(ref _outputSetting.videoSetting.selectedVideoCodec, value, nameof(SelectedVideoCodec));
+                this.RaiseAndSetIfChanged(ref _outputSetting.videoSetting.selectedVideoCodec, value, 
+                    nameof(SelectedVideoCodec));
                 OnCodecChanged(value);
             }
         }
 
+        public bool UseNetworkOptimization
+        {
+            get
+            {
+                if (_outputSetting is null) return false;
+                return _outputSetting.videoSetting.useNetworkOptimization;
+            }
+            set
+            {
+                if(_outputSetting is null) return;
+                this.RaiseAndSetIfChanged(ref _outputSetting.videoSetting.useNetworkOptimization, value,
+                    nameof(UseNetworkOptimization));
+            }
+        }
         // Codec - H.264
         [Reactive]
         public bool UseH264 { get; set; } = false;
@@ -167,6 +182,7 @@ namespace QuickCutter_Avalonia.ViewModels
         private void RefreshDisplay()
         {
             this.RaisePropertyChanged(nameof(SelectedVideoCodec));
+            this.RaisePropertyChanged(nameof(UseNetworkOptimization));
             this.RaisePropertyChanged(nameof(SelectedSpeedPreset));
             this.RaisePropertyChanged(nameof(ConstantRateFactor));
             this.RaisePropertyChanged(nameof(HasAudio));

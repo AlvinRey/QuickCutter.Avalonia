@@ -429,6 +429,8 @@
                                                   ItemsSource="{Binding OutputSettingVm.VideoCodecOptions}"
                                                   SelectedItem="{Binding OutputSettingVm.SelectedVideoCodec}" />
                                     </StackPanel>
+                                    <CheckBox IsChecked="{Binding OutputSettingVm.UseNetworkOptimization}" 
+                                              Content="{DynamicResource Localization.ButtonText.UseNetworkOptimization}"/>
                                     <Grid Name="H264AVOptions"
                                           ColumnDefinitions="Auto,50,*"
                                           IsVisible="{Binding OutputSettingVm.UseH264}"

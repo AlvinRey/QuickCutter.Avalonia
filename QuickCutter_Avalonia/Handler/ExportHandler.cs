@@ -128,14 +128,14 @@ namespace QuickCutter_Avalonia.Handler
 
     internal class ExportHandler
     {
-        static private Action? mCencelAction;
+        private static Action? _cencelAction;
 
-        static public void CencelExport()
+        public static void CencelExport()
         {
-            mCencelAction?.Invoke();
+            _cencelAction?.Invoke();
         }
 
-        static private FFMpegArgumentProcessor GenerateProcessor(string exportDirectory, OutputFile file)
+        private static FFMpegArgumentProcessor GenerateProcessor(string exportDirectory, OutputFile file)
         {
             bool hasAudioOutput = file.OutputSetting.selectedAudioOutputs.Count > 0;
             bool hasSubtitleOutput = file.OutputSetting.selectedSubtitleOutputs.Count > 0;
@@ -143,6 +143,7 @@ namespace QuickCutter_Avalonia.Handler
             bool? isTextTypeSubtitle = hasSubtitleOutput ? file.OutputSetting.selectedSubtitleOutputs.First().isTextType : null;
             bool isSeek = file.EditInTime != TimeSpan.Zero;
             bool isSeekend = file.EditOutTime != file.DefaultOutTime;
+            bool useNetworkOptimization = file.OutputSetting.videoSetting.useNetworkOptimization;
             FFMpegArgumentProcessor ffmprocessor;
 
             FFMpegArguments ffmpegArgs = FFMpegArguments.FromFileInput(file.ParentFullName, true, options =>
@@ -221,6 +222,11 @@ namespace QuickCutter_Avalonia.Handler
                     TimeSpan duration = file.EditOutTime - file.EditInTime;
                     options.WithArgument(new EndSeekSecondArgument(duration.TotalSeconds));
                 }
+
+                if (useNetworkOptimization)
+                {
+                    options.WithFastStart();
+                }
             });
 
             return ffmprocessor;
@@ -235,7 +241,7 @@ namespace QuickCutter_Avalonia.Handler
                 processor = GenerateProcessor(exportDirectory, file);
 
                 processor.NotifyOnProgress(notifyProgressPercentage, file.Duration)
-                         .CancellableThrough(out mCencelAction, 0);
+                         .CancellableThrough(out _cencelAction, 0);
 
                 notifyProcessingFileName($"{file.OutputFileName}");
                 notifyProgressPercentage(0.0);

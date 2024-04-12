@@ -19,6 +19,7 @@ namespace QuickCutter_Avalonia.ViewModels
 {
     public partial class MainWindowViewModel : ReactiveObject
     {
+        private HashSet<string> _importedFiles = new();
         #region Project List
         public ObservableCollection<InputMieda> SelectedProjects { get; set; }
         public ObservableCollection<InputMieda> Projects { get; }
@@ -111,7 +112,6 @@ namespace QuickCutter_Avalonia.ViewModels
             {
                 if (SelectedOutputFiles.Count == 1)
                 {
-                    Debug.WriteLine($"Load OutputSetting @ {SelectedOutputFiles.First().OutputSetting.GetHashCode()}");
                     OutputSettingVm.LoadDisplayOutputSetting(SelectedOutputFiles.First().OutputSetting);
                 }
                 else
@@ -146,6 +146,8 @@ namespace QuickCutter_Avalonia.ViewModels
             var tasks = new List<Task>(filesFullNames.Count);
             foreach (var fileFullName in filesFullNames) 
             {
+                if(_importedFiles.Contains(fileFullName)) continue;
+                _importedFiles.Add(fileFullName);
                 tasks.Add(AnaliysisMediaAndImportAsync(fileFullName));
             }
             await Task.WhenAll(tasks);
@@ -161,7 +163,6 @@ namespace QuickCutter_Avalonia.ViewModels
 
         async Task ExportOutputFilesAsync()
         {
-            Debug.WriteLine($"ExportOutputFilesAsync() runs on Thread {Environment.CurrentManagedThreadId}");
             string folderFullName = await FileHandler.SelectExportFolder();
             if (string.IsNullOrEmpty(folderFullName))
                 return;
@@ -173,7 +174,6 @@ namespace QuickCutter_Avalonia.ViewModels
                 .Await(() => IsExporting = false, e => 
                 { 
                     IsExporting = false; 
-                    Debug.WriteLine(e.Message); 
                     Utils.SaveLog(e.Message); 
                     foreach (var output in outputList)
                     {

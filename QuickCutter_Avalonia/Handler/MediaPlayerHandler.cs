@@ -39,7 +39,6 @@ namespace QuickCutter_Avalonia.Handler
                 .Select(_ => _hostedVlcMediaplayerViewModel.Player.State);
         public static void InitMediaPlayer(VlcMediaplayerViewModel vlcMediaplayerViewModel)
         {
-            Console.WriteLine($"Media player init on tread {Environment.CurrentManagedThreadId}");
             _hostedVlcMediaplayerViewModel = vlcMediaplayerViewModel;
             _libVlc = new LibVLC("--freetype-rel-fontsize=25");
             _hostedVlcMediaplayerViewModel.Player = new MediaPlayer(_libVlc);
@@ -71,7 +70,6 @@ namespace QuickCutter_Avalonia.Handler
                 durationChanged.Subscribe(_ => _hostedVlcMediaplayerViewModel.UpdateUiDuration()),
                 stateChanged.Subscribe(state =>
                 {
-                    Console.WriteLine($"Current State [{state}] @ tread {Environment.CurrentManagedThreadId}");
                     switch (state)
                     {
                         case VLCState.Playing:
@@ -92,11 +90,10 @@ namespace QuickCutter_Avalonia.Handler
         // This methods let you to do this operation when the video is playing.
         private static async void ReadyForPlay(Action action, bool pauseAfterAction = true)
         {
-            _canUpdateUi = false;
+            //_canUpdateUi = false;
             _hostedVlcMediaplayerViewModel.Player.Play();
             while (!_hostedVlcMediaplayerViewModel.Player.IsPlaying && _hostedVlcMediaplayerViewModel.Player.Media != null)
             {
-                Console.WriteLine($"Wait for begin play on thread {Environment.CurrentManagedThreadId}");
                 await Task.Delay(100);
             }
 
@@ -107,7 +104,7 @@ namespace QuickCutter_Avalonia.Handler
                     _hostedVlcMediaplayerViewModel.Player.Pause();
             }
 
-            _canUpdateUi = true;
+            //_canUpdateUi = true;
         }
 
         public static void DisposeMediaPlayerHandler()
@@ -129,13 +126,11 @@ namespace QuickCutter_Avalonia.Handler
 
         private static void ReloadMedia()
         {
-            Console.WriteLine($"ReloadMedia() Called on Thread {Environment.CurrentManagedThreadId}");
-
             _hostedVlcMediaplayerViewModel.Player.Stop();
             ReadyForPlay(() =>
             {
                 _hostedVlcMediaplayerViewModel.Player.SeekTo(TimeSpan.Zero);
-            }, !Utils.GetConfig().loopPlayback);
+            }, Utils.GetConfig().loopPlayback);
         }
 
         public static void ResetMediaPlayer()
@@ -148,7 +143,6 @@ namespace QuickCutter_Avalonia.Handler
 
         public static void TogglePlay()
         {
-            Console.WriteLine($"TogglePlayOrPause Called on Tread {Environment.CurrentManagedThreadId}");
             switch (_hostedVlcMediaplayerViewModel.Player.State)
             {
                 case VLCState.Playing:
